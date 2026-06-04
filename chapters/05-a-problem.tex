@@ -1,0 +1,1496 @@
+\chapter{A 题决策树与高频模板}
+
+\section{A 题定位}
+
+A 题通常不是为了考很深的算法，而是考你能否准确读题、正确实现、处理边界、按格式输出。对新手来说，A 题最重要的不是写得快，而是写得稳。
+
+\begin{itemize}
+  \item 建议目标时间：20--35 分钟。
+  \item 最大容忍时间：45 分钟。超过后仍无法通过样例，应先转下一题。
+  \item 目标分数：100 分。
+  \item 核心原则：先正确，再简洁；先样例，再边界。
+\end{itemize}
+
+\Warn{A 题最大敌人不是算法，而是低级错误。}常见低级错误包括输出格式错、下标错、整数溢出、没读完整输入、把题意中的“包含/不包含”看反。
+
+\section{A 题开题流程}
+
+每道 A 题按下面顺序处理，不要直接看完第一段就开始写。
+
+\begin{enumerate}
+  \item 看输入格式：有几个数、几行、是否有字符串、是否有多组。
+  \item 看输出格式：输出一个数、一行多个数、字符串、小数、是否有特殊提示。
+  \item 看数据范围：是否需要 \Code{long long}，数组要开多大。
+  \item 判断题型：统计、公式、排序、字符串、日期、进制、简单模拟。
+  \item 在草稿纸上写 1 到 2 个极端样例。
+  \item 写代码。
+  \item 过样例后，测试边界。
+\end{enumerate}
+
+\section{A 题读题标注法}
+
+新手做 A 题时，最容易出现“感觉看懂了，但代码写偏了”。建议在草稿纸上用固定格式标注。
+
+\subsection{读题时必须圈出的信息}
+
+\begin{longtable}{p{3.5cm}p{5cm}p{5.5cm}}
+\toprule
+要圈的信息 & 为什么重要 & 例子 \\
+\midrule
+输入数量 & 决定循环次数 & 读 $n$ 个数、读 $n$ 行、读到 EOF。 \\
+数据范围 & 决定数组大小和复杂度 & $n \le 10^5$ 时不要双重循环。 \\
+数值范围 & 决定是否用 \Code{long long} & 每个数 $10^9$，总和可能溢出。 \\
+下标规则 & 决定 0 下标或 1 下标 & 第 1 个、第 $i$ 个、编号从 0 开始。 \\
+区间端点 & 决定是否包含端点 & $[l,r]$、$(l,r)$、从 $l$ 到 $r$。 \\
+输出格式 & 决定空格、换行、小数位 & 输出 YES，保留 2 位小数。 \\
+特殊情况 & 决定是否特判 & 无解、相等、为空、越界、最后一天。 \\
+\bottomrule
+\end{longtable}
+
+\subsection{草稿纸模板}
+
+做题前写 6 行：
+
+\begin{lstlisting}
+Input:
+Output:
+n range:
+value range:
+Need long long? yes/no
+Type: statistic / formula / sort / string / date / base / simulate
+\end{lstlisting}
+
+示例：
+
+\begin{lstlisting}
+Input: n, then n integers
+Output: sum and max
+n range: 1e5
+value range: 1e9
+Need long long? yes
+Type: statistic
+\end{lstlisting}
+
+\subsection{样例手算方法}
+
+样例不是只拿来跑程序的。写代码前先手算一遍：
+
+\begin{enumerate}
+  \item 把输入拆成变量。
+  \item 按题目规则一步一步算。
+  \item 写出中间结果。
+  \item 对比样例输出。
+\end{enumerate}
+
+如果你手算不出样例，就不要急着写代码。A 题手算不清，代码大概率也会写偏。
+
+\section{A 题总决策树}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+题面信号 & 优先判断为 & 去看 \\
+\midrule
+求和、平均、最大、最小、计数 & 简单统计 & 本章“统计模板” \\
+根据公式算一个值 & 公式题 & 本章“公式题检查” \\
+要求排序、排名、第几名 & 排序题 & 第二章 sort；本章“排序排名” \\
+出现字符、字符串、单词、大小写 & 字符串题 & 第二章 string；本章“字符串处理” \\
+出现二进制、十六进制、进制转换 & 进制题 & 本章“进制处理” \\
+出现日期、时间、星期、天数 & 日期时间题 & 本章“日期时间” \\
+出现坐标、网格、方向移动 & 简单模拟或网格模拟 & 本章“简单模拟” \\
+出现百分比、保留小数、四舍五入 & 小数输出题 & 第二章小数输出 \\
+出现区间但数据很小 & 暴力枚举或前缀和 & 本章“区间入门” \\
+出现重复统计、出现次数 & 计数数组或 map & 第二章 map；本章“频率统计” \\
+\bottomrule
+\end{longtable}
+
+\section{A 题关键词到动作}
+
+这张表用于读题时快速决定下一步。每一行都应该能从题面直接判断。
+
+\begin{longtable}{p{3.5cm}p{4.3cm}p{6.2cm}}
+\toprule
+你看到 & 立刻做什么 & 小心什么 \\
+\midrule
+“共 $n$ 个” & 开数组或 \Code{vector}，循环 $n$ 次 & 循环是 \Code{i < n} 还是 \Code{i <= n}。 \\
+“编号从 1 到 n” & 优先开 \Code{n+1}，按 1 下标写 & 不要访问 \Code{a[0]}。 \\
+“第 k 个” & 注意 $k$ 是 1 下标 & \Code{a[k-1]} 或排序后 \Code{a[k-1]}。 \\
+“最大/最小” & 一遍扫描或排序 & 全负数时最大值不能初始化 0。 \\
+“总和/累计” & 答案用 \Code{long long} & \Code{int} 乘法先溢出。 \\
+“平均” & 判断输出整数还是小数 & 整数除法会截断。 \\
+“每 k 个一组”“分成若干页” & 正整数向上取整 & 只在 $a \ge 0,b>0$ 时用 \Code{(a+b-1)/b}。 \\
+“保留 x 位” & 用 \Code{fixed << setprecision(x)} & 是否四舍五入由输出库自动处理。 \\
+“升序/降序” & 使用 \Code{sort} & 降序可用 \Code{greater<int>()}。 \\
+“相同则按...” & 写完整比较器 & 相等时不能返回 \Code{true}。 \\
+“字符串可能含空格” & 使用 \Code{getline} & 前面用过 \Code{cin} 要 \Code{ignore}。 \\
+“统计出现次数” & 值域小用数组，值域大用 \Code{map} & 是否要求有序输出。 \\
+“判断是否存在” & 用 \Code{set/count} 或排序后二分 & 找不到时不要解引用迭代器。 \\
+“日期” & 写闰年、每月天数 & 2 月和跨年。 \\
+“进制” & 先判断是否超过 \Code{long long} & 大数不能 \Code{stoll}。 \\
+“区间 [l,r]” & 看有多少次查询 & 多次查询考虑前缀和。 \\
+\bottomrule
+\end{longtable}
+
+\section{A 题数据范围判断}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+看到的数据范围 & 含义 & 建议 \\
+\midrule
+$n \le 100$ & 很小 & 直接模拟或双重循环通常可行。 \\
+$n \le 1000$ & 小到中等 & $O(n^2)$ 通常可试。 \\
+$n \le 10^5$ & 常见大数组 & 需要 $O(n)$ 或 $O(n\log n)$，不要双重循环。 \\
+数值 $\le 10^9$ & 单个数可放 int & 但加法和乘法可能要 \Code{long long}。 \\
+乘积、总和、答案可能很大 & 有溢出风险 & 默认用 \Code{long long}。 \\
+字符串长度很大 & 不能频繁插入删除 & 用线性扫描。 \\
+\bottomrule
+\end{longtable}
+
+\section{A 题常见输入形态}
+
+\subsection{输入一个数}
+
+\begin{lstlisting}
+int x;
+cin >> x;
+cout << x << '\n';
+\end{lstlisting}
+
+\subsection{输入两个或多个数}
+
+\begin{lstlisting}
+int a, b, c;
+cin >> a >> b >> c;
+cout << a + b + c << '\n';
+\end{lstlisting}
+
+\subsection{输入 n 个数}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> a(n);
+for (int i = 0; i < n; i++) {
+    cin >> a[i];
+}
+\end{lstlisting}
+
+\subsection{输入 n 行记录}
+
+例如每行一个学生的编号和成绩：
+
+\begin{lstlisting}
+struct Student {
+    int id;
+    int score;
+};
+
+int n;
+cin >> n;
+vector<Student> a(n);
+for (int i = 0; i < n; i++) {
+    cin >> a[i].id >> a[i].score;
+}
+\end{lstlisting}
+
+\subsection{输入 n 行字符串}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<string> s(n);
+for (int i = 0; i < n; i++) {
+    cin >> s[i];
+}
+\end{lstlisting}
+
+\subsection{读到文件结束}
+
+\begin{lstlisting}
+int x;
+while (cin >> x) {
+    // process x
+}
+\end{lstlisting}
+
+\Warn{题目没有说有 T 组数据时，不要自己加 T。}
+
+\section{简单统计}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 求总和、平均数。
+  \item 统计满足条件的个数。
+  \item 找最大值、最小值。
+  \item 统计正数、负数、奇数、偶数。
+  \item 统计超过某个阈值的元素。
+\end{itemize}
+
+\subsection{一遍扫描模板}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+
+long long sum = 0;
+int cnt = 0;
+int mx = -1000000000;
+int mn = 1000000000;
+
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    sum += x;
+    if (x > mx) mx = x;
+    if (x < mn) mn = x;
+    if (x % 2 == 0) cnt++;
+}
+
+cout << sum << ' ' << mx << ' ' << mn << ' ' << cnt << '\n';
+\end{lstlisting}
+
+\subsection{注意事项}
+
+\begin{itemize}
+  \item 求和变量用 \Code{long long}。
+  \item 最大值、最小值初始值要足够小或足够大。
+  \item 如果数据可能全是负数，最大值不能初始化为 0。
+  \item 平均数如果要小数，使用 \Code{double} 或输出时转换。
+\end{itemize}
+
+\subsection{统计满足条件的个数}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+int cnt = 0;
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    if (x >= 60) {
+        cnt++;
+    }
+}
+cout << cnt << '\n';
+\end{lstlisting}
+
+\subsection{同时统计多个类别}
+
+例如统计正数、负数、零：
+
+\begin{lstlisting}
+int n;
+cin >> n;
+int pos = 0, neg = 0, zero = 0;
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    if (x > 0) pos++;
+    else if (x < 0) neg++;
+    else zero++;
+}
+cout << pos << ' ' << neg << ' ' << zero << '\n';
+\end{lstlisting}
+
+\subsection{找最大值的位置}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> a(n);
+for (int i = 0; i < n; i++) cin >> a[i];
+
+int bestPos = 0;
+for (int i = 1; i < n; i++) {
+    if (a[i] > a[bestPos]) {
+        bestPos = i;
+    }
+}
+cout << bestPos << ' ' << a[bestPos] << '\n';
+\end{lstlisting}
+
+如果题目说“第几个”，通常要输出 \Code{bestPos + 1}。
+
+\subsection{计数数组}
+
+当值域很小，例如分数在 $0$ 到 $100$：
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> cnt(101, 0);
+for (int i = 0; i < n; i++) {
+    int score;
+    cin >> score;
+    cnt[score]++;
+}
+
+for (int s = 0; s <= 100; s++) {
+    if (cnt[s] > 0) {
+        cout << s << ' ' << cnt[s] << '\n';
+    }
+}
+\end{lstlisting}
+
+\Warn{计数数组前提：}数值不能是很大的 $10^9$，也不能是负数，除非你做了偏移。
+
+\section{存在、全部、任意判断}
+
+A 题常见问法：
+
+\begin{itemize}
+  \item 是否存在一个数满足条件。
+  \item 是否所有数都满足条件。
+  \item 是否至少有一个字符串包含某内容。
+  \item 是否没有任何违规情况。
+\end{itemize}
+
+\subsection{判断是否存在}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+bool found = false;
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    if (x == 0) {
+        found = true;
+    }
+}
+
+cout << (found ? "YES" : "NO") << '\n';
+\end{lstlisting}
+
+\subsection{判断是否全部满足}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+bool ok = true;
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    if (x < 60) {
+        ok = false;
+    }
+}
+
+cout << (ok ? "YES" : "NO") << '\n';
+\end{lstlisting}
+
+\subsection{提前结束}
+
+如果后面的输入还必须读完，不要随便 \Code{break}。除非你确定后续数据不需要再读，或者已经读完本组数据。
+
+\begin{lstlisting}
+bool found = false;
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    if (x == target) {
+        found = true;
+    }
+}
+\end{lstlisting}
+
+\Warn{新手建议：}A 题中先不要为了省时间提前 \Code{break}，完整读入更稳。
+
+\section{公式题}
+
+\subsection{识别信号}
+
+题面给出明确计算规则，例如：
+
+\begin{itemize}
+  \item 根据若干输入计算费用、得分、距离、面积。
+  \item 分段收费。
+  \item 按比例、百分比、折扣计算。
+  \item 对结果取整、向上取整、向下取整。
+\end{itemize}
+
+\subsection{公式题流程}
+
+\begin{enumerate}
+  \item 先在草稿纸上写出数学式。
+  \item 判断每个中间变量是否可能溢出。
+  \item 判断除法是整数除法还是小数除法。
+  \item 判断是否需要四舍五入、向上取整、向下取整。
+  \item 用样例手算一遍。
+\end{enumerate}
+
+\subsection{整数除法和取整}
+
+公式题中最容易错的是“除法到底按什么规则取整”。先分清三种情况：
+
+\begin{longtable}{p{4cm}p{4.8cm}p{5.2cm}}
+\toprule
+题目要求 & 常用写法 & 适用条件 \\
+\midrule
+普通整数除法，向 0 截断 & \Code{a / b} & C++ 默认规则，负数时不是向下取整。 \\
+正整数向上取整 & \Code{(a + b - 1) / b} & 只适合 $a \ge 0, b > 0$。 \\
+数学意义向下/向上取整 & 使用 \Code{floor\_div} / \Code{ceil\_div} & 适合可能出现负数的公式。 \\
+\bottomrule
+\end{longtable}
+
+正整数向上取整最常见，例如 $a$ 个物品每组放 $b$ 个：
+
+\begin{lstlisting}
+long long ceil_div_positive(long long a, long long b) {
+    return (a + b - 1) / b;
+}
+\end{lstlisting}
+
+若 $a$ 可能为负，或题目明确要求数学意义的向下/向上取整，使用通用写法：
+
+\begin{lstlisting}
+long long floor_div(long long a, long long b) {
+    long long q = a / b;
+    long long r = a % b;
+    if (r != 0 && ((r > 0) != (b > 0))) q--;
+    return q;
+}
+
+long long ceil_div(long long a, long long b) {
+    long long q = a / b;
+    long long r = a % b;
+    if (r != 0 && ((r > 0) == (b > 0))) q++;
+    return q;
+}
+\end{lstlisting}
+
+\Warn{不要随便用浮点数做整数取整题。}如果题目全是整数，通常可以用整数公式避免误差；特别是数值接近 $10^{18}$ 时，\Code{double} 可能无法精确表示每一个整数。
+
+\subsection{分段计算模板}
+
+\begin{lstlisting}
+int x;
+cin >> x;
+
+int ans = 0;
+if (x <= 10) {
+    ans = x * 2;
+} else if (x <= 20) {
+    ans = 10 * 2 + (x - 10) * 3;
+} else {
+    ans = 10 * 2 + 10 * 3 + (x - 20) * 5;
+}
+
+cout << ans << '\n';
+\end{lstlisting}
+
+注意：
+
+\begin{itemize}
+  \item 边界是 \Code{<=} 还是 \Code{<}。
+  \item 每一段是否包含端点。
+  \item 前面几段的费用是否已经累计。
+\end{itemize}
+
+\subsection{分类讨论模板}
+
+A 题经常给出若干规则，按条件输出不同结果。
+
+\begin{lstlisting}
+int x;
+cin >> x;
+
+if (x < 0) {
+    cout << "negative\n";
+} else if (x == 0) {
+    cout << "zero\n";
+} else {
+    cout << "positive\n";
+}
+\end{lstlisting}
+
+分类讨论检查：
+
+\begin{itemize}
+  \item 条件是否覆盖所有情况。
+  \item 条件顺序是否正确。
+  \item 边界值属于哪一类。
+  \item 是否存在重叠条件。
+\end{itemize}
+
+\subsection{绝对值和距离}
+
+\begin{lstlisting}
+int a, b;
+cin >> a >> b;
+cout << abs(a - b) << '\n';
+\end{lstlisting}
+
+如果 $a,b$ 很大：
+
+\begin{lstlisting}
+long long a, b;
+cin >> a >> b;
+cout << llabs(a - b) << '\n';
+\end{lstlisting}
+
+\subsection{取模}
+
+\begin{lstlisting}
+long long ans = 0;
+const long long MOD = 1000000007;
+ans = (ans + x) % MOD;
+ans = ans * y % MOD;
+\end{lstlisting}
+
+如果可能出现负数：
+
+\begin{lstlisting}
+long long r = x % MOD;
+if (r < 0) r += MOD;
+\end{lstlisting}
+
+\subsection{小数和百分比}
+
+保留小数：
+
+\begin{lstlisting}
+double x;
+cin >> x;
+cout << fixed << setprecision(2) << x << '\n';
+\end{lstlisting}
+
+整数转百分比：
+
+\begin{lstlisting}
+int good, total;
+cin >> good >> total;
+double rate = 100.0 * good / total;
+cout << fixed << setprecision(2) << rate << "%\n";
+\end{lstlisting}
+
+平均数：
+
+\begin{lstlisting}
+long long sum = 0;
+int n;
+cin >> n;
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    sum += x;
+}
+double avg = 1.0 * sum / n;
+cout << fixed << setprecision(1) << avg << '\n';
+\end{lstlisting}
+
+\Warn{注意：}\Code{sum / n} 如果两边都是整数，会做整数除法。写成 \Code{1.0 * sum / n}。
+
+\section{排序和排名}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 按成绩排序、按编号排序、按时间排序。
+  \item 输出第 $k$ 个。
+  \item 排名、名次、优先级。
+  \item 相同分数时按另一个条件排序。
+\end{itemize}
+
+\subsection{单个数组排序}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> a(n);
+for (int i = 0; i < n; i++) cin >> a[i];
+
+sort(a.begin(), a.end());
+
+for (int x : a) {
+    cout << x << ' ';
+}
+cout << '\n';
+\end{lstlisting}
+
+降序：
+
+\begin{lstlisting}
+sort(a.begin(), a.end(), greater<int>());
+\end{lstlisting}
+
+\subsection{结构体排序}
+
+\begin{lstlisting}
+struct Student {
+    int id;
+    int score;
+};
+
+int n;
+cin >> n;
+vector<Student> a(n);
+for (int i = 0; i < n; i++) {
+    cin >> a[i].id >> a[i].score;
+}
+
+sort(a.begin(), a.end(), [](const Student& x, const Student& y) {
+    if (x.score != y.score) return x.score > y.score;
+    return x.id < y.id;
+});
+
+for (const auto& s : a) {
+    cout << s.id << ' ' << s.score << '\n';
+}
+\end{lstlisting}
+
+\subsection{排名常见规则}
+
+排名题一定要看清楚“并列名次”。
+
+普通排序后第 $k$ 个：
+
+\begin{lstlisting}
+sort(a.begin(), a.end(), greater<int>());
+cout << a[k - 1] << '\n';
+\end{lstlisting}
+
+并列排名示例：
+
+\begin{lstlisting}
+vector<int> score = {100, 90, 90, 80};
+int rank = 1;
+for (int i = 0; i < (int)score.size(); i++) {
+    if (i > 0 && score[i] != score[i - 1]) {
+        rank = i + 1;
+    }
+    cout << score[i] << ' ' << rank << '\n';
+}
+\end{lstlisting}
+
+\Warn{排序题高危点：}比较器里相等时不能返回 \Code{true}，需要继续比较或返回 \Code{false}。
+
+\subsection{按字符串字典序排序}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<string> s(n);
+for (int i = 0; i < n; i++) cin >> s[i];
+
+sort(s.begin(), s.end());
+
+for (string x : s) {
+    cout << x << '\n';
+}
+\end{lstlisting}
+
+\subsection{先去重再排序}
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+a.erase(unique(a.begin(), a.end()), a.end());
+\end{lstlisting}
+
+\subsection{找第 k 小和第 k 大}
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+cout << a[k - 1] << '\n'; // kth smallest
+
+sort(a.begin(), a.end(), greater<int>());
+cout << a[k - 1] << '\n'; // kth largest
+\end{lstlisting}
+
+\Warn{第 k 个通常是 1 下标，所以用 \Code{k - 1}。}
+
+\section{字符串处理}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 字符、单词、大小写。
+  \item 判断前缀、后缀、是否包含。
+  \item 统计某字符出现次数。
+  \item 按空格、逗号、冒号分割。
+  \item 文件路径、命令、表达式。
+\end{itemize}
+
+\subsection{逐字符扫描}
+
+\begin{lstlisting}
+string s;
+cin >> s;
+
+int digits = 0;
+int letters = 0;
+for (char c : s) {
+    if (isdigit(c)) digits++;
+    if (isalpha(c)) letters++;
+}
+
+cout << digits << ' ' << letters << '\n';
+\end{lstlisting}
+
+\subsection{大小写转换}
+
+\begin{lstlisting}
+string s;
+cin >> s;
+for (char& c : s) {
+    c = tolower(c);
+}
+cout << s << '\n';
+\end{lstlisting}
+
+\subsection{查找子串}
+
+\begin{lstlisting}
+string s, t;
+cin >> s >> t;
+if (s.find(t) != string::npos) {
+    cout << "YES\n";
+} else {
+    cout << "NO\n";
+}
+\end{lstlisting}
+
+\subsection{按空格分割一整行}
+
+\begin{lstlisting}
+string line;
+getline(cin, line);
+
+stringstream ss(line);
+string word;
+while (ss >> word) {
+    cout << word << '\n';
+}
+\end{lstlisting}
+
+如果前面读过整数：
+
+\begin{lstlisting}
+int n;
+cin >> n;
+cin.ignore();
+
+string line;
+getline(cin, line);
+\end{lstlisting}
+
+\subsection{按指定字符分割}
+
+\begin{lstlisting}
+vector<string> split(const string& s, char sep) {
+    vector<string> res;
+    string cur;
+    for (char c : s) {
+        if (c == sep) {
+            res.push_back(cur);
+            cur.clear();
+        } else {
+            cur.push_back(c);
+        }
+    }
+    res.push_back(cur);
+    return res;
+}
+\end{lstlisting}
+
+\Warn{字符串题常见坑：}空字符串、连续分隔符、行尾换行、下标从 0 开始。
+
+\subsection{判断前缀和后缀}
+
+前缀：
+
+\begin{lstlisting}
+bool startsWith(const string& s, const string& p) {
+    if (p.size() > s.size()) return false;
+    for (int i = 0; i < (int)p.size(); i++) {
+        if (s[i] != p[i]) return false;
+    }
+    return true;
+}
+\end{lstlisting}
+
+后缀：
+
+\begin{lstlisting}
+bool endsWith(const string& s, const string& p) {
+    if (p.size() > s.size()) return false;
+    int offset = (int)s.size() - (int)p.size();
+    for (int i = 0; i < (int)p.size(); i++) {
+        if (s[offset + i] != p[i]) return false;
+    }
+    return true;
+}
+\end{lstlisting}
+
+\subsection{统计每个小写字母}
+
+\begin{lstlisting}
+string s;
+cin >> s;
+vector<int> cnt(26, 0);
+for (char c : s) {
+    if ('a' <= c && c <= 'z') {
+        cnt[c - 'a']++;
+    }
+}
+\end{lstlisting}
+
+\subsection{反转字符串}
+
+\begin{lstlisting}
+string s;
+cin >> s;
+reverse(s.begin(), s.end());
+cout << s << '\n';
+\end{lstlisting}
+
+\subsection{回文判断}
+
+\begin{lstlisting}
+bool isPalindrome(const string& s) {
+    int l = 0, r = (int)s.size() - 1;
+    while (l < r) {
+        if (s[l] != s[r]) return false;
+        l++;
+        r--;
+    }
+    return true;
+}
+\end{lstlisting}
+
+\section{进制处理}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 二进制、八进制、十六进制。
+  \item 把某进制转为十进制。
+  \item 把十进制转为某进制。
+  \item 位、编码、补码、掩码。
+\end{itemize}
+
+\subsection{任意进制转十进制}
+
+\begin{lstlisting}
+long long toDecimal(const string& s, int base) {
+    long long ans = 0;
+    for (char c : s) {
+        int v;
+        if ('0' <= c && c <= '9') v = c - '0';
+        else if ('A' <= c && c <= 'F') v = c - 'A' + 10;
+        else v = c - 'a' + 10;
+        ans = ans * base + v;
+    }
+    return ans;
+}
+\end{lstlisting}
+
+\subsection{十进制转任意进制}
+
+\begin{lstlisting}
+string fromDecimal(long long x, int base) {
+    if (x == 0) return "0";
+    string digits = "0123456789ABCDEF";
+    string res;
+    while (x > 0) {
+        res.push_back(digits[x % base]);
+        x /= base;
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+\end{lstlisting}
+
+\subsection{位运算入门}
+
+\begin{lstlisting}
+if (x & 1) {
+    // x is odd
+}
+
+if (x & (1 << k)) {
+    // bit k is 1
+}
+
+x |= (1 << k);   // set bit k to 1
+x &= ~(1 << k);  // set bit k to 0
+\end{lstlisting}
+
+\Warn{如果 $k \ge 31$，写 \Code{1LL << k}，不要写 \Code{1 << k}。}
+
+\subsection{进制题检查}
+
+\begin{itemize}
+  \item 输入数字是否可能很长。
+  \item 转成十进制是否超过 \Code{long long}。
+  \item 十六进制字母是大写还是小写。
+  \item 输出是否要求补前导零。
+  \item 二进制位编号从 0 还是 1 开始。
+\end{itemize}
+
+\section{日期时间}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 年、月、日、星期。
+  \item 给定日期求过几天。
+  \item 两个日期之间的天数。
+  \item 时间格式如 \Code{HH:MM:SS}。
+\end{itemize}
+
+\subsection{闰年}
+
+\begin{lstlisting}
+bool leap(int y) {
+    return (y % 400 == 0) || (y % 4 == 0 && y % 100 != 0);
+}
+\end{lstlisting}
+
+\subsection{每月天数}
+
+\begin{lstlisting}
+int mdays(int y, int m) {
+    int d[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+    if (m == 2 && leap(y)) return 29;
+    return d[m];
+}
+\end{lstlisting}
+
+\subsection{下一天}
+
+\begin{lstlisting}
+void nextDay(int& y, int& m, int& d) {
+    d++;
+    if (d > mdays(y, m)) {
+        d = 1;
+        m++;
+        if (m > 12) {
+            m = 1;
+            y++;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{时间转秒}
+
+\begin{lstlisting}
+int toSeconds(int h, int m, int s) {
+    return h * 3600 + m * 60 + s;
+}
+\end{lstlisting}
+
+\Warn{日期题先看范围。}如果只跨几年，可以逐日模拟；如果年份很大，要转为天数公式或按周期处理。
+
+\section{简单模拟}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 按规则一步一步执行。
+  \item 有当前位置、方向、状态。
+  \item 有若干操作命令。
+  \item 有网格移动，但不要求最短路。
+  \item 有游戏规则、计分规则。
+\end{itemize}
+
+\subsection{方向数组}
+
+四方向：
+
+\begin{lstlisting}
+int dx[4] = {-1, 0, 1, 0};
+int dy[4] = {0, 1, 0, -1};
+\end{lstlisting}
+
+八方向：
+
+\begin{lstlisting}
+int dx[8] = {-1,-1,-1,0,0,1,1,1};
+int dy[8] = {-1,0,1,-1,1,-1,0,1};
+\end{lstlisting}
+
+判断是否在网格内：
+
+\begin{lstlisting}
+bool inside(int x, int y, int n, int m) {
+    return 0 <= x && x < n && 0 <= y && y < m;
+}
+\end{lstlisting}
+
+\subsection{按命令移动}
+
+\begin{lstlisting}
+int x = 0, y = 0;
+string ops;
+cin >> ops;
+
+for (char op : ops) {
+    if (op == 'U') x--;
+    else if (op == 'D') x++;
+    else if (op == 'L') y--;
+    else if (op == 'R') y++;
+}
+
+cout << x << ' ' << y << '\n';
+\end{lstlisting}
+
+\subsection{模拟题写法建议}
+
+\begin{itemize}
+  \item 状态变量先列出来，例如位置、方向、分数、时间。
+  \item 每个操作只改变少量状态。
+  \item 复杂规则拆成函数。
+  \item 样例过后自己造最小边界和最大边界。
+\end{itemize}
+
+\section{坐标和距离入门}
+
+A 题中若出现坐标，通常是简单计算，不一定是图搜索。
+
+\subsection{二维点}
+
+\begin{lstlisting}
+struct Point {
+    long long x;
+    long long y;
+};
+
+Point a, b;
+cin >> a.x >> a.y >> b.x >> b.y;
+\end{lstlisting}
+
+\subsection{曼哈顿距离}
+
+只能上下左右走时，常见距离：
+
+\begin{lstlisting}
+long long dist = llabs(a.x - b.x) + llabs(a.y - b.y);
+cout << dist << '\n';
+\end{lstlisting}
+
+\subsection{欧几里得距离}
+
+直线距离：
+
+\begin{lstlisting}
+double dx = a.x - b.x;
+double dy = a.y - b.y;
+double dist = sqrt(dx * dx + dy * dy);
+cout << fixed << setprecision(6) << dist << '\n';
+\end{lstlisting}
+
+\subsection{坐标题检查}
+
+\begin{itemize}
+  \item 坐标可能为负数。
+  \item 坐标差的平方可能溢出，必要时用 \Code{long long} 或 \Code{double}。
+  \item 题目要求的是曼哈顿距离还是直线距离。
+  \item 输出是否需要小数。
+\end{itemize}
+
+\section{二维表格和矩阵入门}
+
+A 题可能出现很简单的二维表格，例如统计每行和、每列和、找最大值。
+
+\subsection{读入 n 行 m 列}
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<vector<int>> a(n, vector<int>(m));
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        cin >> a[i][j];
+    }
+}
+\end{lstlisting}
+
+\subsection{每行求和}
+
+\begin{lstlisting}
+for (int i = 0; i < n; i++) {
+    long long sum = 0;
+    for (int j = 0; j < m; j++) {
+        sum += a[i][j];
+    }
+    cout << sum << '\n';
+}
+\end{lstlisting}
+
+\subsection{每列求和}
+
+\begin{lstlisting}
+for (int j = 0; j < m; j++) {
+    long long sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += a[i][j];
+    }
+    cout << sum << '\n';
+}
+\end{lstlisting}
+
+\subsection{找矩阵最大值}
+
+\begin{lstlisting}
+int bx = 0, by = 0;
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        if (a[i][j] > a[bx][by]) {
+            bx = i;
+            by = j;
+        }
+    }
+}
+cout << bx << ' ' << by << ' ' << a[bx][by] << '\n';
+\end{lstlisting}
+
+如果题目要求第几行第几列，通常输出 \Code{bx + 1} 和 \Code{by + 1}。
+
+\section{频率统计}
+
+\subsection{值域小：用数组}
+
+如果数值范围是 $0$ 到 $1000$：
+
+\begin{lstlisting}
+int cnt[1001] = {};
+int n;
+cin >> n;
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    cnt[x]++;
+}
+\end{lstlisting}
+
+\subsection{值域大或 key 是字符串：用 map}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+map<string, int> cnt;
+for (int i = 0; i < n; i++) {
+    string s;
+    cin >> s;
+    cnt[s]++;
+}
+
+for (auto [s, c] : cnt) {
+    cout << s << ' ' << c << '\n';
+}
+\end{lstlisting}
+
+\subsection{只需要快速统计：unordered\_map}
+
+\begin{lstlisting}
+unordered_map<int, int> cnt;
+for (int x : a) {
+    cnt[x]++;
+}
+\end{lstlisting}
+
+\Warn{如果题目要求按字典序输出，不能用 \Code{unordered\_map} 直接遍历。}
+
+\section{区间入门}
+
+A 题中也可能出现简单区间。先看数据范围。
+
+\subsection{数据小：直接循环}
+
+\begin{lstlisting}
+int l, r;
+cin >> l >> r;
+long long sum = 0;
+for (int i = l; i <= r; i++) {
+    sum += a[i];
+}
+\end{lstlisting}
+
+\subsection{多次区间和：前缀和}
+
+\begin{lstlisting}
+int n, q;
+cin >> n >> q;
+vector<long long> pre(n + 1, 0);
+for (int i = 1; i <= n; i++) {
+    long long x;
+    cin >> x;
+    pre[i] = pre[i - 1] + x;
+}
+
+while (q--) {
+    int l, r;
+    cin >> l >> r;
+    cout << pre[r] - pre[l - 1] << '\n';
+}
+\end{lstlisting}
+
+注意：
+
+\begin{itemize}
+  \item 上面模板假设下标从 1 开始。
+  \item 如果题目给的是 0 下标，要改公式。
+  \item 前缀和数组用 \Code{long long}。
+\end{itemize}
+
+\section{A 题输出格式专项}
+
+提交前逐项对照：
+
+\begin{itemize}
+  \item 题目要求输出 \Code{YES/NO} 还是 \Code{Yes/No}。
+  \item 是否每个答案一行。
+  \item 多个数之间是空格还是换行。
+  \item 最后一项后面是否允许空格。一般允许，但不依赖。
+  \item 小数保留几位。
+  \item 是否要求百分号、冒号、逗号等符号。
+\end{itemize}
+
+输出数组推荐写法：
+
+\begin{lstlisting}
+for (int i = 0; i < n; i++) {
+    if (i) cout << ' ';
+    cout << a[i];
+}
+cout << '\n';
+\end{lstlisting}
+
+\section{A 题新手错误对照表}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+现象 & 可能原因 & 快速检查 \\
+\midrule
+样例输出差一个数 & 循环次数错 & 检查 \Code{i < n} 和 \Code{i <= n}。 \\
+样例数字对但格式错 & 空格、换行、大小写错误 & 对照输出格式逐字符看。 \\
+小数据对，大数据错 & \Code{int} 溢出 & 把和、乘积、答案改为 \Code{long long}。 \\
+排序后顺序怪 & 比较器错误 & 相等时返回 \Code{false} 或继续比较。 \\
+读入字符串为空 & \Code{cin} 后直接 \Code{getline} & 加 \Code{cin.ignore()}。 \\
+程序崩溃 & 数组越界或空容器取值 & 查 \Code{a[i]}、\Code{front/top/back}。 \\
+答案少算最后一项 & 区间端点没包含 & 检查 \Code{<= r} 还是 \Code{< r}。 \\
+答案多算一项 & 下标起点错 & 检查 0 下标和 1 下标是否混用。 \\
+找子串时明明在开头却判断失败 & 错用 \Code{if (s.find(t))} & 改为和 \Code{string::npos} 比较。 \\
+多组数据第二组错 & 没清空状态 & 每组重置数组、map、答案。 \\
+\bottomrule
+\end{longtable}
+
+\section{A 题推荐代码组织}
+
+简单题可以直接写在 \Code{main}，但如果题目有多组数据，推荐写 \Code{solve()}。
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+void solve() {
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
+
+    ll sum = 0;
+    for (int x : a) {
+        sum += x;
+    }
+    cout << sum << '\n';
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    solve();
+    return 0;
+}
+\end{lstlisting}
+
+如果题目有 $T$ 组：
+
+\begin{lstlisting}
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    cin >> T;
+    while (T--) {
+        solve();
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\Warn{如果题目没有多组数据，不要自己读一个 T。}
+
+\section{A 题自造边界样例}
+
+样例通过后，至少测试：
+
+\begin{itemize}
+  \item 最小输入：$n=0$ 或 $n=1$，如果题目允许。
+  \item 最大输入附近：最大数值、最大长度。
+  \item 全相同数据。
+  \item 全为 0。
+  \item 全为负数，如果题目允许。
+  \item 排序中有相同关键字。
+  \item 字符串为空或只有一个字符，如果题目允许。
+  \item 日期为 2 月 28 日、2 月 29 日、12 月 31 日。
+\end{itemize}
+
+\section{A 题本地调试流程}
+
+如果样例不过，不要盲目改代码。按下面顺序查。
+
+\subsection{第一步：确认读入}
+
+临时输出读到的变量：
+
+\begin{lstlisting}
+cerr << "n=" << n << '\n';
+for (int i = 0; i < n; i++) {
+    cerr << "a[" << i << "]=" << a[i] << '\n';
+}
+\end{lstlisting}
+
+\Warn{提交前必须删除或注释调试输出。}虽然 \Code{cerr} 通常不进入标准输出，但考场上不要依赖这一点，最终代码保持干净。
+
+\subsection{第二步：确认中间结果}
+
+例如统计题：
+
+\begin{lstlisting}
+cerr << "sum=" << sum << " cnt=" << cnt << '\n';
+\end{lstlisting}
+
+排序题：
+
+\begin{lstlisting}
+for (int x : a) cerr << x << ' ';
+cerr << '\n';
+\end{lstlisting}
+
+\subsection{第三步：用最小样例}
+
+把输入改成最小情况：
+
+\begin{lstlisting}
+1
+5
+\end{lstlisting}
+
+如果最小样例都错，通常是读入、初始化或输出格式错。
+
+\subsection{第四步：检查边界}
+
+\begin{itemize}
+  \item 循环是否少跑一次。
+  \item 数组是否越界。
+  \item 是否把 $n$ 当成最大下标。
+  \item 是否忘记处理最后一个元素。
+  \item 是否忘记初始化答案变量。
+\end{itemize}
+
+\section{A 题常见边界库}
+
+做完样例后，根据题型选 2 到 3 个边界测。
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+题型 & 建议边界 & 目的 \\
+\midrule
+统计 & $n=1$，全 0，全负数，全相同 & 检查初始化和条件判断。 \\
+最大最小 & 全负数、最大值在第一项、最大值在最后一项 & 检查初始值和循环。 \\
+排序 & 已有序、逆序、全相等、有重复关键字 & 检查比较器和稳定性。 \\
+字符串 & 长度 1、全数字、全字母、含空格、子串在开头 & 检查读取和 \Code{find}。 \\
+日期 & 2 月 28 日、闰年 2 月 29 日、12 月 31 日 & 检查闰年和跨年。 \\
+进制 & 0、最大位、含 A-F、小写字母 & 检查特殊值和字符转换。 \\
+区间 & $l=r$，$l=1$，$r=n$ & 检查前缀和端点。 \\
+二维表 & $1 \times 1$，单行，单列 & 检查双重循环。 \\
+\bottomrule
+\end{longtable}
+
+\section{A 题手写模板清单}
+
+这些模板建议单独练到不用看也能写。
+
+\begin{longtable}{p{4cm}p{4cm}p{6cm}}
+\toprule
+模板 & 必须熟练程度 & 关联章节 \\
+\midrule
+读入 $n$ 个数 & 必须会默写 & 输入形态、vector \\
+一遍求和、最大、最小 & 必须会默写 & 简单统计 \\
+统计满足条件的个数 & 必须会默写 & 简单统计 \\
+结构体排序 & 必须照着能写 & 排序和排名 \\
+字符串逐字符扫描 & 必须会默写 & 字符串处理 \\
+\Code{getline} + \Code{stringstream} & 必须照着能写 & 字符串处理 \\
+进制转十进制 & 照着能写 & 进制处理 \\
+闰年和每月天数 & 照着能写 & 日期时间 \\
+方向数组 & 照着能写 & 简单模拟 \\
+二维矩阵读入 & 必须会默写 & 二维表格 \\
+前缀和查询 & 照着能写 & 区间入门 \\
+\bottomrule
+\end{longtable}
+
+\section{A 题临场优先级}
+
+如果你在 A 题上紧张，按这个优先级保证分数：
+
+\begin{enumerate}
+  \item 先保证读入正确。
+  \item 再保证样例能手算清楚。
+  \item 再写最直接的做法，不要优化。
+  \item 再处理边界。
+  \item 最后才考虑代码好不好看。
+\end{enumerate}
+
+如果有两个写法：
+
+\begin{itemize}
+  \item 一个写法短但你不熟。
+  \item 一个写法长但你确定。
+\end{itemize}
+
+A 题选第二个。
+
+\section{A 题提交前总检查}
+
+\begin{enumerate}
+  \item 输入是否完整读入。
+  \item 输出是否完全符合题目。
+  \item 是否有调试输出。
+  \item 是否需要 \Code{long long}。
+  \item 数组是否越界。
+  \item 下标从 0 还是 1 开始是否统一。
+  \item 排序比较器是否正确。
+  \item 字符串读取是否受空格影响。
+  \item 小数精度是否正确。
+  \item 边界样例是否测试过。
+\end{enumerate}
+
+\section{A 题卡住时怎么办}
+
+\begin{itemize}
+  \item 读不懂题：重看输入输出样例，手算样例。
+  \item 样例不过：打印中间变量在本地查错，提交前删掉。
+  \item 怀疑溢出：把答案和中间量改成 \Code{long long}。
+  \item 怀疑下标：画出长度为 3 的小数组，手动走一遍。
+  \item 超过 45 分钟仍未解决：保存代码，先做 B 或 C，之后回来。
+\end{itemize}

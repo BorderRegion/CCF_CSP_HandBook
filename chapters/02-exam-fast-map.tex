@@ -1,0 +1,181 @@
+\chapter{考场 1 分钟极速索引}
+
+\section{本章定位}
+
+本章是考试时最先翻的压缩索引。完整判断树在第 3 章，完整模板在第 9 章，完整真题索引在第 11 章。本章只解决一个问题：\Key{看到题面后，最快翻到该用的模板和注意点。}
+
+\Warn{使用方法：}每道题先用本章 1 到 2 分钟定位。如果定位不准，再回第 3 章看详细判断树。
+
+\section{1 分钟总流程}
+
+\begin{longtable}{p{2.4cm}p{6.0cm}p{5.6cm}}
+\toprule
+时间 & 做什么 & 目的 \\
+\midrule
+前 10 秒 & 看题号：A/B/C/D/E & 决定稳分、冲分、拆题、部分分。 \\
+第 10-25 秒 & 圈出输入主体：数组、矩阵、字符串、图、树、对象、事件 & 确定大类。 \\
+第 25-40 秒 & 圈出操作：查询、修改、排序、最优、路径、状态变化 & 确定模板方向。 \\
+第 40-55 秒 & 看数据范围：$n,m,q$、值域、字符串总长 & 排除不可能复杂度。 \\
+最后 5 秒 & 翻模板并写骨架 & 不在脑子里硬背。 \\
+\bottomrule
+\end{longtable}
+
+\section{题号策略速查}
+
+\begin{longtable}{p{2cm}p{4.2cm}p{4.2cm}p{3.8cm}}
+\toprule
+题号 & 目标 & 常见题型 & 第一动作 \\
+\midrule
+A & 稳拿满分 & 统计、公式取整、排序、字符串、日期、二维数组 & 先写暴力扫描，检查输出格式。 \\
+B & 尽量满分 & 前缀、差分、哈希、排序扫描、二分、简单 DP & 先写暴力，再找重复计算。 \\
+C & 尽量拿高分 & 大模拟、字符串解析、状态机、事件、树/目录 & 先建对象和状态，不急着写代码。 \\
+D & 能拿部分分就拿 & 图、树、DP、数据结构、数学 & 先看子任务和特殊性质。 \\
+E & 保底部分分 & 高级算法或综合题 & 写小数据暴力，不耗尽时间。 \\
+\bottomrule
+\end{longtable}
+
+\section{题面主体到模板}
+
+\begin{longtable}{p{3.2cm}p{5.8cm}p{4.8cm}}
+\toprule
+主体 & 题面信号 & 模板/章节 \\
+\midrule
+数组 & 求和、计数、相邻、分段、排名、分组 & A 题、T101、T105、T106、T510 \\
+矩阵 & 图像、矩形、邻域、旋转、重塑 & T102、T104、矩阵扫描 \\
+字符串 & 分隔符、路径、URL、括号、表达式 & T501、T606、T607、T608、T609 \\
+坐标点 & 点集、距离、矩形、覆盖、邻居 & T106、T109、坐标公式 \\
+图 & 最短路、连通、依赖、最小代价 & T201、T203、T204、T205、T207 \\
+树 & 子树、祖先、路径、目录、合并 & DFS、T208、T402 \\
+多命令 & create、delete、query、request、release & T601、T602、T603 \\
+时间事件 & 到期、归还、租约、按时刻发生 & T110、T514、T603 \\
+选择物品 & 容量、费用、价值、至少达到 & T301、T302 \\
+最优答案 & 最小时间、最大阈值、最小最大 & T107 或 DP \\
+\bottomrule
+\end{longtable}
+
+\section{数据范围秒判}
+
+\begin{longtable}{p{3.6cm}p{5.2cm}p{4.8cm}}
+\toprule
+范围 & 可以想 & 不要想 \\
+\midrule
+$n \le 20$ & 枚举、DFS、状压 & 复杂数据结构优先 \\
+$n \le 100$ & $O(n^3)$、Floyd & 指数暴力 \\
+$n \le 1000$ & $O(n^2)$ & $O(n^3)$ 大概率危险 \\
+$n \le 10^5$ & $O(n\log n)$、$O(n)$ & $O(n^2)$ \\
+$q \le 10^5$ & 每次 $O(\log n)$ 或 $O(1)$ & 每次扫描全体 \\
+值域小 & 计数数组、桶 & map 不一定必要 \\
+值域大但数量少 & map、hash、离散化 & 直接开值域数组 \\
+\bottomrule
+\end{longtable}
+
+\section{B 题优化入口}
+
+\begin{longtable}{p{4.5cm}p{5.3cm}p{4.0cm}}
+\toprule
+暴力写法 & 应想到 & 模板 \\
+\midrule
+每次区间求和都循环 & 前缀和 & T101 \\
+每次矩形求和都双重循环 & 二维前缀和 & T102 \\
+每次区间加都逐个改 & 差分 & T103 / T104 \\
+每次查是否出现都循环 & set / unordered\_set & T106 \\
+排序后每次找位置 & 二分 / lower\_bound & C++ 语法章 \\
+两个有序表逐个配对 & 双指针 & T108 \\
+最小时间、最大阈值 & 二分答案 & T107 \\
+选若干个凑金额 & 背包 & T301 \\
+前置任务、依赖关系 & 拓扑排序 & T205 \\
+\bottomrule
+\end{longtable}
+
+\section{C 题建模速查}
+
+C 题先填这张表，再写代码。
+
+\begin{longtable}{p{3cm}p{5.4cm}p{5.2cm}}
+\toprule
+要素 & 题面中找什么 & 代码怎么落地 \\
+\midrule
+对象 & 用户、文件、任务、节点、请求、词条 & \Code{struct Obj} \\
+编号 & 数字编号、字符串名、路径 & vector / map / unordered\_map \\
+状态 & 有效、过期、占用、空闲、允许、拒绝 & enum/int 状态机 \\
+命令 & 每行第一个单词或操作类型 & T602 命令分发 \\
+时间 & 当前时刻、持续时间、到期时间 & T110 / T514 \\
+优先级 & “优先”“若相同”“同时发生” & sort 比较器或 priority\_queue \\
+失败规则 & 不存在、非法、超额、冲突 & 先判断，后修改，必要时回滚 \\
+\bottomrule
+\end{longtable}
+
+\section{D/E 部分分入口}
+
+\begin{longtable}{p{4.0cm}p{5.4cm}p{4.6cm}}
+\toprule
+看到子任务 & 写什么 & 可能分数来源 \\
+\midrule
+$n \le 20$ & 子集枚举、DFS、状压 & 小数据分 \\
+$n \le 100$ & Floyd、$O(n^3)$、暴力 DP & 中小数据分 \\
+链 & 当数组处理，前缀/差分 & 特殊性质分 \\
+树 & 每次 DFS，或 DFS 序 & 树特殊性质分 \\
+无修改 & 预处理后回答查询 & 静态分 \\
+查询少 & 每次暴力 & 查询少子任务 \\
+边权 1 & BFS & 图特殊性质分 \\
+值域小 & 计数数组 & 小值域分 \\
+\bottomrule
+\end{longtable}
+
+\section{模板编号速查}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{p{1.5cm}p{4.2cm}p{1.5cm}p{4.2cm}p{1.5cm}p{3.0cm}}
+\toprule
+编号 & 模板 & 编号 & 模板 & 编号 & 模板 \\
+\midrule
+T101 & 一维前缀和 & T102 & 二维前缀和 & T103 & 一维差分 \\
+T104 & 二维差分 & T105 & 排序比较器 & T106 & 哈希统计 \\
+T107 & 二分答案 & T108 & 双指针 & T109 & 离散化 \\
+T110 & 事件排序 & T201 & 网格 BFS & T203 & 并查集 \\
+T204 & Dijkstra & T205 & 拓扑排序 & T206 & Floyd \\
+T207 & Kruskal & T208 & LCA & T301 & 01 背包 \\
+T401 & 树状数组 & T402 & 线段树 & T501 & split \\
+T510 & 整除取整 & T511 & 快速幂 & T512 & 素数约数 \\
+T513 & 进制转换 & T514 & 日期处理 & T601 & 大模拟骨架 \\
+T602 & 命令分发 & T603 & 状态机 & T604 & 懒删除堆 \\
+T606 & 路径规范化 & T607 & URL 解析 & T608 & 括号匹配 \\
+T609 & 表达式入门 & -- & -- & -- & -- \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\section{C++ 语法救急}
+
+\begin{longtable}{p{4.6cm}p{9.2cm}}
+\toprule
+需求 & 写法 \\
+\midrule
+快速输入输出 & \Code{ios::sync\_with\_stdio(false); cin.tie(nullptr);} \\
+long long & 所有和、乘法、坐标平方、答案上界优先用 \Code{long long}。 \\
+正整数向上取整 & $a \ge 0,b>0$ 时用 \Code{(a+b-1)/b}；有负数时查 T510。 \\
+标准非负余数 & \Code{r=x\%m; if (r<0) r+=m;}，用于负数取模下标。 \\
+vector 排序 & \Code{sort(a.begin(), a.end());} \\
+按结构体字段排序 & 用 \Code{sort} 加 lambda；完整写法见第 4 章排序小节。 \\
+map 计数 & \Code{mp[x]++;} \\
+set 判断存在 & \Code{if (st.count(x)) ...} \\
+lower\_bound & 先排序；返回迭代器后检查是否等于 \Code{end()}。 \\
+小根堆 & \Code{priority\_queue<int, vector<int>, greater<int>>}。 \\
+保留小数 & \Code{cout << fixed << setprecision(k) << ans;} \\
+\bottomrule
+\end{longtable}
+
+\section{最后提交前 30 秒}
+
+\begin{enumerate}
+  \item 数组是否开够，是否有 $n+1$、$m+1$、边界哨兵。
+  \item 所有乘法、前缀和、答案是否用了 \Code{long long}。
+  \item 多组数据是否清空 vector、map、队列、数组。
+  \item 排序比较器是否满足严格弱序，相等时是否按题目要求。
+  \item \Code{lower\_bound}、\Code{find}、map 查询是否检查不存在。
+  \item 输出空格、换行、小数位是否和样例完全一致。
+  \item C 题非法操作是否真的没有改状态。
+  \item D/E 暴力是否至少能过样例和小数据。
+\end{enumerate}

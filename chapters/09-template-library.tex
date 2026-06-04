@@ -1,0 +1,1583 @@
+\chapter{高频算法模板库}
+
+\section{模板库使用方法}
+
+本章把前面章节中反复出现的算法模板统一编号。考场上建议先通过决策树确定题型，再来本章找对应模板。
+
+\begin{itemize}
+  \item \Code{T001--T099}：基础实现和 STL。
+  \item \Code{T100--T199}：前缀和、差分、排序、哈希、二分。
+  \item \Code{T200--T299}：搜索和图论。
+  \item \Code{T300--T399}：动态规划。
+  \item \Code{T400--T499}：数据结构。
+  \item \Code{T500--T599}：字符串、数学、日期。
+\end{itemize}
+
+\section{模板速查表}
+
+\begin{longtable}{p{2cm}p{4cm}p{5cm}p{3cm}}
+\toprule
+编号 & 名称 & 识别信号 & 复杂度 \\
+\midrule
+T101 & 一维前缀和 & 多次静态区间和查询 & 预处理 $O(n)$，查询 $O(1)$ \\
+T102 & 二维前缀和 & 多次子矩阵和查询 & 预处理 $O(nm)$，查询 $O(1)$ \\
+T103 & 一维差分 & 多次区间加，最后查询 & $O(n+q)$ \\
+T104 & 二维差分 & 多次矩形加，最后输出 & $O(nm+q)$ \\
+T105 & 排序自定义比较器 & 多关键字排序、排名 & $O(n\log n)$ \\
+T106 & 哈希统计 & 出现次数、查重、频率 & 平均 $O(n)$ \\
+T107 & 二分答案 & 最大化最小值、最小化最大值 & $O(\log V \cdot check)$ \\
+T108 & 双指针 & 排序后找对、滑动窗口 & $O(n)$ 或 $O(n\log n)$ \\
+T109 & 坐标离散化 & 坐标大但点数少 & $O(n\log n)$ \\
+T110 & 事件排序 & 按时间发生、扫描线 & $O(n\log n)$ \\
+T201 & 网格 BFS & 最短步数、迷宫 & $O(nm)$ \\
+T202 & DFS 连通块 & 区域大小、连通块数量 & $O(n+m)$ 或 $O(nm)$ \\
+T203 & 并查集 & 合并集合、判断同组 & 近似 $O(1)$ \\
+T204 & Dijkstra & 正权最短路 & $O((n+m)\log n)$ \\
+T205 & 拓扑排序 & 依赖关系、先后顺序 & $O(n+m)$ \\
+T206 & Floyd & 小图任意两点最短路 & $O(n^3)$ \\
+T207 & Kruskal & 最小生成树 & $O(m\log m)$ \\
+T208 & LCA 倍增 & 树上最近公共祖先 & $O(n\log n)$ 预处理，$O(\log n)$ 查询 \\
+T301 & 01 背包 & 每个物品选或不选 & $O(nV)$ \\
+T302 & 完全背包 & 每个物品可选多次 & $O(nV)$ \\
+T401 & 树状数组 & 单点修改、区间和 & $O(\log n)$ \\
+T402 & 线段树 & 区间修改、区间查询 & $O(\log n)$ \\
+T403 & 单调栈 & 最近更大/更小元素 & $O(n)$ \\
+T404 & 单调队列 & 滑动窗口最大/最小 & $O(n)$ \\
+T501 & split 字符串分割 & 路径、配置、命令解析 & $O(|s|)$ \\
+T502 & KMP & 长文本匹配模式串 & $O(n+m)$ \\
+T503 & Trie & 字符串集合、前缀查询 & $O(\sum |s|)$ \\
+T510 & 整除取整和标准取模 & 分组数、负数取模、数学 floor/ceil & $O(1)$ \\
+T511 & 快速幂 & $a^b \bmod m$ & $O(\log b)$ \\
+T512 & 素数和约数 & 判断素数、枚举约数 & $O(\sqrt n)$ \\
+T513 & 进制转换 & 任意进制与十进制 & $O(\text{位数})$ \\
+T514 & 日期处理 & 闰年、每月天数、日期推进 & 按实现而定 \\
+T601 & 大模拟骨架 & 多对象、多命令、长题面 & 按题目而定 \\
+T602 & 命令分发 & 每行一个操作名 & 按命令复杂度 \\
+T603 & 状态机 & 对象多状态切换 & 按操作复杂度 \\
+T604 & 懒删除优先队列 & 动态删除/更新后仍取最优 & $O(\log n)$ 均摊 \\
+T605 & LRU 缓存 & 最近最少使用淘汰 & $O(1)$ 均摊 \\
+T606 & 路径规范化 & \Code{/a/../b}、目录路径 & $O(|s|)$ \\
+T607 & URL 参数解析 & \Code{path?a=1\&b=2} & $O(|s|)$ \\
+T608 & 括号匹配 & 括号合法性、嵌套结构 & $O(n)$ \\
+T609 & 简单表达式求值 & 只含加减的表达式 & $O(n)$ \\
+\bottomrule
+\end{longtable}
+
+\section{T101 一维前缀和}
+
+\subsection{适用场景}
+
+\begin{itemize}
+  \item 数组不修改。
+  \item 多次查询 $[l,r]$ 的和。
+  \item 需要快速得到一段累计值。
+\end{itemize}
+
+\subsection{模板}
+
+\begin{lstlisting}
+int n, q;
+cin >> n >> q;
+vector<long long> pre(n + 1, 0);
+
+for (int i = 1; i <= n; i++) {
+    long long x;
+    cin >> x;
+    pre[i] = pre[i - 1] + x;
+}
+
+while (q--) {
+    int l, r;
+    cin >> l >> r;
+    cout << pre[r] - pre[l - 1] << '\n';
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 模板默认下标从 1 开始。
+  \item \Code{pre[0]} 是 0。
+  \item 求和用 \Code{long long}。
+  \item 如果有修改，普通前缀和不适用。
+\end{itemize}
+
+\section{T102 二维前缀和}
+
+\subsection{适用场景}
+
+多次查询子矩阵和。
+
+\begin{lstlisting}
+int n, m, q;
+cin >> n >> m >> q;
+vector<vector<long long>> pre(n + 1, vector<long long>(m + 1, 0));
+
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= m; j++) {
+        long long x;
+        cin >> x;
+        pre[i][j] = pre[i - 1][j] + pre[i][j - 1]
+                  - pre[i - 1][j - 1] + x;
+    }
+}
+
+while (q--) {
+    int x1, y1, x2, y2;
+    cin >> x1 >> y1 >> x2 >> y2;
+    long long ans = pre[x2][y2] - pre[x1 - 1][y2]
+                  - pre[x2][y1 - 1] + pre[x1 - 1][y1 - 1];
+    cout << ans << '\n';
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 四项公式不要写反。
+  \item 默认坐标从 1 开始。
+  \item 子矩阵端点是否保证 $x1 \le x2, y1 \le y2$。
+\end{itemize}
+
+\section{T103 一维差分}
+
+\subsection{适用场景}
+
+多次区间加，最后统一输出每个位置的值。
+
+\begin{lstlisting}
+int n, q;
+cin >> n >> q;
+vector<long long> diff(n + 2, 0);
+
+while (q--) {
+    int l, r;
+    long long v;
+    cin >> l >> r >> v;
+    diff[l] += v;
+    diff[r + 1] -= v;
+}
+
+long long cur = 0;
+for (int i = 1; i <= n; i++) {
+    cur += diff[i];
+    cout << cur << '\n';
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 数组开到 \Code{n+2}。
+  \item 如果修改后立刻查询区间和，普通差分不够。
+  \item 修改值用 \Code{long long}。
+\end{itemize}
+
+\section{T104 二维差分}
+
+\subsection{适用场景}
+
+多次对子矩形加值，最后输出整个矩阵。
+
+\begin{lstlisting}
+int n, m, q;
+cin >> n >> m >> q;
+vector<vector<long long>> diff(n + 2, vector<long long>(m + 2, 0));
+
+while (q--) {
+    int x1, y1, x2, y2;
+    long long v;
+    cin >> x1 >> y1 >> x2 >> y2 >> v;
+    diff[x1][y1] += v;
+    diff[x2 + 1][y1] -= v;
+    diff[x1][y2 + 1] -= v;
+    diff[x2 + 1][y2 + 1] += v;
+}
+
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= m; j++) {
+        diff[i][j] += diff[i - 1][j] + diff[i][j - 1]
+                    - diff[i - 1][j - 1];
+    }
+}
+\end{lstlisting}
+
+\section{T105 排序自定义比较器}
+
+\subsection{适用场景}
+
+多关键字排序、排名、优先级排序。
+
+\begin{lstlisting}
+struct Node {
+    int id;
+    int score;
+    int time;
+};
+
+sort(a.begin(), a.end(), [](const Node& x, const Node& y) {
+    if (x.score != y.score) return x.score > y.score;
+    if (x.time != y.time) return x.time < y.time;
+    return x.id < y.id;
+});
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 相等时不能返回 \Code{true}。
+  \item 每个关键字升序还是降序要写清楚。
+  \item 需要保持原顺序时用 \Code{stable\_sort}。
+\end{itemize}
+
+\section{T106 哈希统计}
+
+\subsection{值域小}
+
+\begin{lstlisting}
+vector<int> cnt(100001, 0);
+for (int x : a) {
+    cnt[x]++;
+}
+\end{lstlisting}
+
+\subsection{值域大或字符串}
+
+\begin{lstlisting}
+unordered_map<string, int> cnt;
+for (string s : words) {
+    cnt[s]++;
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 需要有序输出时用 \Code{map}。
+  \item key 很大不能开计数数组。
+  \item \Code{cnt[x]} 会自动创建 key。
+\end{itemize}
+
+\section{T107 二分答案}
+
+\subsection{适用场景}
+
+\begin{itemize}
+  \item 求最小可行值。
+  \item 求最大可行值。
+  \item 给定答案 $mid$ 能判断是否可行。
+  \item 可行性具有单调性。
+\end{itemize}
+
+\subsection{最小可行值}
+
+\begin{lstlisting}
+bool check(long long mid) {
+    // return true if mid is feasible
+}
+
+long long l = 0, r = 1000000000000000000LL;
+while (l < r) {
+    long long mid = l + (r - l) / 2;
+    if (check(mid)) r = mid;
+    else l = mid + 1;
+}
+cout << l << '\n';
+\end{lstlisting}
+
+\subsection{最大可行值}
+
+\begin{lstlisting}
+long long l = 0, r = 1000000000000000000LL;
+while (l < r) {
+    long long mid = l + (r - l + 1) / 2;
+    if (check(mid)) l = mid;
+    else r = mid - 1;
+}
+cout << l << '\n';
+\end{lstlisting}
+
+\Warn{二分答案必须有单调性。}
+
+\section{T108 双指针}
+
+\subsection{排序后找两数和}
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+int l = 0, r = n - 1;
+bool ok = false;
+
+while (l < r) {
+    long long sum = 1LL * a[l] + a[r];
+    if (sum == target) {
+        ok = true;
+        break;
+    } else if (sum < target) {
+        l++;
+    } else {
+        r--;
+    }
+}
+\end{lstlisting}
+
+\subsection{非负数组滑动窗口}
+
+\begin{lstlisting}
+int l = 0;
+long long sum = 0;
+int best = 0;
+
+for (int r = 0; r < n; r++) {
+    sum += a[r];
+    while (sum > limit && l <= r) {
+        sum -= a[l];
+        l++;
+    }
+    best = max(best, r - l + 1);
+}
+\end{lstlisting}
+
+\Warn{滑动窗口通常要求元素非负或条件具有单调性。}
+
+\section{T109 坐标离散化}
+
+\subsection{适用场景}
+
+坐标值很大，但出现的坐标数量不多。
+
+\begin{lstlisting}
+vector<int> xs;
+for (int x : original) {
+    xs.push_back(x);
+}
+
+sort(xs.begin(), xs.end());
+xs.erase(unique(xs.begin(), xs.end()), xs.end());
+
+auto getId = [&](int x) {
+    return (int)(lower_bound(xs.begin(), xs.end(), x) - xs.begin()) + 1;
+};
+\end{lstlisting}
+
+\Warn{如果题目涉及区间长度，不能只看离散编号，还要保留真实坐标差。}
+
+\section{T110 事件排序}
+
+\subsection{适用场景}
+
+按时间顺序处理事件，或扫描区间开始/结束。
+
+\begin{lstlisting}
+struct Event {
+    int time;
+    int type;
+    int id;
+};
+
+sort(events.begin(), events.end(), [](const Event& a, const Event& b) {
+    if (a.time != b.time) return a.time < b.time;
+    return a.type < b.type;
+});
+
+for (const Event& e : events) {
+    if (e.type == 0) {
+        // start
+    } else {
+        // end
+    }
+}
+\end{lstlisting}
+
+\subsection{区间同时进行数量}
+
+\begin{lstlisting}
+vector<pair<int, int>> events;
+for (auto [l, r] : intervals) {
+    events.push_back({l, 1});
+    events.push_back({r, -1});
+}
+
+sort(events.begin(), events.end(), [](auto a, auto b) {
+    if (a.first != b.first) return a.first < b.first;
+    return a.second < b.second; // end before start for [l,r)
+});
+
+int cur = 0, best = 0;
+for (auto [t, delta] : events) {
+    cur += delta;
+    best = max(best, cur);
+}
+\end{lstlisting}
+
+\Warn{同一时间开始和结束谁先处理，要按题意决定。}
+
+\section{T201 网格 BFS}
+
+\subsection{适用场景}
+
+迷宫、最短步数、每一步代价相同。
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<string> g(n);
+for (int i = 0; i < n; i++) cin >> g[i];
+
+int sx, sy, tx, ty;
+cin >> sx >> sy >> tx >> ty;
+
+vector<vector<int>> dist(n, vector<int>(m, -1));
+queue<pair<int, int>> q;
+
+dist[sx][sy] = 0;
+q.push({sx, sy});
+
+int dx[4] = {-1, 0, 1, 0};
+int dy[4] = {0, 1, 0, -1};
+
+while (!q.empty()) {
+    auto [x, y] = q.front();
+    q.pop();
+
+    for (int d = 0; d < 4; d++) {
+        int nx = x + dx[d];
+        int ny = y + dy[d];
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+        if (g[nx][ny] == '#') continue;
+        if (dist[nx][ny] != -1) continue;
+        dist[nx][ny] = dist[x][y] + 1;
+        q.push({nx, ny});
+    }
+}
+
+cout << dist[tx][ty] << '\n';
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 坐标是 0 下标还是 1 下标。
+  \item 入队时标记访问。
+  \item 边权不全相等时不要用普通 BFS。
+\end{itemize}
+
+\section{T202 DFS 连通块}
+
+\subsection{网格 DFS}
+
+\begin{lstlisting}
+int n, m;
+vector<string> g;
+vector<vector<int>> vis;
+int dx[4] = {-1, 0, 1, 0};
+int dy[4] = {0, 1, 0, -1};
+
+int dfs(int x, int y) {
+    vis[x][y] = 1;
+    int area = 1;
+    for (int d = 0; d < 4; d++) {
+        int nx = x + dx[d];
+        int ny = y + dy[d];
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+        if (vis[nx][ny]) continue;
+        if (g[nx][ny] == '#') continue;
+        area += dfs(nx, ny);
+    }
+    return area;
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 大网格递归可能爆栈，可改 BFS。
+  \item 障碍字符要按题目改。
+\end{itemize}
+
+\section{T203 并查集}
+
+\begin{lstlisting}
+struct DSU {
+    vector<int> parent, sz;
+
+    DSU(int n) {
+        parent.resize(n + 1);
+        sz.assign(n + 1, 1);
+        for (int i = 1; i <= n; i++) parent[i] = i;
+    }
+
+    int find(int x) {
+        if (parent[x] == x) return x;
+        return parent[x] = find(parent[x]);
+    }
+
+    bool unite(int a, int b) {
+        int ra = find(a);
+        int rb = find(b);
+        if (ra == rb) return false;
+        if (sz[ra] < sz[rb]) swap(ra, rb);
+        parent[rb] = ra;
+        sz[ra] += sz[rb];
+        return true;
+    }
+
+    bool same(int a, int b) {
+        return find(a) == find(b);
+    }
+};
+\end{lstlisting}
+
+\subsection{适用场景}
+
+合并集合、判断是否同组、连通块。
+
+\section{T204 Dijkstra}
+
+\begin{lstlisting}
+struct Edge {
+    int to;
+    long long w;
+};
+
+const long long INF = (long long)4e18;
+
+int n, m, s;
+cin >> n >> m >> s;
+vector<vector<Edge>> g(n + 1);
+
+for (int i = 0; i < m; i++) {
+    int u, v;
+    long long w;
+    cin >> u >> v >> w;
+    g[u].push_back({v, w});
+    g[v].push_back({u, w}); // remove if directed
+}
+
+vector<long long> dist(n + 1, INF);
+priority_queue<pair<long long, int>,
+               vector<pair<long long, int>>,
+               greater<pair<long long, int>>> pq;
+
+dist[s] = 0;
+pq.push({0, s});
+
+while (!pq.empty()) {
+    auto [d, u] = pq.top();
+    pq.pop();
+    if (d != dist[u]) continue;
+
+    for (auto e : g[u]) {
+        if (dist[e.to] > dist[u] + e.w) {
+            dist[e.to] = dist[u] + e.w;
+            pq.push({dist[e.to], e.to});
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 不能处理负边权。
+  \item 无向图双向加边，有向图单向加边。
+  \item 距离用 \Code{long long}。
+\end{itemize}
+
+\section{T205 拓扑排序}
+
+\subsection{适用场景}
+
+任务依赖、课程先修、判断有向图是否有环。
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<vector<int>> g(n + 1);
+vector<int> indeg(n + 1, 0);
+
+for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v; // u before v
+    g[u].push_back(v);
+    indeg[v]++;
+}
+
+queue<int> q;
+for (int i = 1; i <= n; i++) {
+    if (indeg[i] == 0) q.push(i);
+}
+
+vector<int> order;
+while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+    order.push_back(u);
+    for (int v : g[u]) {
+        indeg[v]--;
+        if (indeg[v] == 0) q.push(v);
+    }
+}
+
+if ((int)order.size() == n) {
+    // has topological order
+} else {
+    // has cycle
+}
+\end{lstlisting}
+
+\section{T206 Floyd}
+
+\subsection{适用场景}
+
+点数小，任意两点最短路。
+
+\begin{lstlisting}
+const long long INF = (long long)4e18;
+
+int n, m;
+cin >> n >> m;
+vector<vector<long long>> dist(n + 1, vector<long long>(n + 1, INF));
+
+for (int i = 1; i <= n; i++) dist[i][i] = 0;
+
+for (int i = 0; i < m; i++) {
+    int u, v;
+    long long w;
+    cin >> u >> v >> w;
+    dist[u][v] = min(dist[u][v], w);
+    dist[v][u] = min(dist[v][u], w); // remove if directed
+}
+
+for (int k = 1; k <= n; k++) {
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (dist[i][k] == INF || dist[k][j] == INF) continue;
+            dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+        }
+    }
+}
+\end{lstlisting}
+
+\Warn{三层循环顺序必须是 \Code{k,i,j}。}
+
+\section{T207 Kruskal}
+
+\subsection{适用场景}
+
+无向图，连接所有点的最小总代价。
+
+\begin{lstlisting}
+struct Edge {
+    int u, v;
+    long long w;
+};
+
+vector<Edge> edges;
+sort(edges.begin(), edges.end(), [](const Edge& a, const Edge& b) {
+    return a.w < b.w;
+});
+
+DSU dsu(n);
+long long ans = 0;
+int cnt = 0;
+
+for (auto e : edges) {
+    if (dsu.unite(e.u, e.v)) {
+        ans += e.w;
+        cnt++;
+    }
+}
+
+if (cnt == n - 1) cout << ans << '\n';
+else cout << "Impossible\n";
+\end{lstlisting}
+
+\section{T208 LCA 倍增}
+
+\subsection{适用场景}
+
+树上最近公共祖先、树上路径查询。
+
+\begin{lstlisting}
+const int LOG = 20;
+vector<vector<int>> up;
+vector<int> depth;
+vector<vector<int>> g;
+
+void dfsLca(int u, int p) {
+    up[0][u] = p;
+    for (int k = 1; k < LOG; k++) {
+        up[k][u] = up[k - 1][up[k - 1][u]];
+    }
+    for (int v : g[u]) {
+        if (v == p) continue;
+        depth[v] = depth[u] + 1;
+        dfsLca(v, u);
+    }
+}
+
+int lca(int a, int b) {
+    if (depth[a] < depth[b]) swap(a, b);
+    int diff = depth[a] - depth[b];
+    for (int k = 0; k < LOG; k++) {
+        if (diff & (1 << k)) a = up[k][a];
+    }
+    if (a == b) return a;
+    for (int k = LOG - 1; k >= 0; k--) {
+        if (up[k][a] != up[k][b]) {
+            a = up[k][a];
+            b = up[k][b];
+        }
+    }
+    return up[0][a];
+}
+\end{lstlisting}
+
+初始化：
+
+\begin{lstlisting}
+up.assign(LOG, vector<int>(n + 1));
+depth.assign(n + 1, 0);
+dfsLca(1, 1);
+\end{lstlisting}
+
+\section{T301 01 背包}
+
+\begin{lstlisting}
+int n, V;
+cin >> n >> V;
+vector<int> w(n + 1), val(n + 1);
+for (int i = 1; i <= n; i++) {
+    cin >> w[i] >> val[i];
+}
+
+vector<int> dp(V + 1, 0);
+for (int i = 1; i <= n; i++) {
+    for (int j = V; j >= w[i]; j--) {
+        dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
+    }
+}
+cout << dp[V] << '\n';
+\end{lstlisting}
+
+\Warn{01 背包容量倒序。}
+
+\section{T302 完全背包}
+
+\begin{lstlisting}
+int n, V;
+cin >> n >> V;
+vector<int> w(n + 1), val(n + 1);
+for (int i = 1; i <= n; i++) {
+    cin >> w[i] >> val[i];
+}
+
+vector<int> dp(V + 1, 0);
+for (int i = 1; i <= n; i++) {
+    for (int j = w[i]; j <= V; j++) {
+        dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
+    }
+}
+cout << dp[V] << '\n';
+\end{lstlisting}
+
+\Warn{完全背包容量正序。}
+
+\section{T401 树状数组}
+
+\begin{lstlisting}
+struct BIT {
+    int n;
+    vector<long long> tree;
+
+    BIT(int n) : n(n), tree(n + 1, 0) {}
+
+    void add(int idx, long long val) {
+        for (; idx <= n; idx += idx & -idx) {
+            tree[idx] += val;
+        }
+    }
+
+    long long sumPrefix(int idx) {
+        long long res = 0;
+        for (; idx > 0; idx -= idx & -idx) {
+            res += tree[idx];
+        }
+        return res;
+    }
+
+    long long rangeSum(int l, int r) {
+        return sumPrefix(r) - sumPrefix(l - 1);
+    }
+};
+\end{lstlisting}
+
+\subsection{适用场景}
+
+单点修改、区间和查询。
+
+\section{T402 线段树}
+
+\subsection{适用场景}
+
+区间加、区间和查询。模板较长，只有练过才建议考场使用。
+
+\begin{lstlisting}
+struct SegTree {
+    int n;
+    vector<long long> tree, lazy;
+
+    SegTree(int n) : n(n), tree(4 * n + 4), lazy(4 * n + 4) {}
+
+    void apply(int node, int l, int r, long long val) {
+        tree[node] += val * (r - l + 1);
+        lazy[node] += val;
+    }
+
+    void push(int node, int l, int r) {
+        if (lazy[node] == 0 || l == r) return;
+        int mid = (l + r) / 2;
+        apply(node * 2, l, mid, lazy[node]);
+        apply(node * 2 + 1, mid + 1, r, lazy[node]);
+        lazy[node] = 0;
+    }
+
+    void rangeAdd(int node, int l, int r, int ql, int qr, long long val) {
+        if (ql <= l && r <= qr) {
+            apply(node, l, r, val);
+            return;
+        }
+        push(node, l, r);
+        int mid = (l + r) / 2;
+        if (ql <= mid) rangeAdd(node * 2, l, mid, ql, qr, val);
+        if (qr > mid) rangeAdd(node * 2 + 1, mid + 1, r, ql, qr, val);
+        tree[node] = tree[node * 2] + tree[node * 2 + 1];
+    }
+
+    long long query(int node, int l, int r, int ql, int qr) {
+        if (ql <= l && r <= qr) return tree[node];
+        push(node, l, r);
+        int mid = (l + r) / 2;
+        long long res = 0;
+        if (ql <= mid) res += query(node * 2, l, mid, ql, qr);
+        if (qr > mid) res += query(node * 2 + 1, mid + 1, r, ql, qr);
+        return res;
+    }
+};
+\end{lstlisting}
+
+调用：
+
+\begin{lstlisting}
+SegTree seg(n);
+seg.rangeAdd(1, 1, n, l, r, v);
+long long ans = seg.query(1, 1, n, l, r);
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 默认区间是 1 到 $n$。
+  \item 懒标记下传不要漏。
+  \item 求和用 \Code{long long}。
+\end{itemize}
+
+\section{T403 单调栈}
+
+\subsection{适用场景}
+
+找每个元素右边第一个更大元素、左边第一个更小元素等。
+
+\begin{lstlisting}
+vector<int> ans(n, -1);
+stack<int> st; // indices
+
+for (int i = 0; i < n; i++) {
+    while (!st.empty() && a[i] > a[st.top()]) {
+        ans[st.top()] = i;
+        st.pop();
+    }
+    st.push(i);
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 比较符号决定严格更大还是大于等于。
+  \item 栈里通常存下标，不是值。
+  \item 全相等数据要测试。
+\end{itemize}
+
+\section{T404 单调队列}
+
+\subsection{适用场景}
+
+固定长度滑动窗口最大值或最小值。
+
+\begin{lstlisting}
+deque<int> dq; // indices, values decreasing
+for (int i = 0; i < n; i++) {
+    while (!dq.empty() && dq.front() <= i - k) dq.pop_front();
+    while (!dq.empty() && a[dq.back()] <= a[i]) dq.pop_back();
+    dq.push_back(i);
+
+    if (i >= k - 1) {
+        cout << a[dq.front()] << '\n';
+    }
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 先删除过期下标。
+  \item 最大值队列保持递减，最小值队列保持递增。
+  \item 输出窗口从 \Code{i >= k - 1} 开始。
+\end{itemize}
+
+\section{T501 split 字符串分割}
+
+\subsection{按指定字符分割}
+
+\begin{lstlisting}
+vector<string> split(const string& s, char sep) {
+    vector<string> res;
+    string cur;
+    for (char c : s) {
+        if (c == sep) {
+            res.push_back(cur);
+            cur.clear();
+        } else {
+            cur.push_back(c);
+        }
+    }
+    res.push_back(cur);
+    return res;
+}
+\end{lstlisting}
+
+\subsection{按空格分割}
+
+\begin{lstlisting}
+stringstream ss(line);
+string word;
+while (ss >> word) {
+    // use word
+}
+\end{lstlisting}
+
+\section{T502 KMP}
+
+\begin{lstlisting}
+vector<int> prefixFunction(const string& p) {
+    int n = (int)p.size();
+    vector<int> pi(n, 0);
+    for (int i = 1; i < n; i++) {
+        int j = pi[i - 1];
+        while (j > 0 && p[i] != p[j]) j = pi[j - 1];
+        if (p[i] == p[j]) j++;
+        pi[i] = j;
+    }
+    return pi;
+}
+
+int countMatch(const string& text, const string& p) {
+    vector<int> pi = prefixFunction(p);
+    int j = 0, cnt = 0;
+    for (char c : text) {
+        while (j > 0 && c != p[j]) j = pi[j - 1];
+        if (c == p[j]) j++;
+        if (j == (int)p.size()) {
+            cnt++;
+            j = pi[j - 1];
+        }
+    }
+    return cnt;
+}
+\end{lstlisting}
+
+\section{T503 Trie}
+
+\begin{lstlisting}
+struct Trie {
+    struct Node {
+        int child[26];
+        bool end = false;
+        Node() {
+            memset(child, -1, sizeof child);
+        }
+    };
+
+    vector<Node> tr;
+
+    Trie() {
+        tr.push_back(Node());
+    }
+
+    void insert(const string& s) {
+        int u = 0;
+        for (char c : s) {
+            int x = c - 'a';
+            if (tr[u].child[x] == -1) {
+                tr[u].child[x] = (int)tr.size();
+                tr.push_back(Node());
+            }
+            u = tr[u].child[x];
+        }
+        tr[u].end = true;
+    }
+
+    bool find(const string& s) {
+        int u = 0;
+        for (char c : s) {
+            int x = c - 'a';
+            if (tr[u].child[x] == -1) return false;
+            u = tr[u].child[x];
+        }
+        return tr[u].end;
+    }
+};
+\end{lstlisting}
+
+\Warn{这个 Trie 模板只适合小写英文字母。}
+
+\section{T510 整除取整和标准取模}
+
+\subsection{适用场景}
+
+\begin{itemize}
+  \item 分组、分页、分块，要求正整数向上取整。
+  \item 坐标、时间差、偏移量可能为负，要求数学意义的向上或向下取整。
+  \item 同余、周期、哈希下标中需要把负数余数转成 $0$ 到 $m-1$。
+\end{itemize}
+
+\subsection{正整数向上取整}
+
+若 $a \ge 0, b > 0$：
+
+\begin{lstlisting}
+long long ceil_div_positive(long long a, long long b) {
+    return (a + b - 1) / b;
+}
+\end{lstlisting}
+
+示例：
+
+\begin{lstlisting}
+long long pages = ceil_div_positive(n, pageSize);
+long long blocks = ceil_div_positive(n, blockSize);
+\end{lstlisting}
+
+\subsection{有符号通用版本}
+
+\begin{lstlisting}
+long long floor_div(long long a, long long b) {
+    long long q = a / b;
+    long long r = a % b;
+    if (r != 0 && ((r > 0) != (b > 0))) q--;
+    return q;
+}
+
+long long ceil_div(long long a, long long b) {
+    long long q = a / b;
+    long long r = a % b;
+    if (r != 0 && ((r > 0) == (b > 0))) q++;
+    return q;
+}
+\end{lstlisting}
+
+\subsection{标准非负余数}
+
+\begin{lstlisting}
+long long norm_mod(long long x, long long m) {
+    long long r = x % m;
+    if (r < 0) r += m;
+    return r;
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item \Code{(a+b-1)/b} 只适合 $a \ge 0, b > 0$，不是通用向上取整。
+  \item C++ 整数除法向 0 截断，\Code{-3 / 2} 是 \Code{-1}。
+  \item C++ 负数取模可能得到负数，\Code{-1 \% 5} 是 \Code{-1}。
+  \item 除数 \Code{b} 或模数 \Code{m} 不能为 0。
+  \item 若 \Code{a + b - 1} 可能溢出，需要改写或先确认范围。
+\end{itemize}
+
+\section{T511 快速幂}
+
+\subsection{适用场景}
+
+计算 $a^b \bmod mod$。
+
+\begin{lstlisting}
+long long modPow(long long a, long long b, long long mod) {
+    long long res = 1 % mod;
+    a %= mod;
+    while (b > 0) {
+        if (b & 1) res = res * a % mod;
+        a = a * a % mod;
+        b >>= 1;
+    }
+    return res;
+}
+\end{lstlisting}
+
+\section{T512 素数和约数}
+
+\subsection{gcd 和 lcm}
+
+\begin{lstlisting}
+long long g = gcd(a, b);
+long long l = a / g * b;
+\end{lstlisting}
+
+\subsection{判断素数}
+
+\begin{lstlisting}
+bool isPrime(long long x) {
+    if (x < 2) return false;
+    for (long long d = 2; d * d <= x; d++) {
+        if (x % d == 0) return false;
+    }
+    return true;
+}
+\end{lstlisting}
+
+\subsection{枚举约数}
+
+\begin{lstlisting}
+vector<long long> divisors;
+for (long long d = 1; d * d <= x; d++) {
+    if (x % d == 0) {
+        divisors.push_back(d);
+        if (d != x / d) divisors.push_back(x / d);
+    }
+}
+sort(divisors.begin(), divisors.end());
+\end{lstlisting}
+
+\section{T513 进制转换}
+
+\subsection{任意进制转十进制}
+
+\begin{lstlisting}
+long long toDecimal(const string& s, int base) {
+    long long ans = 0;
+    for (char c : s) {
+        int v;
+        if ('0' <= c && c <= '9') v = c - '0';
+        else if ('A' <= c && c <= 'F') v = c - 'A' + 10;
+        else v = c - 'a' + 10;
+        ans = ans * base + v;
+    }
+    return ans;
+}
+\end{lstlisting}
+
+\subsection{十进制转任意进制}
+
+\begin{lstlisting}
+string fromDecimal(long long x, int base) {
+    if (x == 0) return "0";
+    string digits = "0123456789ABCDEF";
+    string res;
+    while (x > 0) {
+        res.push_back(digits[x % base]);
+        x /= base;
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+\end{lstlisting}
+
+\Warn{数字很长时不能转成 \Code{long long}，要用字符串模拟。}
+
+\section{T514 日期处理}
+
+\subsection{闰年}
+
+\begin{lstlisting}
+bool leap(int y) {
+    return (y % 400 == 0) || (y % 4 == 0 && y % 100 != 0);
+}
+\end{lstlisting}
+
+\subsection{每月天数}
+
+\begin{lstlisting}
+int mdays(int y, int m) {
+    int d[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+    if (m == 2 && leap(y)) return 29;
+    return d[m];
+}
+\end{lstlisting}
+
+\subsection{下一天}
+
+\begin{lstlisting}
+void nextDay(int& y, int& m, int& d) {
+    d++;
+    if (d > mdays(y, m)) {
+        d = 1;
+        m++;
+        if (m > 12) {
+            m = 1;
+            y++;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{时间转秒}
+
+\begin{lstlisting}
+int toSeconds(int h, int m, int s) {
+    return h * 3600 + m * 60 + s;
+}
+\end{lstlisting}
+
+\section{T601 大模拟骨架}
+
+\subsection{适用场景}
+
+C 题长题面、多对象、多命令、多状态。
+
+\begin{lstlisting}
+struct Item {
+    int id;
+    string name;
+    int state;
+};
+
+int n, q;
+vector<Item> items;
+
+void readInput() {
+    cin >> n >> q;
+    items.resize(n);
+    for (int i = 0; i < n; i++) {
+        cin >> items[i].id >> items[i].name;
+        items[i].state = 0;
+    }
+}
+
+void solve() {
+    while (q--) {
+        string op;
+        cin >> op;
+        // dispatch command
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    readInput();
+    solve();
+    return 0;
+}
+\end{lstlisting}
+
+\section{T602 命令分发}
+
+\begin{lstlisting}
+void handleAdd() {
+    int id, x;
+    cin >> id >> x;
+    // add logic
+}
+
+void handleDelete() {
+    int id;
+    cin >> id;
+    // delete logic
+}
+
+void handleQuery() {
+    int id;
+    cin >> id;
+    // query logic
+}
+
+void handleCommand() {
+    string op;
+    cin >> op;
+    if (op == "add") handleAdd();
+    else if (op == "delete") handleDelete();
+    else if (op == "query") handleQuery();
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 每种命令的参数个数不同。
+  \item 命令参数可能包含空格时要用 \Code{getline}。
+  \item 查询命令通常直接输出，修改命令通常不输出。
+\end{itemize}
+
+\section{T603 状态机}
+
+\begin{lstlisting}
+const int WAITING = 0;
+const int RUNNING = 1;
+const int FINISHED = 2;
+
+struct Job {
+    int id;
+    int status;
+    int score;
+};
+
+void start(Job& job) {
+    if (job.status != WAITING) return;
+    job.status = RUNNING;
+}
+
+void finish(Job& job) {
+    if (job.status != RUNNING) return;
+    job.status = FINISHED;
+    job.score += 10;
+}
+\end{lstlisting}
+
+\subsection{检查点}
+
+\begin{itemize}
+  \item 初始状态是什么。
+  \item 每个操作允许在哪些状态发生。
+  \item 非法状态转换是忽略还是输出错误。
+  \item 状态变化时是否要同步修改其他字段。
+\end{itemize}
+
+\section{T604 懒删除优先队列}
+
+\subsection{适用场景}
+
+动态更新或删除元素，同时需要不断取当前最优元素。
+
+\begin{lstlisting}
+struct Task {
+    int priority;
+    int id;
+};
+
+struct Cmp {
+    bool operator()(const Task& a, const Task& b) const {
+        if (a.priority != b.priority) return a.priority < b.priority;
+        return a.id > b.id;
+    }
+};
+
+priority_queue<Task, vector<Task>, Cmp> pq;
+map<int, int> currentPriority;
+
+void addOrUpdate(int id, int priority) {
+    currentPriority[id] = priority;
+    pq.push({priority, id});
+}
+
+void removeTask(int id) {
+    currentPriority.erase(id);
+}
+
+Task getTop() {
+    while (!pq.empty()) {
+        Task t = pq.top();
+        if (currentPriority.count(t.id) &&
+            currentPriority[t.id] == t.priority) {
+            return t;
+        }
+        pq.pop();
+    }
+    return {-1, -1};
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 每次取堆顶前都要清理过期元素。
+  \item 更新元素时直接压入新值，不删除旧值。
+  \item 判断有效性必须和当前状态表一致。
+\end{itemize}
+
+\section{T605 LRU 缓存}
+
+\subsection{适用场景}
+
+最近最少使用淘汰，访问后变成最新。
+
+\begin{lstlisting}
+int cap;
+list<int> order; // front is most recent
+unordered_map<int, list<int>::iterator> pos;
+
+void access(int x) {
+    if (cap == 0) return;
+
+    if (pos.count(x)) {
+        order.erase(pos[x]);
+    } else if ((int)order.size() == cap) {
+        int old = order.back();
+        order.pop_back();
+        pos.erase(old);
+    }
+
+    order.push_front(x);
+    pos[x] = order.begin();
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 容量为 0 要特判。
+  \item 删除链表节点后，map 里的迭代器也要更新。
+  \item \Code{front} 是最新还是最旧要统一。
+\end{itemize}
+
+\section{T606 路径规范化}
+
+\subsection{适用场景}
+
+文件路径、目录路径，处理 \Code{.}、\Code{..}、多余斜杠。
+
+\begin{lstlisting}
+vector<string> normalizePath(const string& path) {
+    vector<string> st;
+    vector<string> parts = split(path, '/');
+    for (string part : parts) {
+        if (part.empty() || part == ".") {
+            continue;
+        } else if (part == "..") {
+            if (!st.empty()) st.pop_back();
+        } else {
+            st.push_back(part);
+        }
+    }
+    return st;
+}
+
+string joinPath(const vector<string>& parts) {
+    if (parts.empty()) return "/";
+    string res;
+    for (const string& p : parts) {
+        res += "/";
+        res += p;
+    }
+    return res;
+}
+\end{lstlisting}
+
+\Warn{如果题目允许相对路径，是否能越过根目录要按题意处理。}
+
+\section{T607 URL 参数解析}
+
+\subsection{适用场景}
+
+形如 \Code{/path/to?a=1\&b=2} 的字符串。
+
+\begin{lstlisting}
+struct Url {
+    string path;
+    map<string, string> query;
+};
+
+Url parseUrl(const string& s) {
+    Url res;
+    int qpos = (int)s.find('?');
+    if (qpos == (int)string::npos) {
+        res.path = s;
+        return res;
+    }
+
+    res.path = s.substr(0, qpos);
+    string qs = s.substr(qpos + 1);
+    vector<string> pairs = split(qs, '&');
+    for (string p : pairs) {
+        int eq = (int)p.find('=');
+        if (eq == (int)string::npos) {
+            res.query[p] = "";
+        } else {
+            string key = p.substr(0, eq);
+            string val = p.substr(eq + 1);
+            res.query[key] = val;
+        }
+    }
+    return res;
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item URL 可能没有 \Code{?}。
+  \item 参数值可能为空。
+  \item 重复参数时保留第一个还是最后一个要看题目。
+\end{itemize}
+
+\section{T608 括号匹配}
+
+\subsection{适用场景}
+
+判断括号是否合法，或处理简单嵌套结构。
+
+\begin{lstlisting}
+bool checkBrackets(const string& s) {
+    stack<char> st;
+    for (char c : s) {
+        if (c == '(' || c == '[' || c == '{') {
+            st.push(c);
+        } else if (c == ')' || c == ']' || c == '}') {
+            if (st.empty()) return false;
+            char t = st.top();
+            st.pop();
+            if (c == ')' && t != '(') return false;
+            if (c == ']' && t != '[') return false;
+            if (c == '}' && t != '{') return false;
+        }
+    }
+    return st.empty();
+}
+\end{lstlisting}
+
+\section{T609 简单表达式求值}
+
+\subsection{只含加减和非负整数}
+
+\begin{lstlisting}
+long long evalPlusMinus(const string& s) {
+    long long ans = 0;
+    long long num = 0;
+    int sign = 1;
+
+    for (int i = 0; i <= (int)s.size(); i++) {
+        if (i < (int)s.size() && isdigit(s[i])) {
+            num = num * 10 + (s[i] - '0');
+        } else {
+            ans += sign * num;
+            num = 0;
+            if (i < (int)s.size()) {
+                if (s[i] == '+') sign = 1;
+                else if (s[i] == '-') sign = -1;
+            }
+        }
+    }
+    return ans;
+}
+\end{lstlisting}
+
+\subsection{易错点}
+
+\begin{itemize}
+  \item 上面模板不处理乘除和括号。
+  \item 如果有空格，先跳过空格。
+  \item 如果有负数开头，检查是否符合模板逻辑。
+\end{itemize}

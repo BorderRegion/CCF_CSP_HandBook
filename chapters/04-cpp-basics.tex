@@ -1,0 +1,1389 @@
+\chapter{C++ 语法与 STL 速查}
+
+\section{本章使用方式}
+
+本章不是系统 C++ 教材，而是 CSP 考场写代码时最常用的语法清单。目标是让你在不熟练时也能快速确认：
+
+\begin{itemize}
+  \item 一个程序应该怎么开头。
+  \item 输入输出怎么写。
+  \item 什么时候必须用 \Code{long long}。
+  \item 整数除法、取模、向上取整、向下取整怎么写。
+  \item 数组、\Code{vector}、\Code{string}、结构体怎么用。
+  \item \Code{sort}、\Code{map}、\Code{set}、\Code{queue}、\Code{priority\_queue} 怎么写。
+  \item lambda 比较器怎么写，常见错误是什么。
+\end{itemize}
+
+\Warn{考场原则：}优先使用自己练过的写法。会写清楚比写得短更重要。
+
+\section{最小程序骨架}
+
+大部分 CSP 题目都可以从这个骨架开始：
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    // write code here
+
+    return 0;
+}
+\end{lstlisting}
+
+说明：
+
+\begin{itemize}
+  \item \Code{\#include <bits/stdc++.h>} 在 g++ 中常用，包含大多数标准库。正式考试前确认环境支持。
+  \item \Code{using namespace std;} 可以少写 \Code{std::}。
+  \item \Code{using ll = long long;} 以后可以用 \Code{ll} 表示 \Code{long long}。
+  \item \Code{ios::sync\_with\_stdio(false); cin.tie(nullptr);} 用来加速 C++ 输入输出。
+  \item 使用上面两行加速后，不要混用 \Code{scanf/printf} 和 \Code{cin/cout}。
+\end{itemize}
+
+\section{输入输出}
+
+\subsection{普通输入}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+
+int a, b;
+cin >> a >> b;
+
+string s;
+cin >> s; // reads until whitespace
+\end{lstlisting}
+
+\subsection{读入数组}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> a(n);
+for (int i = 0; i < n; i++) {
+    cin >> a[i];
+}
+\end{lstlisting}
+
+如果题目下标从 1 开始，考场上可以直接开成 \Code{n + 1}：
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> a(n + 1);
+for (int i = 1; i <= n; i++) {
+    cin >> a[i];
+}
+\end{lstlisting}
+
+\subsection{多组数据}
+
+题目明确给出 $T$：
+
+\begin{lstlisting}
+int T;
+cin >> T;
+while (T--) {
+    solve();
+}
+\end{lstlisting}
+
+题目没有给 $T$，读到文件结束：
+
+\begin{lstlisting}
+int a, b;
+while (cin >> a >> b) {
+    cout << a + b << '\n';
+}
+\end{lstlisting}
+
+\Warn{多组数据常见坑：}每组开始前要清空数组、图、队列、\Code{map}、答案变量。
+
+\subsection{整行输入}
+
+\Code{cin >> s} 只能读到空格前。如果要读整行，用 \Code{getline}：
+
+\begin{lstlisting}
+string line;
+getline(cin, line);
+\end{lstlisting}
+
+如果前面刚用了 \Code{cin >> n}，再用 \Code{getline}，要先吃掉换行：
+
+\begin{lstlisting}
+int n;
+cin >> n;
+cin.ignore();
+
+string line;
+getline(cin, line);
+\end{lstlisting}
+
+如果担心行尾有多个字符，可以写：
+
+\begin{lstlisting}
+cin.ignore(numeric_limits<streamsize>::max(), '\n');
+\end{lstlisting}
+
+\subsection{输出}
+
+\begin{lstlisting}
+cout << ans << '\n';
+cout << a << ' ' << b << '\n';
+\end{lstlisting}
+
+\Warn{不要输出提示语。}例如不要写 \Code{cout << "answer=" << ans;}，除非题目明确要求。
+
+\subsection{小数输出}
+
+\begin{lstlisting}
+double x = 3.1415926;
+cout << fixed << setprecision(2) << x << '\n'; // 3.14
+\end{lstlisting}
+
+说明：
+
+\begin{itemize}
+  \item \Code{fixed} 表示按小数位输出。
+  \item \Code{setprecision(2)} 表示保留 2 位小数。
+  \item 需要包含 \Code{<iomanip>}，但 \Code{bits/stdc++.h} 已包含。
+\end{itemize}
+
+\section{数据类型}
+
+\subsection{整数类型}
+
+\begin{longtable}{p{3cm}p{4cm}p{7cm}}
+\toprule
+类型 & 大约范围 & 使用场景 \\
+\midrule
+\Code{int} & $-2.1 \times 10^9$ 到 $2.1 \times 10^9$ & 下标、普通计数、小范围整数。 \\
+\Code{long long} & $-9.2 \times 10^{18}$ 到 $9.2 \times 10^{18}$ & 求和、乘法、答案、距离、方案数。 \\
+\Code{unsigned long long} & 0 到约 $1.8 \times 10^{19}$ & 很少必须用，新手慎用。 \\
+\bottomrule
+\end{longtable}
+
+必须用 \Code{long long} 的常见情况：
+
+\begin{itemize}
+  \item $n$ 个数求和，每个数可达 $10^9$。
+  \item 两个最大可达 $10^9$ 的数相乘。
+  \item 最短路边权和可能很大。
+  \item 方案数、组合数、累计时间、累计代价。
+\end{itemize}
+
+乘法防溢出：
+
+\begin{lstlisting}
+int a = 1000000000;
+int b = 1000000000;
+long long x = 1LL * a * b;
+\end{lstlisting}
+
+\Warn{错误写法：}
+
+\begin{lstlisting}
+long long x = a * b; // a*b already overflowed as int
+\end{lstlisting}
+
+\subsection{浮点类型}
+
+\begin{itemize}
+  \item \Code{double} 是常用浮点数。
+  \item 判断浮点相等时不要直接用 \Code{==}，通常用误差。
+\end{itemize}
+
+\begin{lstlisting}
+const double EPS = 1e-9;
+if (abs(a - b) < EPS) {
+    // a and b are almost equal
+}
+\end{lstlisting}
+
+\subsection{字符和布尔}
+
+\begin{lstlisting}
+char c = 'A';
+bool ok = true;
+\end{lstlisting}
+
+字符判断：
+
+\begin{lstlisting}
+isdigit(c); // is digit
+isalpha(c); // is letter
+islower(c);
+isupper(c);
+tolower(c);
+toupper(c);
+\end{lstlisting}
+
+\Warn{注意：}\Code{isdigit(c)} 返回非零表示真，不一定返回 1。
+
+\section{表达式、整除和取整}
+
+\subsection{基本运算符}
+
+C++ 中常用算术运算符如下：
+
+\begin{longtable}{p{3cm}p{4cm}p{7cm}}
+\toprule
+运算符 & 含义 & 注意点 \\
+\midrule
+\Code{+ - *} & 加、减、乘 & 两个 \Code{int} 相乘仍先按 \Code{int} 计算。 \\
+\Code{/} & 除法 & 两边都是整数时做整数除法，结果向 0 截断。 \\
+\Code{\%} & 取余 & 只能用于整数；负数取余的结果可能为负。 \\
+\Code{+= -= *= /= \%=} & 复合赋值 & \Code{x += y} 等价于 \Code{x = x + y}。 \\
+\Code{++ --} & 自增、自减 & 简单循环中优先写 \Code{i++} 或 \Code{++i}，不要嵌进复杂表达式。 \\
+\bottomrule
+\end{longtable}
+
+\Warn{整数除法不是数学里的向下取整。}在 C++ 中，\Code{-3 / 2} 的结果是 \Code{-1}，因为整数除法向 0 截断；数学意义上的 $\lfloor -3/2 \rfloor$ 是 $-2$。
+
+\subsection{整数除法和类型转换}
+
+如果两边都是整数，\Code{/} 会丢掉小数部分：
+
+\begin{lstlisting}
+int a = 5, b = 2;
+cout << a / b << '\n'; // 2
+\end{lstlisting}
+
+如果要小数结果，至少把一个操作数转成浮点数：
+
+\begin{lstlisting}
+cout << 1.0 * a / b << '\n';       // 2.5
+cout << (double)a / b << '\n';     // 2.5
+\end{lstlisting}
+
+如果题目要求整数答案，不要为了方便乱转 \Code{double}。大整数转浮点后可能丢精度。
+
+\subsection{正整数向上取整}
+
+最常见场景：$a$ 个物品，每组最多放 $b$ 个，问需要几组。若 $a \ge 0, b > 0$：
+
+\begin{lstlisting}
+long long ceil_div_positive(long long a, long long b) {
+    return (a + b - 1) / b;
+}
+\end{lstlisting}
+
+常见特例：
+
+\begin{lstlisting}
+long long half_up = (n + 1) / 2;          // ceil(n / 2), n >= 0
+long long blocks = (n + block - 1) / block;
+\end{lstlisting}
+
+\Warn{这个简式只适合 $a \ge 0, b > 0$。}如果 $a$ 可能为负，或者 $b$ 可能为负，不能直接套 \Code{(a+b-1)/b}。
+
+\subsection{有符号整数向下和向上取整}
+
+如果题目涉及负坐标、负偏移、时间差、数学分段，建议使用下面的通用函数。它们要求 \Code{b != 0}，并且遵循数学意义上的 floor 和 ceil。
+
+\begin{lstlisting}
+long long floor_div(long long a, long long b) {
+    long long q = a / b;
+    long long r = a % b;
+    if (r != 0 && ((r > 0) != (b > 0))) q--;
+    return q;
+}
+
+long long ceil_div(long long a, long long b) {
+    long long q = a / b;
+    long long r = a % b;
+    if (r != 0 && ((r > 0) == (b > 0))) q++;
+    return q;
+}
+\end{lstlisting}
+
+快速自测：
+
+\begin{longtable}{p{4cm}p{4cm}p{4cm}}
+\toprule
+表达式 & \Code{floor\_div} & \Code{ceil\_div} \\
+\midrule
+$3 / 2$ & 1 & 2 \\
+$-3 / 2$ & -2 & -1 \\
+$3 / -2$ & -2 & -1 \\
+$-3 / -2$ & 1 & 2 \\
+\bottomrule
+\end{longtable}
+
+\subsection{负数取模}
+
+C++ 中 \Code{x \% m} 的符号跟 \Code{x} 相同。例如 \Code{-1 \% 5} 是 \Code{-1}，不是 \Code{4}。如果题目需要 $0$ 到 $m-1$ 的标准余数，写：
+
+\begin{lstlisting}
+long long norm_mod(long long x, long long m) {
+    long long r = x % m;
+    if (r < 0) r += m;
+    return r;
+}
+\end{lstlisting}
+
+适用：\Code{m > 0}。若 \Code{x} 可能小于 \Code{-m} 很多，上面仍然正确，因为 C++ 的一次取余后 \Code{r} 已经在 \Code{(-m,m)} 内。
+
+\subsection{运算优先级和括号}
+
+考场上不建议背复杂优先级。以下规则足够覆盖大多数题：
+
+\begin{itemize}
+  \item 乘、除、取模优先于加减。
+  \item 比较运算优先级低于加减乘除。
+  \item \Code{\&\&} 优先于 \Code{||}。
+  \item 位运算和比较混在一起时必须加括号。
+\end{itemize}
+
+\begin{lstlisting}
+if ((mask & (1 << k)) != 0) {
+    // bit k is 1
+}
+\end{lstlisting}
+
+\Warn{有疑问就加括号。}括号不会让程序变慢，却能显著减少读错表达式的风险。
+
+\subsection{常量和初始化}
+
+常用写法：
+
+\begin{lstlisting}
+const int N = 100000 + 5;
+const long long INF = (long long)4e18;
+const int MOD = 1000000007;
+
+int cnt = 0;
+long long sum = 0;
+bool ok = true;
+\end{lstlisting}
+
+提醒：
+
+\begin{itemize}
+  \item 局部普通变量不会自动清零，定义后要赋初值。
+  \item 全局数组会默认清零，但多组数据不会自动恢复初始状态。
+  \item \Code{const} 常量不能被修改，适合写数组上限、模数、无穷大。
+\end{itemize}
+
+\section{控制流}
+
+\subsection{if}
+
+\begin{lstlisting}
+if (x > 0) {
+    cout << "positive\n";
+} else if (x == 0) {
+    cout << "zero\n";
+} else {
+    cout << "negative\n";
+}
+\end{lstlisting}
+
+\subsection{for}
+
+\begin{lstlisting}
+for (int i = 0; i < n; i++) {
+    // 0, 1, ..., n-1
+}
+
+for (int i = 1; i <= n; i++) {
+    // 1, 2, ..., n
+}
+\end{lstlisting}
+
+倒序：
+
+\begin{lstlisting}
+for (int i = n - 1; i >= 0; i--) {
+    // be careful when i is unsigned
+}
+\end{lstlisting}
+
+\subsection{while}
+
+\begin{lstlisting}
+while (condition) {
+    // loop
+}
+\end{lstlisting}
+
+读到结束：
+
+\begin{lstlisting}
+int x;
+while (cin >> x) {
+    // process x
+}
+\end{lstlisting}
+
+\subsection{break 和 continue}
+
+\begin{lstlisting}
+for (int i = 0; i < n; i++) {
+    if (a[i] < 0) continue; // skip this round
+    if (a[i] == target) break; // exit loop
+}
+\end{lstlisting}
+
+\section{auto、引用和范围 for}
+
+\subsection{auto}
+
+\Code{auto} 让编译器根据右侧表达式推断类型，常用于迭代器、pair、复杂容器遍历。
+
+\begin{lstlisting}
+auto it = lower_bound(a.begin(), a.end(), x);
+auto p = make_pair(3, 5);
+\end{lstlisting}
+
+遍历 \Code{map}：
+
+\begin{lstlisting}
+map<string, int> cnt;
+for (auto [key, value] : cnt) {
+    cout << key << ' ' << value << '\n';
+}
+\end{lstlisting}
+
+\Warn{注意复制。}\Code{auto [key, value]} 会复制键和值；如果元素很大，写 \Code{const auto\&} 更合适。
+
+\begin{lstlisting}
+for (const auto& item : records) {
+    // read item without copying
+}
+\end{lstlisting}
+
+\subsection{引用}
+
+引用相当于变量的别名。函数传大对象时常用引用避免复制。
+
+\begin{lstlisting}
+void printVector(const vector<int>& a) {
+    for (int x : a) cout << x << ' ';
+}
+
+void addOne(vector<int>& a) {
+    for (int& x : a) x++;
+}
+\end{lstlisting}
+
+区别：
+
+\begin{itemize}
+  \item \Code{const vector<int>\& a}：不复制，也不允许函数内修改。
+  \item \Code{vector<int>\& a}：不复制，允许函数内修改原数组。
+  \item \Code{vector<int> a}：会复制整个数组，数据大时慢。
+\end{itemize}
+
+\subsection{范围 for}
+
+只读遍历：
+
+\begin{lstlisting}
+for (int x : a) {
+    cout << x << '\n';
+}
+\end{lstlisting}
+
+修改原元素：
+
+\begin{lstlisting}
+for (int& x : a) {
+    x++;
+}
+\end{lstlisting}
+
+\Warn{如果忘了写引用，修改不会回到原数组。}
+
+\begin{lstlisting}
+for (int x : a) {
+    x++; // only modifies the copy
+}
+\end{lstlisting}
+
+\subsection{size 的类型}
+
+\Code{a.size()} 的返回类型是无符号整数。考场上为了减少类型麻烦，常写成：
+
+\begin{lstlisting}
+int n = (int)a.size();
+for (int i = 0; i < n; i++) {
+    // use a[i]
+}
+\end{lstlisting}
+
+倒序遍历不要写下面这种：
+
+\begin{lstlisting}
+for (int i = a.size() - 1; i >= 0; i--) {
+    // dangerous when a is empty
+}
+\end{lstlisting}
+
+更稳的写法：
+
+\begin{lstlisting}
+for (int i = (int)a.size() - 1; i >= 0; i--) {
+    // ok even when a is empty: i starts at -1
+}
+\end{lstlisting}
+
+\section{函数}
+
+把重复逻辑写成函数，能减少大模拟和算法题的错误。
+
+\begin{lstlisting}
+int add(int a, int b) {
+    return a + b;
+}
+
+bool isEven(int x) {
+    return x % 2 == 0;
+}
+\end{lstlisting}
+
+传 vector：
+
+\begin{lstlisting}
+int sumVector(const vector<int>& a) {
+    int sum = 0;
+    for (int x : a) sum += x;
+    return sum;
+}
+\end{lstlisting}
+
+说明：
+
+\begin{itemize}
+  \item \Code{const vector<int>\& a} 表示不复制整个数组，并且函数内部不修改它。
+  \item 如果函数需要修改数组，去掉 \Code{const}。
+\end{itemize}
+
+\begin{lstlisting}
+void addOne(vector<int>& a) {
+    for (int& x : a) x++;
+}
+\end{lstlisting}
+
+\section{数组}
+
+\subsection{普通数组}
+
+全局数组适合大数组：
+
+\begin{lstlisting}
+const int N = 100000 + 5;
+int a[N];
+long long pre[N];
+\end{lstlisting}
+
+说明：
+
+\begin{itemize}
+  \item 全局数组默认初始化为 0。
+  \item 局部大数组可能爆栈，尽量放全局或用 \Code{vector}。
+\end{itemize}
+
+\subsection{二维数组}
+
+\begin{lstlisting}
+const int N = 1005;
+int grid[N][N];
+\end{lstlisting}
+
+如果规模不确定：
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<vector<int>> grid(n, vector<int>(m, 0));
+\end{lstlisting}
+
+\Warn{内存估算：}\Code{int a[10000][10000]} 大约 400MB，通常危险。
+
+\subsection{初始化}
+
+全局普通数组默认是 0。如果要重置数组：
+
+\begin{lstlisting}
+int a[1005];
+memset(a, 0, sizeof a);
+memset(a, -1, sizeof a);
+\end{lstlisting}
+
+\Warn{注意：}\Code{memset} 适合把数组设为 0 或 -1，不适合把 \Code{int} 数组设成 1、2、无穷大。
+
+设置成大数：
+
+\begin{lstlisting}
+const int INF = 0x3f3f3f3f;
+int dist[1005];
+memset(dist, 0x3f, sizeof dist);
+\end{lstlisting}
+
+\Code{vector} 初始化：
+
+\begin{lstlisting}
+vector<int> a(n, 0);
+vector<long long> dist(n + 1, (long long)4e18);
+vector<vector<int>> grid(n, vector<int>(m, 0));
+\end{lstlisting}
+
+\section{vector}
+
+\subsection{创建}
+
+\begin{lstlisting}
+vector<int> a;          // empty
+vector<int> b(10);      // 10 zeros
+vector<int> c(10, -1);  // 10 values, all -1
+\end{lstlisting}
+
+\subsection{常用操作}
+
+\begin{lstlisting}
+a.push_back(5);
+a.pop_back();
+a.clear();
+int n = (int)a.size();
+bool empty = a.empty();
+\end{lstlisting}
+
+访问：
+
+\begin{lstlisting}
+cout << a[0] << '\n';
+cout << a.back() << '\n';
+\end{lstlisting}
+
+\Warn{访问前检查非空。}\Code{a.back()}、\Code{a[0]} 在空数组上会出错。
+
+\subsection{遍历}
+
+\begin{lstlisting}
+for (int i = 0; i < (int)a.size(); i++) {
+    cout << a[i] << '\n';
+}
+
+for (int x : a) {
+    cout << x << '\n';
+}
+
+for (int& x : a) {
+    x++; // modify original element
+}
+\end{lstlisting}
+
+\subsection{删除元素}
+
+删除最后一个：
+
+\begin{lstlisting}
+a.pop_back();
+\end{lstlisting}
+
+删除某个位置：
+
+\begin{lstlisting}
+a.erase(a.begin() + pos);
+\end{lstlisting}
+
+\Warn{注意：}\Code{erase} 是 $O(n)$，大量删除时可能超时。
+
+删除所有等于 x 的元素：
+
+\begin{lstlisting}
+a.erase(remove(a.begin(), a.end(), x), a.end());
+\end{lstlisting}
+
+\subsection{二维 vector}
+
+二维网格：
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<vector<int>> a(n, vector<int>(m));
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        cin >> a[i][j];
+    }
+}
+\end{lstlisting}
+
+二维字符图：
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<string> g(n);
+for (int i = 0; i < n; i++) {
+    cin >> g[i];
+}
+cout << g[0][0] << '\n';
+\end{lstlisting}
+
+图的邻接表：
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<vector<int>> g(n + 1);
+for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+}
+\end{lstlisting}
+
+\section{string}
+
+\subsection{基本操作}
+
+\begin{lstlisting}
+string s = "abc";
+int n = (int)s.size();
+char c = s[0];
+s.push_back('d');
+s += "ef";
+\end{lstlisting}
+
+\subsection{子串}
+
+\begin{lstlisting}
+string s = "abcdef";
+string t = s.substr(2, 3); // "cde"
+\end{lstlisting}
+
+\Code{substr(pos, len)} 从 \Code{pos} 开始取 \Code{len} 个字符，下标从 0 开始。
+
+\subsection{查找}
+
+\begin{lstlisting}
+string s = "abcdef";
+if (s.find("cd") != string::npos) {
+    cout << "found\n";
+}
+\end{lstlisting}
+
+\Warn{不要写：}
+
+\begin{lstlisting}
+if (s.find("cd")) {
+    // wrong when position is 0
+}
+\end{lstlisting}
+
+\subsection{字符串转数字}
+
+\begin{lstlisting}
+int x = stoi("123");
+long long y = stoll("1234567890123");
+double z = stod("3.14");
+\end{lstlisting}
+
+数字转字符串：
+
+\begin{lstlisting}
+string s = to_string(123);
+\end{lstlisting}
+
+\Warn{如果数字很长，}\Code{stoi/stoll} 会溢出或异常，要用字符串模拟。
+
+\subsection{按空格分割}
+
+\begin{lstlisting}
+string line;
+getline(cin, line);
+stringstream ss(line);
+
+string word;
+while (ss >> word) {
+    cout << word << '\n';
+}
+\end{lstlisting}
+
+\section{pair 和 tuple}
+
+\subsection{pair}
+
+\begin{lstlisting}
+pair<int, int> p = {3, 5};
+cout << p.first << ' ' << p.second << '\n';
+\end{lstlisting}
+
+常用于坐标、边、距离和编号：
+
+\begin{lstlisting}
+vector<pair<int, int>> points;
+points.push_back({x, y});
+\end{lstlisting}
+
+默认排序：
+
+\begin{lstlisting}
+sort(points.begin(), points.end());
+\end{lstlisting}
+
+默认先按 \Code{first} 升序，再按 \Code{second} 升序。
+
+\subsection{tuple}
+
+字段超过两个时可以用 \Code{tuple}，但新手更推荐结构体。
+
+\begin{lstlisting}
+tuple<int, int, int> t = {1, 2, 3};
+auto [a, b, c] = t;
+\end{lstlisting}
+
+\section{结构体 struct}
+
+结构体适合表示学生、任务、边、事件、状态。
+
+\begin{lstlisting}
+struct Student {
+    int id;
+    string name;
+    int score;
+};
+
+Student s;
+s.id = 1;
+s.name = "Alice";
+s.score = 90;
+\end{lstlisting}
+
+数组：
+
+\begin{lstlisting}
+vector<Student> students;
+students.push_back({1, "Alice", 90});
+\end{lstlisting}
+
+图的边：
+
+\begin{lstlisting}
+struct Edge {
+    int to;
+    int w;
+};
+
+vector<vector<Edge>> g(n + 1);
+g[u].push_back({v, w});
+\end{lstlisting}
+
+\section{排序 sort}
+
+\subsection{普通排序}
+
+\begin{lstlisting}
+sort(a.begin(), a.end()); // ascending
+sort(a.rbegin(), a.rend()); // descending
+\end{lstlisting}
+
+数组排序：
+
+\begin{lstlisting}
+sort(a, a + n);
+\end{lstlisting}
+
+\subsection{自定义排序：从大到小}
+
+\begin{lstlisting}
+sort(a.begin(), a.end(), [](int x, int y) {
+    return x > y;
+});
+\end{lstlisting}
+
+\subsection{结构体排序}
+
+成绩高的在前；成绩相同，编号小的在前：
+
+\begin{lstlisting}
+struct Student {
+    int id;
+    int score;
+};
+
+vector<Student> v;
+
+sort(v.begin(), v.end(), [](const Student& a, const Student& b) {
+    if (a.score != b.score) return a.score > b.score;
+    return a.id < b.id;
+});
+\end{lstlisting}
+
+\subsection{按 vector 的某一列排序}
+
+\begin{lstlisting}
+vector<vector<int>> a;
+
+sort(a.begin(), a.end(), [](const vector<int>& x, const vector<int>& y) {
+    return x[0] < y[0]; // sort by column 0 ascending
+});
+\end{lstlisting}
+
+先按第 0 列升序，再按第 1 列降序：
+
+\begin{lstlisting}
+sort(a.begin(), a.end(), [](const vector<int>& x, const vector<int>& y) {
+    if (x[0] != y[0]) return x[0] < y[0];
+    return x[1] > y[1];
+});
+\end{lstlisting}
+
+\subsection{stable\_sort}
+
+如果题目要求相同关键字保持原输入顺序：
+
+\begin{lstlisting}
+stable_sort(v.begin(), v.end(), [](const Student& a, const Student& b) {
+    return a.score > b.score;
+});
+\end{lstlisting}
+
+\subsection{比较器高危错误}
+
+比较器必须表达“谁应该排在前面”。
+
+\Good{正确：}
+
+\begin{lstlisting}
+sort(v.begin(), v.end(), [](const Student& a, const Student& b) {
+    if (a.score != b.score) return a.score > b.score;
+    return a.id < b.id;
+});
+\end{lstlisting}
+
+\Warn{错误：}
+
+\begin{lstlisting}
+sort(v.begin(), v.end(), [](const Student& a, const Student& b) {
+    return a.score >= b.score; // wrong: equality should return false
+});
+\end{lstlisting}
+
+相等时返回 \Code{true} 可能导致排序行为错误。
+
+\section{二分相关函数}
+
+\subsection{binary\_search}
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+bool ok = binary_search(a.begin(), a.end(), x);
+\end{lstlisting}
+
+\subsection{lower\_bound 和 upper\_bound}
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+
+auto it1 = lower_bound(a.begin(), a.end(), x); // first >= x
+auto it2 = upper_bound(a.begin(), a.end(), x); // first > x
+\end{lstlisting}
+
+下标：
+
+\begin{lstlisting}
+int pos = lower_bound(a.begin(), a.end(), x) - a.begin();
+\end{lstlisting}
+
+\Warn{解引用前检查：}
+
+\begin{lstlisting}
+auto it = lower_bound(a.begin(), a.end(), x);
+if (it != a.end()) {
+    cout << *it << '\n';
+}
+\end{lstlisting}
+
+\section{map 和 unordered\_map}
+
+\subsection{map}
+
+\Code{map} 按 key 自动升序排列，常用于字符串计数、编号映射、需要有序遍历的场景。
+
+\begin{lstlisting}
+map<string, int> cnt;
+cnt["apple"]++;
+cnt["banana"] += 2;
+
+cout << cnt["apple"] << '\n';
+\end{lstlisting}
+
+判断是否存在：
+
+\begin{lstlisting}
+if (cnt.count("apple")) {
+    cout << "exists\n";
+}
+
+auto it = cnt.find("apple");
+if (it != cnt.end()) {
+    cout << it->second << '\n';
+}
+\end{lstlisting}
+
+\Warn{注意：}\Code{cnt[key]} 会在 key 不存在时自动创建一个默认值。
+
+遍历：
+
+\begin{lstlisting}
+for (auto [key, value] : cnt) {
+    cout << key << ' ' << value << '\n';
+}
+\end{lstlisting}
+
+\subsection{unordered\_map}
+
+\Code{unordered\_map} 平均更快，但没有顺序。
+
+\begin{lstlisting}
+unordered_map<string, int> cnt;
+cnt["apple"]++;
+\end{lstlisting}
+
+考场建议：
+
+\begin{itemize}
+  \item 需要按 key 排序输出，用 \Code{map}。
+  \item 只做计数且数据量大，用 \Code{unordered\_map}。
+  \item 自定义 key 时新手优先考虑转成字符串或 \Code{long long} 编码，不要现场写复杂 hash。
+\end{itemize}
+
+\section{unordered\_set}
+
+\Code{unordered\_set} 用来快速判断一个值是否出现过，不关心顺序。
+
+\begin{lstlisting}
+unordered_set<int> seen;
+seen.insert(5);
+
+if (seen.count(5)) {
+    cout << "yes\n";
+}
+\end{lstlisting}
+
+字符串集合：
+
+\begin{lstlisting}
+unordered_set<string> words;
+words.insert("abc");
+if (words.count("abc")) {
+    cout << "exists\n";
+}
+\end{lstlisting}
+
+如果需要按升序遍历，用 \Code{set}，不要用 \Code{unordered\_set}。
+
+\section{set 和 multiset}
+
+\subsection{set}
+
+\Code{set} 自动排序且不重复。
+
+\begin{lstlisting}
+set<int> s;
+s.insert(3);
+s.insert(1);
+s.erase(3);
+
+if (s.count(1)) {
+    cout << "exists\n";
+}
+\end{lstlisting}
+
+查找第一个大于等于 x 的元素：
+
+\begin{lstlisting}
+auto it = s.lower_bound(x);
+if (it != s.end()) {
+    cout << *it << '\n';
+}
+\end{lstlisting}
+
+\subsection{multiset}
+
+\Code{multiset} 允许重复元素。
+
+\begin{lstlisting}
+multiset<int> s;
+s.insert(5);
+s.insert(5);
+cout << s.count(5) << '\n'; // 2
+\end{lstlisting}
+
+删除一个 5：
+
+\begin{lstlisting}
+auto it = s.find(5);
+if (it != s.end()) s.erase(it);
+\end{lstlisting}
+
+删除所有 5：
+
+\begin{lstlisting}
+s.erase(5);
+\end{lstlisting}
+
+\section{queue、stack、deque}
+
+\subsection{queue}
+
+BFS 常用队列。
+
+\begin{lstlisting}
+queue<int> q;
+q.push(1);
+int x = q.front();
+q.pop();
+bool empty = q.empty();
+\end{lstlisting}
+
+\subsection{stack}
+
+括号匹配、表达式、DFS 模拟可用栈。
+
+\begin{lstlisting}
+stack<char> st;
+st.push('(');
+char c = st.top();
+st.pop();
+\end{lstlisting}
+
+\Warn{调用 \Code{front/top} 前必须检查非空。}
+
+\subsection{deque}
+
+双端队列，两边都能进出。
+
+\begin{lstlisting}
+deque<int> dq;
+dq.push_back(1);
+dq.push_front(2);
+dq.pop_back();
+dq.pop_front();
+\end{lstlisting}
+
+单调队列会用到 \Code{deque}。
+
+\section{priority\_queue}
+
+\subsection{大根堆}
+
+默认是大根堆，最大值在顶部。
+
+\begin{lstlisting}
+priority_queue<int> pq;
+pq.push(3);
+pq.push(10);
+cout << pq.top() << '\n'; // 10
+pq.pop();
+\end{lstlisting}
+
+\subsection{小根堆}
+
+\begin{lstlisting}
+priority_queue<int, vector<int>, greater<int>> pq;
+pq.push(3);
+pq.push(10);
+cout << pq.top() << '\n'; // 3
+\end{lstlisting}
+
+\subsection{pair 小根堆}
+
+Dijkstra 常用：
+
+\begin{lstlisting}
+using P = pair<long long, int>; // distance, node
+priority_queue<P, vector<P>, greater<P>> pq;
+pq.push({0, 1});
+\end{lstlisting}
+
+pair 的默认比较先看 \Code{first}，再看 \Code{second}。
+
+\section{常用算法函数}
+
+\subsection{min、max、swap}
+
+\begin{lstlisting}
+int x = min(a, b);
+int y = max(a, b);
+swap(a, b);
+\end{lstlisting}
+
+\subsection{reverse}
+
+\begin{lstlisting}
+reverse(a.begin(), a.end());
+reverse(s.begin(), s.end());
+\end{lstlisting}
+
+\subsection{unique 去重}
+
+去重前必须排序：
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+a.erase(unique(a.begin(), a.end()), a.end());
+\end{lstlisting}
+
+\subsection{accumulate}
+
+\begin{lstlisting}
+long long sum = accumulate(a.begin(), a.end(), 0LL);
+\end{lstlisting}
+
+\Warn{第三个参数写 \Code{0LL}，否则可能按 \Code{int} 求和。}
+
+\subsection{gcd}
+
+\begin{lstlisting}
+long long g = gcd(a, b);
+long long l = a / g * b;
+\end{lstlisting}
+
+\Warn{最小公倍数先除后乘。}这样比 \Code{a * b / gcd(a,b)} 更不容易溢出。
+
+\subsection{常用数学函数}
+
+\begin{lstlisting}
+double r = sqrt(x);      // square root
+double y = pow(a, b);    // a^b, floating point
+double f = floor(v);     // round down as floating point
+double c = ceil(v);      // round up as floating point
+long long z = llround(v); // nearest integer
+\end{lstlisting}
+
+提醒：
+
+\begin{itemize}
+  \item \Code{sqrt}、\Code{pow} 返回浮点数，不适合直接处理大整数精确幂。
+  \item 整数平方尽量写 \Code{1LL * x * x}，不要写 \Code{pow(x, 2)}。
+  \item 判断一个整数是否为完全平方数时，先取 \Code{sqrt}，再用整数乘法校验。
+  \item 整数向上取整不要用 \Code{ceil(1.0*a/b)} 代替整数公式。
+\end{itemize}
+
+\begin{lstlisting}
+bool isSquare(long long x) {
+    if (x < 0) return false;
+    long long r = sqrt((long double)x);
+    while (r > 0 && r > x / r) r--;
+    while ((r + 1) <= x / (r + 1)) r++;
+    return r * r == x;
+}
+\end{lstlisting}
+
+\section{lambda 入门}
+
+lambda 是临时函数，排序时非常常用。
+
+最基本写法：
+
+\begin{lstlisting}
+[](int a, int b) {
+    return a < b;
+}
+\end{lstlisting}
+
+用于排序：
+
+\begin{lstlisting}
+sort(a.begin(), a.end(), [](int x, int y) {
+    return x > y;
+});
+\end{lstlisting}
+
+使用外部变量：
+
+\begin{lstlisting}
+int mod = 10;
+sort(a.begin(), a.end(), [mod](int x, int y) {
+    return x % mod < y % mod;
+});
+\end{lstlisting}
+
+引用捕获：
+
+\begin{lstlisting}
+int cnt = 0;
+auto add = [&](int x) {
+    cnt += x;
+};
+add(5);
+\end{lstlisting}
+
+考场建议：
+
+\begin{itemize}
+  \item 排序比较器中优先使用 \Code{const Type\&}，避免复制。
+  \item 不熟悉捕获时，尽量不要写复杂 lambda。
+  \item 复杂逻辑可以改成普通函数或先计算辅助字段。
+\end{itemize}
+
+\section{常见编译错误和原因}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+报错或现象 & 常见原因 & 处理方法 \\
+\midrule
+\Code{expected ';'} & 少分号 & 看上一行结构体、变量定义、语句末尾。 \\
+\Code{was not declared} & 变量未定义或作用域不对 & 检查拼写和定义位置。 \\
+\Code{no matching function} & 函数参数类型不匹配 & 检查传参类型、引用、const。 \\
+\Code{segmentation fault} & 越界、空容器取值、递归爆栈 & 查数组下标、\Code{front/top/back} 前是否非空。 \\
+样例正确但大数据错 & 溢出或复杂度过高 & 检查 \Code{long long} 和复杂度。 \\
+输出格式错误 & 多输出、少换行、空格不对 & 严格对照题目输出格式。 \\
+\bottomrule
+\end{longtable}
+
+\section{C 和 C++ 混用提醒}
+
+如果你使用 C++，建议全程使用 \Code{cin/cout} 或全程使用 \Code{scanf/printf}，不要混用。
+
+如果确实使用 C 风格输入输出：
+
+\begin{lstlisting}
+int x;
+scanf("%d", &x);
+
+long long y;
+scanf("%lld", &y);
+
+printf("%d\n", x);
+printf("%lld\n", y);
+\end{lstlisting}
+
+字符串：
+
+\begin{lstlisting}
+char s[1005];
+scanf("%s", s);
+\end{lstlisting}
+
+但对新手来说，C++ 的 \Code{string}、\Code{vector}、\Code{map} 会明显减少代码量和错误率。
+
+\section{考场 C++ 快速检查}
+
+提交前快速看一遍：
+
+\begin{itemize}
+  \item 是否包含了头文件和 \Code{using namespace std;}。
+  \item 是否开了快速输入输出。
+  \item 是否混用了 \Code{cin/cout} 和 \Code{scanf/printf}。
+  \item 求和、乘法、答案是否用了 \Code{long long}。
+  \item vector 是否按正确大小初始化。
+  \item 访问 \Code{front/top/back} 前是否判断非空。
+  \item \Code{lower\_bound} 返回 \Code{end} 时是否处理。
+  \item 排序比较器相等时是否返回 \Code{false} 或继续比较。
+  \item 多组数据是否清空容器。
+  \item 输出是否完全符合题意。
+\end{itemize}

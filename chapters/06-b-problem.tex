@@ -1,0 +1,1559 @@
+\chapter{B 题决策树与高频算法入口}
+
+\section{B 题定位}
+
+B 题通常是从“会写代码”进入“会选算法”的第一道题。它一般不会要求特别深的算法证明，但常常要求你识别出比暴力更快的做法。
+
+\begin{itemize}
+  \item 建议目标时间：40--70 分钟。
+  \item 目标分数：尽量 100 分。
+  \item 高频主题：排序、哈希统计、前缀和、差分、二分、简单 BFS、简单图、简单 DP。
+  \item 核心风险：样例能过的暴力在大数据超时。
+\end{itemize}
+
+\Warn{B 题第一原则：}读完题后先看数据范围，再决定能不能暴力。不要因为 A 题刚做完很顺，就直接写双重循环。
+
+\section{B 题开题流程}
+
+\begin{enumerate}
+  \item 圈出数据范围：$n,m,q$ 分别多大。
+  \item 圈出操作次数：是否有很多查询、很多修改。
+  \item 判断暴力复杂度：如果每次操作都扫描一遍，总次数是多少。
+  \item 找题面信号：区间、排序、统计、最短、连通、依赖、答案范围。
+  \item 查 B 题决策树，定位高频模板。
+  \item 如果满分做法明确，直接写；如果不明确，先写可拿部分分的暴力。
+\end{enumerate}
+
+\section{B 题总决策树}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+题面信号 & 优先怀疑 & 首选模板 \\
+\midrule
+多次询问区间和、区间最大统计 & 前缀和或预处理 & 一维/二维前缀和 \\
+多次区间加，最后查询结果 & 差分 & 一维/二维差分 \\
+区间修改和区间查询交替出现 & 树状数组或线段树 & 数据结构章节，B 题先看是否可简化 \\
+统计出现次数、找重复、频率 & 哈希统计 & 数组计数、map、unordered\_map \\
+排序后选择、排名、贪心安排 & 排序与扫描 & sort + 自定义比较器 \\
+前后两边信息、删除一个元素后的最优值 & 前后缀预处理 & 前缀最大/最小、后缀最大/最小 \\
+余数、整除、模 $k$ 相同 & 余数统计 & cnt[mod]、map 统计 \\
+第一个满足条件、答案具有单调性 & 二分或二分答案 & lower\_bound / check \\
+最少步数、网格移动、迷宫 & BFS & 队列、距离数组 \\
+合并集合、判断是否同组 & 并查集 & DSU \\
+依赖关系、先后顺序 & 拓扑排序 & 入度 + 队列 \\
+小规模任意两点距离 & Floyd & 三重循环 \\
+正权图最短路 & Dijkstra & 堆优化 Dijkstra \\
+选择若干、容量限制、最优值 & 简单 DP & 背包或线性 DP \\
+\bottomrule
+\end{longtable}
+
+\section{B 题数据范围判断}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+数据范围 & 暴力是否可行 & 常见替代 \\
+\midrule
+$n \le 1000$ & $O(n^2)$ 常常可行 & 双重循环、简单 DP \\
+$n \le 10^5$ & $O(n^2)$ 通常不可行 & 排序、哈希、前缀和、二分 \\
+$q \le 10^5$ 且每次查区间 & 每次扫描不可行 & 前缀和、树状数组、线段树 \\
+二维 $n,m \le 1000$ & $O(nm)$ 可行，$O(n^2m^2)$ 不可行 & 二维前缀和 \\
+图点数 $\le 500$ & Floyd 可能可行 & Floyd \\
+图点数、边数 $\le 10^5$ & Floyd 不可行 & BFS、Dijkstra、并查集 \\
+值域 $\le 10^6$ & 可用计数数组 & 数组计数 \\
+值域很大或字符串 key & 不能开值域数组 & map / unordered\_map \\
+\bottomrule
+\end{longtable}
+
+\section{B 题关键词到动作}
+
+\begin{longtable}{p{3.8cm}p{4.8cm}p{5.4cm}}
+\toprule
+看到 & 立刻想 & 小心 \\
+\midrule
+“多次询问” & 预处理，不能每次从头算 & 查询次数 $q$ 是否很大。 \\
+“区间 [l,r] 的和” & 前缀和 & 下标和 \Code{pre[r]-pre[l-1]}。 \\
+“子矩阵和” & 二维前缀和 & 公式四项别写错。 \\
+“区间加” & 差分 & 右端点后一位是否存在。 \\
+“出现次数” & 计数数组或 map & 值域是否能开数组。 \\
+“去重后数量” & set 或 sort+unique & 是否需要保持顺序。 \\
+“第一个不小于” & lower\_bound & 容器必须有序。 \\
+“最小的最大值” & 二分答案 & 必须能写 check。 \\
+“删除一个后”“左边右边” & 前后缀预处理 & 注意边界位置。 \\
+“除以 k 的余数”“能否整除” & 余数统计 & 负数取模要修正。 \\
+“尽量多选”“最早结束”“最少次数覆盖” & 贪心 & 必须按正确关键字排序。 \\
+“最短步数” & BFS & BFS 适合每步代价相同。 \\
+“连通、合并” & 并查集 & 初始化每个点的父亲。 \\
+“前置条件、依赖” & 拓扑排序 & 入度更新。 \\
+\bottomrule
+\end{longtable}
+
+\section{从暴力到优化的转换表}
+
+B 题经常不是完全不会，而是暴力会写但会超时。下面这张表用于把暴力做法改成常见优化。
+
+\begin{longtable}{p{4.2cm}p{4.8cm}p{5cm}}
+\toprule
+暴力想法 & 为什么危险 & 常见优化 \\
+\midrule
+每次查询都遍历 $[l,r]$ & $O(nq)$，$q$ 大时超时 & 前缀和、树状数组 \\
+每次区间加都逐个元素修改 & $O(nq)$ & 差分、线段树 \\
+双重循环找两数关系 & $O(n^2)$ & 排序、哈希、双指针 \\
+每次判断是否出现都扫描数组 & $O(nq)$ & set、unordered\_set、排序后二分 \\
+每次找最大值都扫描 & $O(nq)$ & priority\_queue、set、预处理 \\
+枚举所有子矩阵 & $O(n^2m^2)$ 或更高 & 二维前缀和 \\
+图上每对点都 BFS & 点数大时超时 & 看是否只需单源；正权用 Dijkstra \\
+字符串反复拼接或插入 & 长字符串会很慢 & 线性扫描、vector 存片段 \\
+\bottomrule
+\end{longtable}
+
+\section{前缀和}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 多次查询区间和。
+  \item 查询前 $k$ 项和。
+  \item 子数组和、某段累计值。
+  \item 数组不修改，或者所有查询都在修改之前/之后。
+\end{itemize}
+
+\subsection{一维前缀和模板}
+
+使用 1 下标最稳：
+
+\begin{lstlisting}
+int n, q;
+cin >> n >> q;
+vector<long long> pre(n + 1, 0);
+
+for (int i = 1; i <= n; i++) {
+    long long x;
+    cin >> x;
+    pre[i] = pre[i - 1] + x;
+}
+
+while (q--) {
+    int l, r;
+    cin >> l >> r;
+    cout << pre[r] - pre[l - 1] << '\n';
+}
+\end{lstlisting}
+
+\subsection{0 下标前缀和}
+
+如果原数组是 0 下标，也可以让 \Code{pre[i+1]} 表示前 $i+1$ 个数之和：
+
+\begin{lstlisting}
+vector<int> a(n);
+vector<long long> pre(n + 1, 0);
+for (int i = 0; i < n; i++) {
+    cin >> a[i];
+    pre[i + 1] = pre[i] + a[i];
+}
+
+// sum of a[l..r], 0-indexed
+long long ans = pre[r + 1] - pre[l];
+\end{lstlisting}
+
+\subsection{二维前缀和}
+
+适合多次查询子矩阵和。
+
+\begin{lstlisting}
+int n, m, q;
+cin >> n >> m >> q;
+vector<vector<long long>> pre(n + 1, vector<long long>(m + 1, 0));
+
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= m; j++) {
+        long long x;
+        cin >> x;
+        pre[i][j] = pre[i - 1][j] + pre[i][j - 1]
+                  - pre[i - 1][j - 1] + x;
+    }
+}
+
+while (q--) {
+    int x1, y1, x2, y2;
+    cin >> x1 >> y1 >> x2 >> y2;
+    long long ans = pre[x2][y2] - pre[x1 - 1][y2]
+                  - pre[x2][y1 - 1] + pre[x1 - 1][y1 - 1];
+    cout << ans << '\n';
+}
+\end{lstlisting}
+
+\subsection{前缀和易错点}
+
+\begin{itemize}
+  \item 查询端点是否从 1 开始。
+  \item \Code{pre[0]} 必须是 0。
+  \item 区间公式是一维两项、二维四项。
+  \item 和可能溢出，使用 \Code{long long}。
+  \item 如果中途有修改，普通前缀和通常不适用。
+\end{itemize}
+
+\section{前后缀预处理}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 删除一个元素后，问剩余部分的最大、最小、和。
+  \item 对每个位置，问它左边和右边的信息。
+  \item 需要快速知道前 $i$ 个的最大值、后 $i$ 个的最大值。
+\end{itemize}
+
+\subsection{前缀最大和后缀最大}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> a(n + 1);
+for (int i = 1; i <= n; i++) cin >> a[i];
+
+vector<int> preMax(n + 2, -1000000000);
+vector<int> sufMax(n + 2, -1000000000);
+
+for (int i = 1; i <= n; i++) {
+    preMax[i] = max(preMax[i - 1], a[i]);
+}
+for (int i = n; i >= 1; i--) {
+    sufMax[i] = max(sufMax[i + 1], a[i]);
+}
+
+// max value except position i
+for (int i = 1; i <= n; i++) {
+    int best = max(preMax[i - 1], sufMax[i + 1]);
+    cout << best << '\n';
+}
+\end{lstlisting}
+
+\subsection{前后缀易错点}
+
+\begin{itemize}
+  \item 数组多开两位，方便处理 \Code{i-1} 和 \Code{i+1}。
+  \item 初始值要根据题意设置，最大值用很小值，最小值用很大值。
+  \item 如果是求和，使用 \Code{long long}。
+  \item 删除第一个或最后一个元素时，一边为空，要提前定义空边的值。
+\end{itemize}
+
+\section{差分}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 很多次区间加。
+  \item 最后统一输出每个位置的值。
+  \item 修改多，查询少或只在最后查询。
+\end{itemize}
+
+\subsection{一维差分模板}
+
+区间 $[l,r]$ 加 $v$：
+
+\begin{lstlisting}
+int n, q;
+cin >> n >> q;
+vector<long long> diff(n + 2, 0);
+
+while (q--) {
+    int l, r;
+    long long v;
+    cin >> l >> r >> v;
+    diff[l] += v;
+    diff[r + 1] -= v;
+}
+
+long long cur = 0;
+for (int i = 1; i <= n; i++) {
+    cur += diff[i];
+    cout << cur << '\n';
+}
+\end{lstlisting}
+
+如果原数组已有初值：
+
+\begin{lstlisting}
+vector<long long> a(n + 1), diff(n + 2, 0);
+for (int i = 1; i <= n; i++) cin >> a[i];
+for (int i = 1; i <= n; i++) {
+    diff[i] += a[i] - a[i - 1];
+}
+\end{lstlisting}
+
+\subsection{差分易错点}
+
+\begin{itemize}
+  \item 数组要开到 \Code{n+2}，因为会访问 \Code{r+1}。
+  \item 差分适合“多次修改后统一求结果”。
+  \item 如果每次修改后立刻查询区间和，普通差分不够。
+  \item 修改值可能很大，用 \Code{long long}。
+\end{itemize}
+
+\subsection{二维差分入口}
+
+适合很多次对子矩阵加值，最后输出整个矩阵。
+
+对矩形 $(x1,y1)$ 到 $(x2,y2)$ 加 $v$：
+
+\begin{lstlisting}
+int n, m, q;
+cin >> n >> m >> q;
+vector<vector<long long>> diff(n + 2, vector<long long>(m + 2, 0));
+
+while (q--) {
+    int x1, y1, x2, y2;
+    long long v;
+    cin >> x1 >> y1 >> x2 >> y2 >> v;
+    diff[x1][y1] += v;
+    diff[x2 + 1][y1] -= v;
+    diff[x1][y2 + 1] -= v;
+    diff[x2 + 1][y2 + 1] += v;
+}
+
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= m; j++) {
+        diff[i][j] += diff[i - 1][j] + diff[i][j - 1]
+                    - diff[i - 1][j - 1];
+        cout << diff[i][j] << (j == m ? '\n' : ' ');
+    }
+}
+\end{lstlisting}
+
+\Warn{二维差分只适合修改后统一求结果。}如果修改和查询交替出现，要考虑二维树状数组或其他方法，B 题中通常会有更简单性质。
+
+\section{哈希统计}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 统计每个数或字符串出现次数。
+  \item 判断重复。
+  \item 找出现最多的元素。
+  \item 判断两个集合是否有交集。
+\end{itemize}
+
+\subsection{值域小：计数数组}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> cnt(100001, 0);
+for (int i = 0; i < n; i++) {
+    int x;
+    cin >> x;
+    cnt[x]++;
+}
+\end{lstlisting}
+
+\subsection{值域大：map}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+map<long long, int> cnt;
+for (int i = 0; i < n; i++) {
+    long long x;
+    cin >> x;
+    cnt[x]++;
+}
+
+for (auto [x, c] : cnt) {
+    cout << x << ' ' << c << '\n';
+}
+\end{lstlisting}
+
+\subsection{字符串统计}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+unordered_map<string, int> cnt;
+for (int i = 0; i < n; i++) {
+    string s;
+    cin >> s;
+    cnt[s]++;
+}
+\end{lstlisting}
+
+\subsection{找出现次数最多}
+
+\begin{lstlisting}
+map<string, int> cnt;
+// fill cnt
+
+string best;
+int bestCnt = -1;
+for (auto [s, c] : cnt) {
+    if (c > bestCnt) {
+        bestCnt = c;
+        best = s;
+    }
+}
+cout << best << ' ' << bestCnt << '\n';
+\end{lstlisting}
+
+如果有并列规则，例如字典序最小，由 \Code{map} 遍历天然按字典序升序。
+
+\section{余数和同余统计}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 能否被 $k$ 整除。
+  \item 两个数相加后是 $k$ 的倍数。
+  \item 前缀和模 $k$ 相同。
+  \item 按余数分类统计。
+\end{itemize}
+
+\subsection{统计每个余数}
+
+\begin{lstlisting}
+int n, k;
+cin >> n >> k;
+vector<long long> cnt(k, 0);
+
+for (int i = 0; i < n; i++) {
+    long long x;
+    cin >> x;
+    int r = (int)(x % k);
+    if (r < 0) r += k;
+    cnt[r]++;
+}
+\end{lstlisting}
+
+\subsection{两数和能被 k 整除}
+
+\begin{lstlisting}
+long long ans = 0;
+for (int r = 0; r < k; r++) {
+    int need = (k - r) % k;
+    if (r < need) {
+        ans += cnt[r] * cnt[need];
+    } else if (r == need) {
+        ans += cnt[r] * (cnt[r] - 1) / 2;
+    }
+}
+cout << ans << '\n';
+\end{lstlisting}
+
+\subsection{前缀和模 k}
+
+如果两个前缀和模 $k$ 相同，它们之间的区间和能被 $k$ 整除。
+
+\begin{lstlisting}
+int n, k;
+cin >> n >> k;
+vector<long long> cnt(k, 0);
+cnt[0] = 1;
+
+long long sum = 0;
+long long ans = 0;
+for (int i = 0; i < n; i++) {
+    long long x;
+    cin >> x;
+    sum += x;
+    int r = (int)(sum % k);
+    if (r < 0) r += k;
+    ans += cnt[r];
+    cnt[r]++;
+}
+cout << ans << '\n';
+\end{lstlisting}
+
+\Warn{余数题注意：}如果 $k$ 很大，不能开 \Code{vector cnt(k)}，改用 \Code{map} 或 \Code{unordered\_map}。
+
+\section{排序加扫描}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 排序后相邻元素有关系。
+  \item 需要合并区间。
+  \item 需要按时间顺序处理事件。
+  \item 需要按优先级选择。
+\end{itemize}
+
+\subsection{排序后统计相同元素段}
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+int n = (int)a.size();
+for (int i = 0; i < n; ) {
+    int j = i;
+    while (j < n && a[j] == a[i]) {
+        j++;
+    }
+    int count = j - i;
+    cout << a[i] << ' ' << count << '\n';
+    i = j;
+}
+\end{lstlisting}
+
+\subsection{合并区间}
+
+输入若干区间，合并重叠部分：
+
+\begin{lstlisting}
+vector<pair<int, int>> segs;
+sort(segs.begin(), segs.end());
+
+vector<pair<int, int>> merged;
+for (auto [l, r] : segs) {
+    if (merged.empty() || l > merged.back().second) {
+        merged.push_back({l, r});
+    } else {
+        merged.back().second = max(merged.back().second, r);
+    }
+}
+\end{lstlisting}
+
+如果题目认为相邻区间也可合并，例如 $[1,2]$ 和 $[3,4]$，条件要改成 \Code{l > merged.back().second + 1}。
+
+\subsection{事件排序}
+
+当题目有“按时间发生”的操作，先把事件读入结构体，再排序处理。
+
+\begin{lstlisting}
+struct Event {
+    int time;
+    int type;
+    int id;
+};
+
+vector<Event> events;
+
+sort(events.begin(), events.end(), [](const Event& a, const Event& b) {
+    if (a.time != b.time) return a.time < b.time;
+    return a.type < b.type; // tie rule depends on statement
+});
+
+for (const Event& e : events) {
+    // process event
+}
+\end{lstlisting}
+
+事件排序检查：
+
+\begin{itemize}
+  \item 同一时间多个事件的处理顺序。
+  \item 开始事件和结束事件谁先处理。
+  \item 是否需要稳定排序。
+  \item 时间和答案是否要 \Code{long long}。
+\end{itemize}
+
+\subsection{坐标离散化入口}
+
+当坐标很大，但只关心出现过的坐标，可以离散化。
+
+识别信号：
+
+\begin{itemize}
+  \item 坐标可达 $10^9$，不能直接开数组。
+  \item 点的数量只有 $10^5$。
+  \item 只需要比较大小、排序、相对位置。
+\end{itemize}
+
+模板：
+
+\begin{lstlisting}
+vector<int> xs;
+for (int x : original) {
+    xs.push_back(x);
+}
+
+sort(xs.begin(), xs.end());
+xs.erase(unique(xs.begin(), xs.end()), xs.end());
+
+auto getId = [&](int x) {
+    return (int)(lower_bound(xs.begin(), xs.end(), x) - xs.begin()) + 1;
+};
+
+int id = getId(original[0]);
+\end{lstlisting}
+
+\Warn{区间离散化要小心。}如果题目处理连续区间长度，不能只保存端点编号，还要考虑相邻坐标之间的真实长度。
+
+\section{堆和动态维护}
+
+\subsection{priority\_queue 识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 每次取当前最大或最小。
+  \item 动态加入元素。
+  \item 模拟优先级队列。
+  \item 求前 $k$ 大、前 $k$ 小。
+\end{itemize}
+
+\subsection{小根堆}
+
+\begin{lstlisting}
+priority_queue<int, vector<int>, greater<int>> pq;
+pq.push(5);
+pq.push(2);
+cout << pq.top() << '\n'; // 2
+pq.pop();
+\end{lstlisting}
+
+\subsection{保留最大的 k 个数}
+
+用小根堆保存当前最大的 $k$ 个数。
+
+\begin{lstlisting}
+int k;
+cin >> k;
+priority_queue<int, vector<int>, greater<int>> pq;
+
+for (int x : a) {
+    pq.push(x);
+    if ((int)pq.size() > k) {
+        pq.pop();
+    }
+}
+
+cout << pq.top() << '\n'; // kth largest
+\end{lstlisting}
+
+\subsection{set 动态维护}
+
+\Code{set} 适合动态插入、删除、找前驱后继。
+
+\begin{lstlisting}
+set<int> s;
+s.insert(10);
+s.insert(20);
+s.insert(30);
+
+int x = 25;
+auto it = s.lower_bound(x); // first >= x
+if (it != s.end()) {
+    cout << "next=" << *it << '\n';
+}
+if (it != s.begin()) {
+    --it;
+    cout << "prev=" << *it << '\n';
+}
+\end{lstlisting}
+
+\Warn{迭代器小心：}移动迭代器前先判断是不是 \Code{begin()} 或 \Code{end()}。
+
+\subsection{map 动态维护}
+
+\Code{map} 适合动态统计并按 key 有序遍历。
+
+\begin{lstlisting}
+map<int, int> cnt;
+cnt[x]++;
+
+cnt[x]--;
+if (cnt[x] == 0) {
+    cnt.erase(x);
+}
+\end{lstlisting}
+
+取最小 key 和最大 key：
+
+\begin{lstlisting}
+int mn = cnt.begin()->first;
+int mx = cnt.rbegin()->first;
+\end{lstlisting}
+
+\Warn{取 \Code{begin/rbegin} 前确认 map 非空。}
+
+\section{基础贪心}
+
+\subsection{识别信号}
+
+B 题中的贪心通常比较直接，常见信号：
+
+\begin{itemize}
+  \item 尽量多选一些区间、任务、物品。
+  \item 每次选择当前最早结束、最小代价、最大收益。
+  \item 排序后从前往后扫描。
+  \item 题目问最少次数覆盖、最多不冲突任务。
+\end{itemize}
+
+\subsection{最多不重叠区间}
+
+按右端点从小到大排序，每次选最早结束的区间。
+
+\begin{lstlisting}
+vector<pair<int, int>> segs; // l, r
+sort(segs.begin(), segs.end(), [](auto a, auto b) {
+    if (a.second != b.second) return a.second < b.second;
+    return a.first < b.first;
+});
+
+int ans = 0;
+int lastEnd = -1000000000;
+for (auto [l, r] : segs) {
+    if (l > lastEnd) { // use l >= lastEnd if endpoints can touch
+        ans++;
+        lastEnd = r;
+    }
+}
+cout << ans << '\n';
+\end{lstlisting}
+
+\subsection{贪心易错点}
+
+\begin{itemize}
+  \item 先确认排序关键字，是按左端点、右端点、代价还是收益。
+  \item 区间相邻是否算冲突：\Code{l > lastEnd} 还是 \Code{l >= lastEnd}。
+  \item 贪心不是看起来合理就一定对。B 题若想不出证明，至少用小样例反驳自己。
+\end{itemize}
+
+\section{单调栈和单调队列入口}
+
+\subsection{单调栈识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 找每个元素左边或右边第一个更大/更小的元素。
+  \item 柱状图、温度、最近更高。
+  \item 暴力向左/向右扫描会超时。
+\end{itemize}
+
+\subsection{右边第一个更大元素}
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<int> a(n);
+for (int i = 0; i < n; i++) cin >> a[i];
+
+vector<int> ans(n, -1);
+stack<int> st; // indices, a[st] decreasing
+
+for (int i = 0; i < n; i++) {
+    while (!st.empty() && a[i] > a[st.top()]) {
+        ans[st.top()] = i;
+        st.pop();
+    }
+    st.push(i);
+}
+\end{lstlisting}
+
+\subsection{单调队列识别信号}
+
+题面出现固定长度滑动窗口最大值/最小值。
+
+\begin{lstlisting}
+int n, k;
+cin >> n >> k;
+vector<int> a(n);
+for (int i = 0; i < n; i++) cin >> a[i];
+
+deque<int> dq; // indices, values decreasing
+for (int i = 0; i < n; i++) {
+    while (!dq.empty() && dq.front() <= i - k) dq.pop_front();
+    while (!dq.empty() && a[dq.back()] <= a[i]) dq.pop_back();
+    dq.push_back(i);
+
+    if (i >= k - 1) {
+        cout << a[dq.front()] << '\n'; // max of window
+    }
+}
+\end{lstlisting}
+
+\Warn{单调结构新手建议：}如果没练过，不要在考场第一次使用。可以作为 B/C/D 题冲分模板，但必须提前练。
+
+\section{双指针入门}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 数组已排序，找一对数。
+  \item 连续区间满足某个条件。
+  \item 左右端点移动，区间和或区间长度变化。
+\end{itemize}
+
+\subsection{排序后找两数和}
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+int l = 0, r = n - 1;
+bool ok = false;
+
+while (l < r) {
+    long long sum = 1LL * a[l] + a[r];
+    if (sum == target) {
+        ok = true;
+        break;
+    } else if (sum < target) {
+        l++;
+    } else {
+        r--;
+    }
+}
+
+cout << (ok ? "YES" : "NO") << '\n';
+\end{lstlisting}
+
+\subsection{正数数组的连续区间}
+
+如果数组元素都是非负数，可以用滑动窗口。
+
+\begin{lstlisting}
+int l = 0;
+long long sum = 0;
+int best = 0;
+
+for (int r = 0; r < n; r++) {
+    sum += a[r];
+    while (sum > limit && l <= r) {
+        sum -= a[l];
+        l++;
+    }
+    best = max(best, r - l + 1);
+}
+\end{lstlisting}
+
+\Warn{滑动窗口前提：}通常要求元素非负或条件具有单调性。若有负数，窗口移动可能失效。
+
+\section{二分与二分答案}
+
+\subsection{普通二分查找}
+
+数组必须有序。
+
+\begin{lstlisting}
+sort(a.begin(), a.end());
+auto it = lower_bound(a.begin(), a.end(), x);
+if (it != a.end()) {
+    cout << *it << '\n';
+}
+\end{lstlisting}
+
+\subsection{二分答案识别}
+
+题面出现：
+
+\begin{itemize}
+  \item 最大化最小值。
+  \item 最小化最大值。
+  \item 求最小的可行时间、容量、代价。
+  \item 给定一个答案 $mid$，容易判断是否可行。
+\end{itemize}
+
+\subsection{二分答案模板}
+
+找最小可行值：
+
+\begin{lstlisting}
+bool check(long long mid) {
+    // return true if mid is feasible
+    return true;
+}
+
+long long l = 0, r = 1000000000000000000LL;
+while (l < r) {
+    long long mid = l + (r - l) / 2;
+    if (check(mid)) {
+        r = mid;
+    } else {
+        l = mid + 1;
+    }
+}
+cout << l << '\n';
+\end{lstlisting}
+
+找最大可行值：
+
+\begin{lstlisting}
+long long l = 0, r = 1000000000000000000LL;
+while (l < r) {
+    long long mid = l + (r - l + 1) / 2;
+    if (check(mid)) {
+        l = mid;
+    } else {
+        r = mid - 1;
+    }
+}
+cout << l << '\n';
+\end{lstlisting}
+
+\Warn{二分答案关键：}不是所有题都能二分。必须满足可行性具有单调性。
+
+\section{BFS 入门}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 最少步数。
+  \item 迷宫、网格移动。
+  \item 每次操作代价相同。
+  \item 从起点扩展到终点。
+\end{itemize}
+
+\subsection{网格 BFS 模板}
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<string> g(n);
+for (int i = 0; i < n; i++) cin >> g[i];
+
+vector<vector<int>> dist(n, vector<int>(m, -1));
+queue<pair<int, int>> q;
+
+int sx, sy, tx, ty;
+cin >> sx >> sy >> tx >> ty;
+
+dist[sx][sy] = 0;
+q.push({sx, sy});
+
+int dx[4] = {-1, 0, 1, 0};
+int dy[4] = {0, 1, 0, -1};
+
+while (!q.empty()) {
+    auto [x, y] = q.front();
+    q.pop();
+
+    for (int d = 0; d < 4; d++) {
+        int nx = x + dx[d];
+        int ny = y + dy[d];
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+        if (g[nx][ny] == '#') continue;
+        if (dist[nx][ny] != -1) continue;
+
+        dist[nx][ny] = dist[x][y] + 1;
+        q.push({nx, ny});
+    }
+}
+
+cout << dist[tx][ty] << '\n';
+\end{lstlisting}
+
+\subsection{BFS 易错点}
+
+\begin{itemize}
+  \item 坐标输入是 0 下标还是 1 下标。
+  \item 障碍字符是什么。
+  \item 起点是否可能等于终点。
+  \item 应在入队时标记访问，避免重复入队。
+  \item BFS 适合每步代价相同；边权不同要考虑 Dijkstra。
+\end{itemize}
+
+\subsection{多源 BFS}
+
+如果有多个起点，且要求每个点到最近起点的距离，把所有起点同时入队。
+
+\begin{lstlisting}
+vector<vector<int>> dist(n, vector<int>(m, -1));
+queue<pair<int, int>> q;
+
+for (auto [x, y] : starts) {
+    dist[x][y] = 0;
+    q.push({x, y});
+}
+
+while (!q.empty()) {
+    auto [x, y] = q.front();
+    q.pop();
+    for (int d = 0; d < 4; d++) {
+        int nx = x + dx[d];
+        int ny = y + dy[d];
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+        if (dist[nx][ny] != -1) continue;
+        dist[nx][ny] = dist[x][y] + 1;
+        q.push({nx, ny});
+    }
+}
+\end{lstlisting}
+
+识别信号：
+
+\begin{itemize}
+  \item 多个火源、多个出口、多个起点。
+  \item 求离最近特殊点的距离。
+  \item 每一步代价相同。
+\end{itemize}
+
+\section{DFS 和连通块}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 统计连通块数量。
+  \item 找一片区域大小。
+  \item 网格中相邻的同类格子。
+  \item 图中从某点能到哪些点。
+\end{itemize}
+
+\subsection{网格 DFS}
+
+\begin{lstlisting}
+int n, m;
+vector<string> g;
+vector<vector<int>> vis;
+int dx[4] = {-1, 0, 1, 0};
+int dy[4] = {0, 1, 0, -1};
+
+int dfs(int x, int y) {
+    vis[x][y] = 1;
+    int area = 1;
+    for (int d = 0; d < 4; d++) {
+        int nx = x + dx[d];
+        int ny = y + dy[d];
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+        if (vis[nx][ny]) continue;
+        if (g[nx][ny] == '#') continue;
+        area += dfs(nx, ny);
+    }
+    return area;
+}
+\end{lstlisting}
+
+统计连通块：
+
+\begin{lstlisting}
+int components = 0;
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        if (!vis[i][j] && g[i][j] != '#') {
+            components++;
+            int area = dfs(i, j);
+        }
+    }
+}
+\end{lstlisting}
+
+\Warn{递归深度风险：}如果网格很大，递归 DFS 可能爆栈。B 题中可改用 BFS 更稳。
+
+\section{Floyd 入门}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 问任意两点之间最短路。
+  \item 点数较小，例如 $n \le 300$ 或 $n \le 500$。
+  \item 图可能是稠密图。
+\end{itemize}
+
+\subsection{Floyd 模板}
+
+\begin{lstlisting}
+const long long INF = (long long)4e18;
+
+int n, m;
+cin >> n >> m;
+vector<vector<long long>> dist(n + 1, vector<long long>(n + 1, INF));
+
+for (int i = 1; i <= n; i++) {
+    dist[i][i] = 0;
+}
+
+for (int i = 0; i < m; i++) {
+    int u, v;
+    long long w;
+    cin >> u >> v >> w;
+    dist[u][v] = min(dist[u][v], w);
+    dist[v][u] = min(dist[v][u], w); // remove if directed
+}
+
+for (int k = 1; k <= n; k++) {
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (dist[i][k] == INF || dist[k][j] == INF) continue;
+            dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Floyd 易错点}
+
+\begin{itemize}
+  \item 三层循环顺序必须是 \Code{k,i,j}。
+  \item 无向图要双向赋值，有向图不要。
+  \item 多条边取最小边权。
+  \item 点数大时不能用 Floyd。
+\end{itemize}
+
+\section{Dijkstra 入门}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 正权图最短路。
+  \item 边权不是全 1。
+  \item 点和边较多，不能 Floyd。
+  \item 单源最短路：从一个起点到其他点。
+\end{itemize}
+
+\subsection{Dijkstra 模板}
+
+\begin{lstlisting}
+struct Edge {
+    int to;
+    long long w;
+};
+
+const long long INF = (long long)4e18;
+
+int n, m, s;
+cin >> n >> m >> s;
+vector<vector<Edge>> g(n + 1);
+
+for (int i = 0; i < m; i++) {
+    int u, v;
+    long long w;
+    cin >> u >> v >> w;
+    g[u].push_back({v, w});
+    g[v].push_back({u, w}); // remove if directed
+}
+
+vector<long long> dist(n + 1, INF);
+priority_queue<pair<long long, int>,
+               vector<pair<long long, int>>,
+               greater<pair<long long, int>>> pq;
+
+dist[s] = 0;
+pq.push({0, s});
+
+while (!pq.empty()) {
+    auto [d, u] = pq.top();
+    pq.pop();
+    if (d != dist[u]) continue;
+
+    for (auto e : g[u]) {
+        if (dist[e.to] > dist[u] + e.w) {
+            dist[e.to] = dist[u] + e.w;
+            pq.push({dist[e.to], e.to});
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Dijkstra 易错点}
+
+\begin{itemize}
+  \item 只适用于非负边权。存在负边权时不能直接用。
+  \item 距离用 \Code{long long}。
+  \item 无向图双向加边，有向图单向加边。
+  \item 堆中可能有过期状态，要跳过。
+  \item 如果所有边权都是 1，用 BFS 更简单。
+\end{itemize}
+
+\section{并查集入门}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 合并两个集合。
+  \item 判断两个元素是否属于同一组。
+  \item 连通块数量。
+  \item 朋友关系、同类关系、网络连通。
+\end{itemize}
+
+\subsection{并查集模板}
+
+\begin{lstlisting}
+struct DSU {
+    vector<int> parent, sz;
+
+    DSU(int n) {
+        parent.resize(n + 1);
+        sz.assign(n + 1, 1);
+        for (int i = 1; i <= n; i++) parent[i] = i;
+    }
+
+    int find(int x) {
+        if (parent[x] == x) return x;
+        return parent[x] = find(parent[x]);
+    }
+
+    bool unite(int a, int b) {
+        int ra = find(a);
+        int rb = find(b);
+        if (ra == rb) return false;
+        if (sz[ra] < sz[rb]) swap(ra, rb);
+        parent[rb] = ra;
+        sz[ra] += sz[rb];
+        return true;
+    }
+
+    bool same(int a, int b) {
+        return find(a) == find(b);
+    }
+};
+\end{lstlisting}
+
+\section{拓扑排序入口}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 任务必须按先后顺序完成。
+  \item A 必须在 B 前面。
+  \item 课程依赖、工程依赖。
+  \item 判断是否存在合法顺序。
+\end{itemize}
+
+\subsection{拓扑排序模板}
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+vector<vector<int>> g(n + 1);
+vector<int> indeg(n + 1, 0);
+
+for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v; // u before v
+    g[u].push_back(v);
+    indeg[v]++;
+}
+
+queue<int> q;
+for (int i = 1; i <= n; i++) {
+    if (indeg[i] == 0) q.push(i);
+}
+
+vector<int> order;
+while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+    order.push_back(u);
+
+    for (int v : g[u]) {
+        indeg[v]--;
+        if (indeg[v] == 0) q.push(v);
+    }
+}
+
+if ((int)order.size() == n) {
+    cout << "YES\n";
+} else {
+    cout << "NO\n"; // has cycle
+}
+\end{lstlisting}
+
+\subsection{拓扑排序易错点}
+
+\begin{itemize}
+  \item 边的方向：如果 A 在 B 前，应连 A 到 B。
+  \item 入度为 0 的点一开始全部入队。
+  \item 输出顺序是否要求字典序最小。若要求，队列换成小根堆。
+  \item 若排序结果少于 $n$ 个点，说明有环。
+\end{itemize}
+
+\section{简单 DP 入口}
+
+\subsection{识别信号}
+
+题面出现：
+
+\begin{itemize}
+  \item 求最优值：最大、最小、方案数。
+  \item 当前结果依赖前一个或前几个位置。
+  \item 选择或不选择某个物品。
+  \item 容量、价值、花费、恰好装满。
+\end{itemize}
+
+\subsection{线性 DP 示例}
+
+例如每一步只能从前一步或前两步转移：
+
+\begin{lstlisting}
+int n;
+cin >> n;
+vector<long long> dp(n + 1, 0);
+dp[0] = 1;
+dp[1] = 1;
+for (int i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+}
+cout << dp[n] << '\n';
+\end{lstlisting}
+
+\subsection{01 背包入口}
+
+每个物品只能选一次：
+
+\begin{lstlisting}
+int n, V;
+cin >> n >> V;
+vector<int> w(n + 1), val(n + 1);
+for (int i = 1; i <= n; i++) {
+    cin >> w[i] >> val[i];
+}
+
+vector<int> dp(V + 1, 0);
+for (int i = 1; i <= n; i++) {
+    for (int j = V; j >= w[i]; j--) {
+        dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
+    }
+}
+cout << dp[V] << '\n';
+\end{lstlisting}
+
+\subsection{完全背包入口}
+
+每个物品可以选无限次，容量正序。
+
+\begin{lstlisting}
+int n, V;
+cin >> n >> V;
+vector<int> w(n + 1), val(n + 1);
+for (int i = 1; i <= n; i++) {
+    cin >> w[i] >> val[i];
+}
+
+vector<int> dp(V + 1, 0);
+for (int i = 1; i <= n; i++) {
+    for (int j = w[i]; j <= V; j++) {
+        dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
+    }
+}
+cout << dp[V] << '\n';
+\end{lstlisting}
+
+\subsection{DP 易错点}
+
+\begin{itemize}
+  \item 先定义 \Code{dp[i]} 表示什么。
+  \item 写出初始状态。
+  \item 写出转移方程。
+  \item 01 背包容量倒序，完全背包容量正序。
+  \item 方案数可能很大，要看是否取模。
+\end{itemize}
+
+\section{基础数学入口}
+
+\subsection{gcd 和 lcm}
+
+\begin{lstlisting}
+long long g = gcd(a, b);
+long long l = a / g * b;
+\end{lstlisting}
+
+\Warn{先除后乘，降低溢出风险。}
+
+\subsection{快速幂}
+
+如果题目要求 $a^b \bmod mod$：
+
+\begin{lstlisting}
+long long modPow(long long a, long long b, long long mod) {
+    long long res = 1 % mod;
+    a %= mod;
+    while (b > 0) {
+        if (b & 1) res = res * a % mod;
+        a = a * a % mod;
+        b >>= 1;
+    }
+    return res;
+}
+\end{lstlisting}
+
+\subsection{判断素数}
+
+单个数判断：
+
+\begin{lstlisting}
+bool isPrime(long long x) {
+    if (x < 2) return false;
+    for (long long d = 2; d * d <= x; d++) {
+        if (x % d == 0) return false;
+    }
+    return true;
+}
+\end{lstlisting}
+
+\subsection{枚举约数}
+
+\begin{lstlisting}
+vector<long long> divisors;
+for (long long d = 1; d * d <= x; d++) {
+    if (x % d == 0) {
+        divisors.push_back(d);
+        if (d != x / d) divisors.push_back(x / d);
+    }
+}
+sort(divisors.begin(), divisors.end());
+\end{lstlisting}
+
+\Warn{数学题先看范围。}如果要对很多个数判断素数，可能需要筛法；如果只是少量数，试除通常够用。
+
+使用：
+
+\begin{lstlisting}
+int n, m;
+cin >> n >> m;
+DSU dsu(n);
+
+while (m--) {
+    int op, a, b;
+    cin >> op >> a >> b;
+    if (op == 1) dsu.unite(a, b);
+    else cout << (dsu.same(a, b) ? "YES" : "NO") << '\n';
+}
+\end{lstlisting}
+
+\section{B 题提交前检查}
+
+\begin{itemize}
+  \item 是否估算过复杂度。
+  \item 是否把暴力写到了大数据上。
+  \item 前缀和、差分的下标是否统一。
+  \item 求和、答案、距离是否用 \Code{long long}。
+  \item 排序比较器是否正确。
+  \item \Code{lower\_bound} 前是否排序。
+  \item BFS 是否在入队时标记。
+  \item 并查集是否初始化所有点。
+  \item 多组数据是否清空容器。
+\end{itemize}
+
+\section{B 题冲分判断表}
+
+当你已经有一个暴力思路，但担心超时时，用这张表判断下一步。
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+当前情况 & 优先尝试 & 原因 \\
+\midrule
+暴力是两层循环找一对数 & 排序、哈希、双指针 & 二元关系常能降到 $O(n\log n)$ 或 $O(n)$。 \\
+暴力是每次求区间和 & 前缀和 & 静态区间查询标准做法。 \\
+暴力是每次区间加 & 差分 & 最后统一查询时最简单。 \\
+暴力是每次找最大/最小 & 堆或 set & 动态维护极值。 \\
+坐标太大但点数不多 & 离散化 & 把大坐标压缩成小编号。 \\
+规则按时间发生 & 事件排序 & 统一按时间顺序处理。 \\
+左边右边都要快速知道信息 & 前后缀预处理 & 删除一个元素或分割数组常见。 \\
+涉及整除、余数相同 & 余数统计 & 同余关系常能转成计数。 \\
+最多不冲突任务或区间 & 贪心排序 & 常见按右端点排序。 \\
+每个点找旁边第一个更大/更小 & 单调栈 & 避免每次向旁边扫。 \\
+滑动窗口最大/最小 & 单调队列 & 固定窗口极值。 \\
+网格最短步数 & BFS & 每步代价相同。 \\
+网格连通区域 & DFS/BFS & 统计区域或连通块。 \\
+图边权为 1 & BFS & 比 Dijkstra 简单。 \\
+图边权为正 & Dijkstra & 单源正权最短路。 \\
+点数小且任意两点 & Floyd & 写法短，适合小图。 \\
+合并和查询同组 & 并查集 & 连通性标准做法。 \\
+依赖顺序 & 拓扑排序 & 入度为 0 的点先处理。 \\
+\bottomrule
+\end{longtable}
+
+\section{B 题常见边界库}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+题型 & 边界样例 & 检查目标 \\
+\midrule
+前缀和 & $l=1$，$r=n$，$l=r$ & 端点公式。 \\
+二维前缀和 & 单行、单列、整个矩阵、单个格子 & 四项公式。 \\
+差分 & 修改到 $r=n$，只改一个点 & \Code{r+1} 和数组大小。 \\
+排序 & 全相等、逆序、相同主关键字 & 比较器。 \\
+哈希统计 & 没有重复、全部重复、key 很大 & 容器选择。 \\
+双指针 & 无解、两个数刚好在两端、有重复 & 指针移动。 \\
+二分答案 & 最小值可行、最大值不可行、边界答案 & \Code{check} 单调性。 \\
+BFS & 起点等于终点、无路、全障碍附近 & 距离初始化。 \\
+DFS 连通块 & 全障碍、全可走、单个格子 & 访问标记。 \\
+并查集 & 自己和自己合并、重复合并 & find/unite。 \\
+Dijkstra & 不连通、多条边、起点到自己 & INF 和取最小边。 \\
+余数统计 & 负数、$k=1$、所有余数相同 & 取模修正和计数公式。 \\
+贪心 & 区间端点相同、相邻是否冲突 & 排序关键字和边界条件。 \\
+单调栈 & 全递增、全递减、全相等 & 比较符号是 \Code{<} 还是 \Code{<=}。 \\
+\bottomrule
+\end{longtable}
+
+\section{B 题本地调试流程}
+
+\subsection{先用暴力对拍思路}
+
+如果你写了优化算法，但不确定是否正确，可以在本地用小数据和暴力对比。考场时间紧时不一定完整写对拍，但可以用这个思想手工造样例。
+
+\begin{itemize}
+  \item $n$ 取 3 到 6。
+  \item 手算所有操作结果。
+  \item 用暴力程序或草稿验证优化结果。
+  \item 专门造边界：重复、空、单点、全相等。
+\end{itemize}
+
+\subsection{复杂度复查}
+
+提交前问：
+
+\begin{itemize}
+  \item 有没有隐藏的双重循环。
+  \item \Code{map} 操作是否在循环里被调用很多次，是否仍可接受。
+  \item 排序是否放在循环内部。若是，通常危险。
+  \item BFS/Dijkstra 是否会重复跑很多次。
+  \item 字符串拼接是否在大循环里反复发生。
+\end{itemize}
+
+\subsection{状态清空}
+
+多组数据时，尤其注意：
+
+\begin{lstlisting}
+g.assign(n + 1, vector<int>());
+dist.assign(n + 1, INF);
+vis.assign(n + 1, 0);
+cnt.clear();
+while (!q.empty()) q.pop();
+\end{lstlisting}
+
+\Warn{队列、优先队列没有 clear。}最简单的方法是在每组数据内部重新定义它。
+
+\section{B 题卡住时的部分分策略}
+
+\begin{enumerate}
+  \item 如果不会优化，先写 $O(n^2)$ 暴力，确认题意。
+  \item 如果有多档数据，先保证小数据正确。
+  \item 如果是区间题，先写单次查询或无修改版本。
+  \item 如果是图题，先写 BFS/DFS 处理无权或小图。
+  \item 如果是复杂排序规则，先保证主关键字正确，再处理并列规则。
+\end{enumerate}
+
+\section{B 题手写模板清单}
+
+这些模板建议在考前单独练习到“看着能快速写对”。
+
+\begin{longtable}{p{4cm}p{4cm}p{6cm}}
+\toprule
+模板 & 熟练要求 & 主要用途 \\
+\midrule
+一维前缀和 & 必须会默写 & 静态区间和。 \\
+二维前缀和 & 照着能写 & 子矩阵和。 \\
+一维差分 & 必须会默写 & 区间加，最后查询。 \\
+二维差分 & 照着能写 & 矩形加，最后输出。 \\
+map/unordered\_map 统计 & 必须会默写 & 频率统计。 \\
+排序加结构体比较器 & 必须会默写 & 排名、事件、贪心。 \\
+双指针 & 照着能写 & 排序后找对、滑动窗口。 \\
+二分答案 & 照着能写 & 最大化最小值、最小化最大值。 \\
+前后缀预处理 & 照着能写 & 删除一个元素、左右信息。 \\
+余数统计 & 照着能写 & 整除、同余、区间和取模。 \\
+基础贪心 & 照着能写 & 区间选择、任务安排。 \\
+单调栈/队列 & 了解并练过再用 & 最近更大、滑动窗口极值。 \\
+网格 BFS & 必须照着能写 & 最短步数。 \\
+并查集 & 照着能写 & 连通性。 \\
+拓扑排序 & 照着能写 & 依赖顺序。 \\
+Dijkstra & 照着能写 & 正权最短路。 \\
+\bottomrule
+\end{longtable}

@@ -1,0 +1,203 @@
+\chapter{易错点总表}
+
+\section{本章使用方法}
+
+本章用于考前最后复习和提交前检查。很多失分不是因为算法不会，而是因为输入输出、下标、溢出、初始化、比较器等细节错误。
+
+建议使用方式：
+
+\begin{itemize}
+  \item 考前每天快速看一遍。
+  \item 每次模拟赛后，把自己犯过的错补进本章。
+  \item 考场提交前，用最后的总检查表快速扫一遍。
+\end{itemize}
+
+\section{输入输出易错点}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+问题 & 表现 & 检查方法 \\
+\midrule
+多输出提示语 & 答案格式错误 & 不要输出 \Code{answer=}、提示文字。 \\
+少换行或多内容 & 样例看似接近但不完全一致 & 严格对照题目输出格式。 \\
+大小写错误 & \Code{YES} 写成 \Code{Yes} & 看题目要求。 \\
+小数位错误 & 精度或格式错误 & 用 \Code{fixed << setprecision(k)}。 \\
+\Code{cin} 后直接 \Code{getline} & 读到空行 & 加 \Code{cin.ignore()}。 \\
+多组数据未清空 & 第一组对，后面错 & 每组重置数组、图、map、队列。 \\
+\bottomrule
+\end{longtable}
+
+\section{数据类型和溢出}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+场景 & 风险 & 正确做法 \\
+\midrule
+求和 & \Code{int} 溢出 & 答案用 \Code{long long}。 \\
+两个大整数相乘 & 先按 \Code{int} 溢出 & 写 \Code{1LL * a * b}。 \\
+最短路距离 & 路径和很大 & \Code{dist} 用 \Code{long long}。 \\
+计数方案数 & 方案数巨大 & 看是否取模，用 \Code{long long}。 \\
+位运算左移 & \Code{1 << k} 溢出 & 大位数用 \Code{1LL << k}。 \\
+INF 太小 & 最短路被错误更新 & \Code{long long INF = 4e18}。 \\
+\bottomrule
+\end{longtable}
+
+\section{整除、取整和取模}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+场景 & 常见错误 & 正确处理 \\
+\midrule
+正整数分组数 & 少算最后不足一组 & $a \ge 0,b>0$ 时用 \Code{(a+b-1)/b}。 \\
+负数参与除法 & 误以为 \Code{/} 是向下取整 & C++ 整数除法向 0 截断，必要时用 \Code{floor\_div/ceil\_div}。 \\
+负数参与取模 & 余数下标为负导致越界 & 用 \Code{r=x\%m; if (r<0) r+=m;}。 \\
+大整数取整 & 用 \Code{double} 后丢精度 & 尽量用整数公式；接近 $10^{18}$ 时避免浮点取整。 \\
+除数或模数 & 没判断 0 & 除法和取模前确认分母不为 0。 \\
+\bottomrule
+\end{longtable}
+
+\section{下标和边界}
+
+\begin{itemize}
+  \item 题目编号从 1 开始，代码数组是否开了 \Code{n+1}。
+  \item 0 下标数组的第 $k$ 个元素是 \Code{a[k-1]}。
+  \item 区间 $[l,r]$ 是否包含两端。
+  \item 前缀和 1 下标公式是 \Code{pre[r] - pre[l-1]}。
+  \item 访问 \Code{r+1} 时数组是否开到 \Code{n+2}。
+  \item 空数组不能访问 \Code{a[0]} 或 \Code{a.back()}。
+  \item 循环是 \Code{i < n} 还是 \Code{i <= n}。
+\end{itemize}
+
+\section{初始化和清空}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+对象 & 常见错误 & 正确处理 \\
+\midrule
+全局数组 & 以为每组自动清空 & 多组数据手动清空。 \\
+局部数组 & 未初始化 & 定义时初始化或使用 \Code{vector}。 \\
+\Code{vector} & 上组残留 & \Code{assign} 或重新定义。 \\
+\Code{map/set} & 上组残留 & \Code{clear()}。 \\
+\Code{queue} & 没有 \Code{clear} & 每组内部重新定义。 \\
+\Code{priority\_queue} & 没有 \Code{clear} & 每组内部重新定义。 \\
+答案变量 & 没重置 & 每组开始设为 0 或初始值。 \\
+\bottomrule
+\end{longtable}
+
+\section{排序和比较器}
+
+\begin{itemize}
+  \item 比较器表示“谁排前面”。
+  \item 相等时不能返回 \Code{true}。
+  \item 多关键字排序要逐项判断。
+  \item 升序和降序不要写反。
+  \item 需要保持原输入顺序时用 \Code{stable\_sort}。
+  \item \Code{priority\_queue} 的比较器和 \Code{sort} 直觉相反，必须手测。
+\end{itemize}
+
+错误示例：
+
+\begin{lstlisting}
+return a.score >= b.score; // wrong
+\end{lstlisting}
+
+正确示例：
+
+\begin{lstlisting}
+if (a.score != b.score) return a.score > b.score;
+return a.id < b.id;
+\end{lstlisting}
+
+\section{STL 容器易错点}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+容器/函数 & 易错点 & 提醒 \\
+\midrule
+\Code{vector} & 越界访问 & 确认大小和下标。 \\
+\Code{map[key]} & 不存在时会创建 key & 只判断存在用 \Code{count/find}。 \\
+\Code{unordered\_map} & 遍历无序 & 要有序输出用 \Code{map}。 \\
+\Code{set.lower\_bound} & 返回 \Code{end} 后解引用 & 先判断 \Code{it != end}。 \\
+\Code{queue.front} & 空队列访问 & 先判断 \Code{empty()}。 \\
+\Code{stack.top} & 空栈访问 & 先判断 \Code{empty()}。 \\
+\Code{priority\_queue} & 不能删除中间元素 & 用懒删除或 set。 \\
+\Code{erase} & 迭代器失效 & 删除时小心循环写法。 \\
+\bottomrule
+\end{longtable}
+
+\section{字符串易错点}
+
+\begin{itemize}
+  \item \Code{cin >> s} 不能读取空格。
+  \item \Code{getline} 可能读到上一行剩余换行。
+  \item \Code{s.find(t)} 找不到返回 \Code{string::npos}。
+  \item 不要写 \Code{if (s.find(t))}。
+  \item \Code{substr(pos, len)} 第二个参数是长度。
+  \item 字符串数字可能超过 \Code{long long}。
+  \item 连续分隔符、开头分隔符、结尾分隔符要测试。
+\end{itemize}
+
+\section{图论易错点}
+
+\begin{itemize}
+  \item 无向图要双向加边，有向图不要。
+  \item 点编号从 0 还是 1 开始。
+  \item BFS 应在入队时标记访问。
+  \item Dijkstra 不能处理负权边。
+  \item Dijkstra 要跳过过期状态。
+  \item Floyd 三层循环顺序是 \Code{k,i,j}。
+  \item 并查集初始化每个点的父亲。
+  \item 拓扑排序边方向不要反。
+\end{itemize}
+
+\section{动态规划易错点}
+
+\begin{itemize}
+  \item 先定义 \Code{dp[i]} 的含义，再写转移。
+  \item 初始状态不要漏。
+  \item 01 背包容量倒序。
+  \item 完全背包容量正序。
+  \item 求最大值时初始值是否应该是负无穷。
+  \item 方案数是否需要取模。
+  \item 多组数据是否清空 DP 数组。
+\end{itemize}
+
+\section{数据结构易错点}
+
+\begin{itemize}
+  \item 树状数组通常用 1 下标。
+  \item 线段树递归区间边界要统一。
+  \item 懒标记下传不要漏。
+  \item 单调栈比较符号决定是否允许相等。
+  \item 单调队列先删除过期元素。
+  \item LCA 的 \Code{LOG} 要足够大。
+  \item 递归 DFS 在大数据上可能爆栈。
+\end{itemize}
+
+\section{提交前总检查}
+
+\begin{enumerate}
+  \item 删除所有调试输出。
+  \item 确认没有输出提示语。
+  \item 确认输入格式和题目一致。
+  \item 确认多组数据清空状态。
+  \item 确认答案和中间乘法使用 \Code{long long}。
+  \item 确认数组大小足够。
+  \item 确认下标从 0 还是 1 开始。
+  \item 确认排序比较器正确。
+  \item 确认特殊边界测试过。
+  \item 确认提交的是当前最新代码。
+\end{enumerate}
+
+\section{最后十分钟清单}
+
+如果考试快结束：
+
+\begin{itemize}
+  \item 不要重构。
+  \item 不要大改已经能过样例的代码。
+  \item 删除调试输出。
+  \item 提交当前最稳版本。
+  \item 如果还有时间，再做小修小补。
+  \item 对没把握的题，至少提交能过样例或小数据的版本。
+\end{itemize}

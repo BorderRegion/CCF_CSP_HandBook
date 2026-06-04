@@ -1,0 +1,732 @@
+\chapter{D/E 题部分分策略与高级算法入口}
+
+\section{D/E 题定位}
+
+D/E 题通常是高分段的分水岭。对新手来说，目标不是每题都满分，而是避免空题，尽量拿到小数据、特殊性质和熟悉模板的分数。
+
+\begin{itemize}
+  \item D 题目标：优先找 20--60 分的可写做法，熟悉算法时再冲满分。
+  \item E 题目标：不空题，找特殊性质、小数据、暴力分。
+  \item 核心原则：先写能得分的版本，再考虑优化。
+  \item 最大风险：想满分算法想 60 分钟，最后一行代码都没有。
+\end{itemize}
+
+\Warn{D/E 题第一原则：}如果 20 分钟内没有形成清晰满分方案，立刻转为部分分路线。
+
+\section{D/E 题读题流程}
+
+\begin{enumerate}
+  \item 先看有没有子任务或部分分说明。
+  \item 抄下所有数据范围，尤其是小数据档。
+  \item 找特殊性质：链、树、DAG、无修改、无查询、边权相同、参数很小。
+  \item 写出最暴力做法。
+  \item 估算暴力能拿哪些数据点。
+  \item 如果会优化，再逐步优化。
+\end{enumerate}
+
+\section{部分分决策树}
+
+\begin{longtable}{p{4.5cm}p{5cm}p{4.5cm}}
+\toprule
+题面或数据特征 & 可写做法 & 目标 \\
+\midrule
+$n \le 20$ & DFS、枚举子集、状态压缩 & 小数据分 \\
+$n \le 100$ & $O(n^3)$、Floyd、区间 DP & 小中数据 \\
+$n \le 1000$ & $O(n^2)$ & 中小数据 \\
+图是树 & DFS、树形 DP、LCA 入门 & 特殊性质分 \\
+图是链 & 转成数组问题 & 特殊性质分 \\
+边权全为 1 & BFS & 替代 Dijkstra \\
+没有修改 & 前缀和、静态预处理 & 静态数据分 \\
+查询很少 & 每次暴力 & 小 $q$ 分 \\
+修改很少 & 修改后重算 & 小修改分 \\
+参数 $k$ 很小 & 状压、枚举 $k$ & 参数小分 \\
+只要求判断可行 & 二分答案 / 贪心 check & 冲高分 \\
+\bottomrule
+\end{longtable}
+
+\section{暴力模板}
+
+\subsection{枚举所有点对}
+
+\begin{lstlisting}
+long long ans = 0;
+for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+        // check pair (i, j)
+    }
+}
+\end{lstlisting}
+
+适用：$n \le 5000$ 需谨慎，$n \le 1000$ 通常可试。
+
+\subsection{枚举所有区间}
+
+\begin{lstlisting}
+for (int l = 0; l < n; l++) {
+    long long sum = 0;
+    for (int r = l; r < n; r++) {
+        sum += a[r];
+        // process interval [l, r]
+    }
+}
+\end{lstlisting}
+
+适用：$n \le 5000$ 以内看时限；如果 $n=10^5$，只能拿小数据分。
+
+\subsection{DFS 枚举选择}
+
+\begin{lstlisting}
+int n;
+vector<int> choose;
+
+void dfs(int idx) {
+    if (idx == n) {
+        // evaluate choose
+        return;
+    }
+
+    // not choose idx
+    dfs(idx + 1);
+
+    // choose idx
+    choose.push_back(idx);
+    dfs(idx + 1);
+    choose.pop_back();
+}
+\end{lstlisting}
+
+适用：$n \le 20$ 左右。
+
+\section{小数据常用算法}
+
+\subsection{Floyd}
+
+点数小且问任意两点最短路：
+
+\begin{lstlisting}
+for (int k = 1; k <= n; k++) {
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{全排列}
+
+\begin{lstlisting}
+vector<int> p(n);
+iota(p.begin(), p.end(), 0);
+do {
+    // evaluate permutation
+} while (next_permutation(p.begin(), p.end()));
+\end{lstlisting}
+
+适用：$n \le 9$ 或 $10$ 左右。
+
+\subsection{状压枚举子集}
+
+\begin{lstlisting}
+for (int mask = 0; mask < (1 << n); mask++) {
+    for (int i = 0; i < n; i++) {
+        if (mask & (1 << i)) {
+            // i is selected
+        }
+    }
+}
+\end{lstlisting}
+
+适用：$n \le 20$ 左右。若 $n \ge 31$，注意 \Code{1LL << n} 和复杂度。
+
+\section{特殊性质策略}
+
+\subsection{图是链}
+
+如果图是一条链，很多图问题可以转成数组问题：
+
+\begin{itemize}
+  \item 距离变成下标差或前缀和。
+  \item 子树变成连续区间。
+  \item 路径查询变成区间查询。
+\end{itemize}
+
+\subsection{图是树}
+
+树比一般图简单：
+
+\begin{itemize}
+  \item 没有环。
+  \item 两点之间路径唯一。
+  \item 可用 DFS 统计子树。
+  \item 可用树形 DP。
+\end{itemize}
+
+\subsection{边权相同}
+
+如果所有边权都是 1：
+
+\begin{itemize}
+  \item 最短路用 BFS。
+  \item 不需要 Dijkstra。
+\end{itemize}
+
+\subsection{无修改}
+
+如果没有修改，只有查询：
+
+\begin{itemize}
+  \item 优先预处理。
+  \item 区间问题考虑前缀和。
+  \item 图问题考虑一次 BFS/Dijkstra 后回答多次查询。
+\end{itemize}
+
+\section{按题型拿部分分}
+
+\subsection{图论题}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+不会满分时 & 可写做法 & 可能覆盖 \\
+\midrule
+不会复杂最短路 & 小图 Floyd & $n$ 小的数据 \\
+不会带权最短路 & 无权 BFS & 边权全 1 的数据 \\
+不会动态图 & 每次修改后重跑 BFS/DFS & 操作数小的数据 \\
+不会强连通 & 普通 DFS 连通性 & 无向图或特殊数据 \\
+不会树上高级算法 & 从每个查询端点暴力爬/DFS & $n,q$ 小的数据 \\
+\bottomrule
+\end{longtable}
+
+\subsection{区间数据结构题}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+不会满分时 & 可写做法 & 可能覆盖 \\
+\midrule
+不会线段树 & 每次暴力扫描区间 & 小 $nq$ 数据 \\
+只有查询无修改 & 前缀和 & 静态数据 \\
+只有区间修改最后输出 & 差分 & 离线数据 \\
+单点修改区间查询 & 树状数组入口 & 中等数据 \\
+区间修改单点查询 & 差分思想 / 树状数组 & 中等数据 \\
+\bottomrule
+\end{longtable}
+
+\subsection{DP 题}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+不会满分时 & 可写做法 & 可能覆盖 \\
+\midrule
+状态想不清 & DFS 暴力枚举 & $n$ 小的数据 \\
+背包优化不会 & 二维 DP & 小容量数据 \\
+状态压缩不会 & 回溯搜索 & $n$ 小的数据 \\
+转移太复杂 & 只处理部分状态或特殊参数 & 特殊性质数据 \\
+\bottomrule
+\end{longtable}
+
+\subsection{字符串题}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+不会满分时 & 可写做法 & 可能覆盖 \\
+\midrule
+不会 KMP & \Code{find} 或暴力匹配 & 短字符串数据 \\
+不会 Trie & map 存完整字符串 & 字符串数量较少 \\
+不会复杂解析 & split 简单格式 & 无嵌套数据 \\
+不会哈希 & 直接比较字符串 & 小数据 \\
+\bottomrule
+\end{longtable}
+
+\section{树状数组入口}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 单点修改，前缀和或区间和查询。
+  \item 需要动态维护数组和。
+  \item 数据范围 $n,q \le 10^5$。
+\end{itemize}
+
+\subsection{树状数组模板}
+
+\begin{lstlisting}
+struct BIT {
+    int n;
+    vector<long long> tree;
+
+    BIT(int n) : n(n), tree(n + 1, 0) {}
+
+    void add(int idx, long long val) {
+        for (; idx <= n; idx += idx & -idx) {
+            tree[idx] += val;
+        }
+    }
+
+    long long sumPrefix(int idx) {
+        long long res = 0;
+        for (; idx > 0; idx -= idx & -idx) {
+            res += tree[idx];
+        }
+        return res;
+    }
+
+    long long rangeSum(int l, int r) {
+        return sumPrefix(r) - sumPrefix(l - 1);
+    }
+};
+\end{lstlisting}
+
+\Warn{树状数组一般用 1 下标。}
+
+\section{线段树入口}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 区间查询和区间修改交替出现。
+  \item 需要维护区间和、区间最大值、区间最小值。
+  \item $n,q \le 10^5$，暴力扫描会超时。
+\end{itemize}
+
+\subsection{区间和线段树框架}
+
+\begin{lstlisting}
+struct SegTree {
+    int n;
+    vector<long long> tree, lazy;
+
+    SegTree(int n) : n(n), tree(4 * n + 4), lazy(4 * n + 4) {}
+
+    void apply(int node, int l, int r, long long val) {
+        tree[node] += val * (r - l + 1);
+        lazy[node] += val;
+    }
+
+    void push(int node, int l, int r) {
+        if (lazy[node] == 0 || l == r) return;
+        int mid = (l + r) / 2;
+        apply(node * 2, l, mid, lazy[node]);
+        apply(node * 2 + 1, mid + 1, r, lazy[node]);
+        lazy[node] = 0;
+    }
+
+    void rangeAdd(int node, int l, int r, int ql, int qr, long long val) {
+        if (ql <= l && r <= qr) {
+            apply(node, l, r, val);
+            return;
+        }
+        push(node, l, r);
+        int mid = (l + r) / 2;
+        if (ql <= mid) rangeAdd(node * 2, l, mid, ql, qr, val);
+        if (qr > mid) rangeAdd(node * 2 + 1, mid + 1, r, ql, qr, val);
+        tree[node] = tree[node * 2] + tree[node * 2 + 1];
+    }
+
+    long long query(int node, int l, int r, int ql, int qr) {
+        if (ql <= l && r <= qr) return tree[node];
+        push(node, l, r);
+        int mid = (l + r) / 2;
+        long long res = 0;
+        if (ql <= mid) res += query(node * 2, l, mid, ql, qr);
+        if (qr > mid) res += query(node * 2 + 1, mid + 1, r, ql, qr);
+        return res;
+    }
+};
+\end{lstlisting}
+
+调用：
+
+\begin{lstlisting}
+SegTree seg(n);
+seg.rangeAdd(1, 1, n, l, r, v);
+long long ans = seg.query(1, 1, n, l, r);
+\end{lstlisting}
+
+\subsection{不会线段树时怎么办}
+
+\begin{itemize}
+  \item 如果没有修改，用前缀和。
+  \item 如果只有区间修改、最后查询，用差分。
+  \item 如果是单点修改、区间查询，用树状数组。
+  \item 如果数据小，直接暴力扫描。
+\end{itemize}
+
+\section{Kruskal 最小生成树入口}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 连接所有点。
+  \item 总代价最小。
+  \item 无向图。
+  \item 选择若干边让图连通。
+\end{itemize}
+
+\subsection{Kruskal 模板}
+
+\begin{lstlisting}
+struct Edge {
+    int u, v;
+    long long w;
+};
+
+sort(edges.begin(), edges.end(), [](const Edge& a, const Edge& b) {
+    return a.w < b.w;
+});
+
+DSU dsu(n);
+long long ans = 0;
+int cnt = 0;
+for (auto e : edges) {
+    if (dsu.unite(e.u, e.v)) {
+        ans += e.w;
+        cnt++;
+    }
+}
+
+if (cnt == n - 1) cout << ans << '\n';
+else cout << "Impossible\n";
+\end{lstlisting}
+
+\section{树上问题入口}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 给定一棵树。
+  \item 查询两点路径。
+  \item 查询祖先、最近公共祖先。
+  \item 对树上路径加值或统计经过次数。
+\end{itemize}
+
+\subsection{树上暴力拿分}
+
+如果不会 LCA，且 $n,q$ 小，可以每次 DFS 找路径。
+
+\begin{lstlisting}
+bool dfsPath(int u, int parent, int target, vector<int>& path) {
+    if (u == target) {
+        path.push_back(u);
+        return true;
+    }
+    for (int v : g[u]) {
+        if (v == parent) continue;
+        if (dfsPath(v, u, target, path)) {
+            path.push_back(u);
+            return true;
+        }
+    }
+    return false;
+}
+\end{lstlisting}
+
+\subsection{LCA 倍增入口}
+
+\begin{lstlisting}
+const int LOG = 20;
+vector<vector<int>> up;
+vector<int> depth;
+vector<vector<int>> g;
+
+void dfsLca(int u, int p) {
+    up[0][u] = p;
+    for (int k = 1; k < LOG; k++) {
+        up[k][u] = up[k - 1][up[k - 1][u]];
+    }
+    for (int v : g[u]) {
+        if (v == p) continue;
+        depth[v] = depth[u] + 1;
+        dfsLca(v, u);
+    }
+}
+
+int lca(int a, int b) {
+    if (depth[a] < depth[b]) swap(a, b);
+    int diff = depth[a] - depth[b];
+    for (int k = 0; k < LOG; k++) {
+        if (diff & (1 << k)) a = up[k][a];
+    }
+    if (a == b) return a;
+    for (int k = LOG - 1; k >= 0; k--) {
+        if (up[k][a] != up[k][b]) {
+            a = up[k][a];
+            b = up[k][b];
+        }
+    }
+    return up[0][a];
+}
+\end{lstlisting}
+
+初始化：
+
+\begin{lstlisting}
+up.assign(LOG, vector<int>(n + 1));
+depth.assign(n + 1, 0);
+dfsLca(1, 1);
+\end{lstlisting}
+
+\subsection{树上差分入口}
+
+多次给路径 $(u,v)$ 加 1，最后统计每个点或边被经过次数。
+
+点差分思路：
+
+\begin{lstlisting}
+vector<long long> diff(n + 1, 0);
+
+void addPath(int u, int v) {
+    int w = lca(u, v);
+    diff[u]++;
+    diff[v]++;
+    diff[w]--;
+    diff[up[0][w]]--;
+}
+
+void collect(int u, int p) {
+    for (int v : g[u]) {
+        if (v == p) continue;
+        collect(v, u);
+        diff[u] += diff[v];
+    }
+}
+\end{lstlisting}
+
+\Warn{树上差分分点权和边权两种，公式不同。不会时先不要硬套，至少用暴力路径拿小数据分。}
+
+\section{状态压缩 DP 入口}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item $n$ 很小，例如 $n \le 20$。
+  \item 每个元素只有选或不选。
+  \item 状态可以用二进制集合表示。
+  \item 旅行、分组、覆盖、集合最优值。
+\end{itemize}
+
+\subsection{集合 DP 基本形状}
+
+\begin{lstlisting}
+int N = 1 << n;
+vector<int> dp(N, INF);
+dp[0] = 0;
+
+for (int mask = 0; mask < N; mask++) {
+    for (int i = 0; i < n; i++) {
+        if ((mask & (1 << i)) == 0) {
+            int nmask = mask | (1 << i);
+            dp[nmask] = min(dp[nmask], dp[mask] + cost[i]);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{状压易错点}
+
+\begin{itemize}
+  \item $1 << n$ 当 $n \ge 31$ 会溢出，要用 \Code{1LL << n}。
+  \item 状态数是 $2^n$，$n=25$ 已经很大。
+  \item 数组大小和内存要提前估算。
+\end{itemize}
+
+\section{KMP 字符串匹配入口}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 长文本中多次查找模式串。
+  \item 字符串长度很大，暴力匹配会超时。
+  \item 需要统计模式串出现次数。
+\end{itemize}
+
+\subsection{KMP 模板}
+
+\begin{lstlisting}
+vector<int> prefixFunction(const string& p) {
+    int n = (int)p.size();
+    vector<int> pi(n, 0);
+    for (int i = 1; i < n; i++) {
+        int j = pi[i - 1];
+        while (j > 0 && p[i] != p[j]) j = pi[j - 1];
+        if (p[i] == p[j]) j++;
+        pi[i] = j;
+    }
+    return pi;
+}
+
+int countMatch(const string& text, const string& p) {
+    vector<int> pi = prefixFunction(p);
+    int j = 0;
+    int cnt = 0;
+    for (char c : text) {
+        while (j > 0 && c != p[j]) j = pi[j - 1];
+        if (c == p[j]) j++;
+        if (j == (int)p.size()) {
+            cnt++;
+            j = pi[j - 1];
+        }
+    }
+    return cnt;
+}
+\end{lstlisting}
+
+\subsection{不会 KMP 时}
+
+\begin{itemize}
+  \item 字符串短时用暴力匹配。
+  \item C++ 可用 \Code{s.find(t)} 拿部分数据。
+  \item 多模式串匹配可能要 Trie 或 AC 自动机，但新手优先拿小数据。
+\end{itemize}
+
+\section{Trie 字典树入口}
+
+\subsection{识别信号}
+
+\begin{itemize}
+  \item 很多字符串插入和查询。
+  \item 前缀查询。
+  \item 字典、单词集合。
+\end{itemize}
+
+\subsection{小写字母 Trie}
+
+\begin{lstlisting}
+struct Trie {
+    struct Node {
+        int child[26];
+        bool end = false;
+        Node() {
+            memset(child, -1, sizeof child);
+        }
+    };
+
+    vector<Node> tr;
+
+    Trie() {
+        tr.push_back(Node());
+    }
+
+    void insert(const string& s) {
+        int u = 0;
+        for (char c : s) {
+            int x = c - 'a';
+            if (tr[u].child[x] == -1) {
+                tr[u].child[x] = (int)tr.size();
+                tr.push_back(Node());
+            }
+            u = tr[u].child[x];
+        }
+        tr[u].end = true;
+    }
+
+    bool find(const string& s) {
+        int u = 0;
+        for (char c : s) {
+            int x = c - 'a';
+            if (tr[u].child[x] == -1) return false;
+            u = tr[u].child[x];
+        }
+        return tr[u].end;
+    }
+};
+\end{lstlisting}
+
+\subsection{不会 Trie 时}
+
+\begin{itemize}
+  \item 只查完整字符串，用 \Code{set<string>} 或 \Code{unordered\_set<string>}。
+  \item 数据小，用逐个字符串比较。
+  \item 前缀查询可以用排序后 \Code{lower\_bound} 尝试部分分。
+\end{itemize}
+
+\section{D/E 考场时间策略}
+
+\begin{longtable}{p{3cm}p{8cm}p{3cm}}
+\toprule
+剩余时间 & 建议动作 & 目标 \\
+\midrule
+60 分钟以上 & 先思考满分算法，再写部分分保底 & 冲高分 \\
+30--60 分钟 & 先写暴力或特殊性质，再看能否优化 & 稳定拿分 \\
+15--30 分钟 & 只写最确定的小数据做法 & 不空题 \\
+15 分钟以内 & 写样例能过的最小实现，清理输出 & 抢分 \\
+\bottomrule
+\end{longtable}
+
+\section{常见高级算法入口}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+题面信号 & 可能算法 & 先翻哪里 \\
+\midrule
+最大化最小值、最小化最大值 & 二分答案 & B 题二分答案 \\
+区间修改查询交替 & 线段树 / 树状数组 & 后续数据结构章 \\
+树上路径、祖先 & LCA / 树上差分 & 树专题 \\
+强连通、缩点 & Tarjan & 图论专题 \\
+最小连接代价 & 最小生成树 & Kruskal / Prim \\
+网络最短距离 & Dijkstra / Floyd & B 题图论入口 \\
+容量和价值 & 背包 DP & B 题 DP 入口 \\
+集合状态很小 & 状态压缩 DP & 状压入口 \\
+字符串匹配很多次 & KMP / Trie & 字符串专题 \\
+\bottomrule
+\end{longtable}
+
+\section{高级算法识别速查}
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+关键词 & 优先想到 & 不会时的替代 \\
+\midrule
+区间加、区间查询 & 线段树 & 差分、树状数组、暴力 \\
+单点修改、区间和 & 树状数组 & 前缀和静态版、暴力 \\
+树上路径查询 & LCA & 每次 DFS 找路径 \\
+多次树上路径加 & 树上差分 & 暴力路径加 \\
+连接所有点最小代价 & Kruskal & 枚举小图、Prim 小数据 \\
+集合状态很小 & 状压 DP & DFS 枚举 \\
+长串匹配短串 & KMP & \Code{find} / 暴力 \\
+前缀查询很多 & Trie & set / 排序后二分 \\
+最大化最小值 & 二分答案 & 枚举答案小范围 \\
+任务依赖 & 拓扑排序 & 小图 DFS 检查 \\
+\bottomrule
+\end{longtable}
+
+\section{D/E 模板练习优先级}
+
+\begin{longtable}{p{4cm}p{4cm}p{6cm}}
+\toprule
+模板 & 优先级 & 原因 \\
+\midrule
+二分答案 & 高 & B/D 都常见，代码短，提分明显。 \\
+树状数组 & 高 & 区间题常见，比线段树简单。 \\
+Dijkstra & 高 & 图论常见，B/D 都可能用。 \\
+Kruskal & 中 & 最小生成树题专用，模板短。 \\
+线段树 & 中高 & 强但代码长，建议练熟基础版。 \\
+LCA & 中 & 树上题常见，但新手可先会暴力。 \\
+状态压缩 DP & 中 & 看到 $n \le 20$ 很有用。 \\
+KMP & 中低 & 字符串题有用，但 CSP 中不一定高频。 \\
+Trie & 中低 & 前缀题有用，完整字符串可用 set 替代。 \\
+树上差分 & 低到中 & 需要 LCA 基础，适合冲高分。 \\
+\bottomrule
+\end{longtable}
+
+\section{什么时候放弃满分}
+
+出现以下情况，应转为部分分：
+
+\begin{itemize}
+  \item 20 分钟想不出核心算法。
+  \item 会算法名字，但模板完全不会写。
+  \item 写到一半发现状态定义不清。
+  \item 样例都无法解释。
+  \item A/B/C 还没稳。
+\end{itemize}
+
+\section{D/E 题提交前检查}
+
+\begin{itemize}
+  \item 是否至少能过样例。
+  \item 是否能过自己造的小数据。
+  \item 是否处理了最小输入。
+  \item 如果是暴力，是否明确知道能拿哪些数据。
+  \item 是否删除调试输出。
+  \item 是否没有因为追求优化改坏暴力基础逻辑。
+\end{itemize}
