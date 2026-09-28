@@ -1,8 +1,8 @@
-\chapter{C++ 语法与 STL 速查}
+\chapter{C++ 语法与 STL 速查}\label{ch:04}
 
-\section{本章使用方式}
+\section{本章使用方式}\label{sec:04-1}
 
-本章不是系统 C++ 教材，而是 CSP 考场写代码时最常用的语法清单。目标是让你在不熟练时也能快速确认：
+这一章放常用的 C++ 写法。忘了容器怎么声明、循环怎么写，或者拿不准整数除法和取模的结果时，可以从这里查：
 
 \begin{itemize}
   \item 一个程序应该怎么开头。
@@ -14,9 +14,16 @@
   \item lambda 比较器怎么写，常见错误是什么。
 \end{itemize}
 
-\Warn{考场原则：}优先使用自己练过的写法。会写清楚比写得短更重要。
+写法熟悉就继续用，不必为了把代码写短而临时换一种。
 
-\section{最小程序骨架}
+\section{语言标准与代码拼装}\label{sec:04-2}
+本书代码使用 \textbf{GNU C++17}。结构化绑定 \Code{auto [x,y]} 和 \Code{std::gcd} 需要 C++17，编译时可使用 \Code{-std=c++17}。
+
+若只支持旧标准，把 \Code{auto [x,y]=p;} 改成 \Code{auto x=p.first; auto y=p.second;}；\Code{gcd} 可自行写欧几里得算法。\Code{bits/stdc++.h} 是 GNU 扩展；非 GNU 环境改用对应标准头文件。
+
+\textbf{模板不是一整份提交代码。}先写下面的主函数骨架；结构体、普通函数放在 \Code{main} 外，输入、循环、输出放在 \Code{main} 或 \Code{solve} 内。不要把两个同名 \Code{main}、\Code{Node}、\Code{Edge} 或 \Code{INF} 一起粘贴。带 \Code{check}、\Code{handle...} 和省略号的代码是待按题意补全的框架。
+
+\section{最小程序骨架}\label{sec:04-3}
 
 大部分 CSP 题目都可以从这个骨架开始：
 
@@ -39,14 +46,14 @@ int main() {
 说明：
 
 \begin{itemize}
-  \item \Code{\#include <bits/stdc++.h>} 在 g++ 中常用，包含大多数标准库。正式考试前确认环境支持。
+  \item \Code{\#include <bits/stdc++.h>} 是 GNU C++ 的扩展头文件，包含大多数常用标准库。
   \item \Code{using namespace std;} 可以少写 \Code{std::}。
   \item \Code{using ll = long long;} 以后可以用 \Code{ll} 表示 \Code{long long}。
   \item \Code{ios::sync\_with\_stdio(false); cin.tie(nullptr);} 用来加速 C++ 输入输出。
   \item 使用上面两行加速后，不要混用 \Code{scanf/printf} 和 \Code{cin/cout}。
 \end{itemize}
 
-\section{输入输出}
+\section{输入输出}\label{sec:04-4}
 
 \subsection{普通输入}
 
@@ -120,7 +127,7 @@ getline(cin, line);
 \begin{lstlisting}
 int n;
 cin >> n;
-cin.ignore();
+cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 string line;
 getline(cin, line);
@@ -156,7 +163,7 @@ cout << fixed << setprecision(2) << x << '\n'; // 3.14
   \item 需要包含 \Code{<iomanip>}，但 \Code{bits/stdc++.h} 已包含。
 \end{itemize}
 
-\section{数据类型}
+\section{数据类型}\label{sec:04-5}
 
 \subsection{整数类型}
 
@@ -164,6 +171,11 @@ cout << fixed << setprecision(2) << x << '\n'; // 3.14
 \toprule
 类型 & 大约范围 & 使用场景 \\
 \midrule
+\endfirsthead
+\toprule
+类型 & 大约范围 & 使用场景 \\
+\midrule
+\endhead
 \Code{int} & $-2.1 \times 10^9$ 到 $2.1 \times 10^9$ & 下标、普通计数、小范围整数。 \\
 \Code{long long} & $-9.2 \times 10^{18}$ 到 $9.2 \times 10^{18}$ & 求和、乘法、答案、距离、方案数。 \\
 \Code{unsigned long long} & 0 到约 $1.8 \times 10^{19}$ & 很少必须用，新手慎用。 \\
@@ -217,17 +229,17 @@ bool ok = true;
 字符判断：
 
 \begin{lstlisting}
-isdigit(c); // is digit
-isalpha(c); // is letter
-islower(c);
-isupper(c);
-tolower(c);
-toupper(c);
+isdigit((unsigned char)c); // is digit
+isalpha((unsigned char)c); // is letter
+islower((unsigned char)c);
+isupper((unsigned char)c);
+tolower((unsigned char)c);
+toupper((unsigned char)c);
 \end{lstlisting}
 
-\Warn{注意：}\Code{isdigit(c)} 返回非零表示真，不一定返回 1。
+\Warn{注意：}\Code{isdigit((unsigned char)c)} 返回非零表示真，不一定返回 1。
 
-\section{表达式、整除和取整}
+\section{表达式、整除和取整}\label{sec:04-6}
 
 \subsection{基本运算符}
 
@@ -237,6 +249,11 @@ C++ 中常用算术运算符如下：
 \toprule
 运算符 & 含义 & 注意点 \\
 \midrule
+\endfirsthead
+\toprule
+运算符 & 含义 & 注意点 \\
+\midrule
+\endhead
 \Code{+ - *} & 加、减、乘 & 两个 \Code{int} 相乘仍先按 \Code{int} 计算。 \\
 \Code{/} & 除法 & 两边都是整数时做整数除法，结果向 0 截断。 \\
 \Code{\%} & 取余 & 只能用于整数；负数取余的结果可能为负。 \\
@@ -263,7 +280,7 @@ cout << 1.0 * a / b << '\n';       // 2.5
 cout << (double)a / b << '\n';     // 2.5
 \end{lstlisting}
 
-如果题目要求整数答案，不要为了方便乱转 \Code{double}。大整数转浮点后可能丢精度。
+整数答案尽量用整数运算求。大整数转成 \Code{double} 后可能丢失低位，取整时尤其要留意。
 
 \subsection{正整数向上取整}
 
@@ -271,7 +288,7 @@ cout << (double)a / b << '\n';     // 2.5
 
 \begin{lstlisting}
 long long ceil_div_positive(long long a, long long b) {
-    return (a + b - 1) / b;
+    return a / b + (a % b != 0);
 }
 \end{lstlisting}
 
@@ -282,13 +299,14 @@ long long half_up = (n + 1) / 2;          // ceil(n / 2), n >= 0
 long long blocks = (n + block - 1) / block;
 \end{lstlisting}
 
-\Warn{这个简式只适合 $a \ge 0, b > 0$。}如果 $a$ 可能为负，或者 $b$ 可能为负，不能直接套 \Code{(a+b-1)/b}。
+\Warn{这个简式只适合 $a \ge 0, b > 0$。}如果 $a$ 可能为负，或者 $b$ 可能为负，不能直接套 \Code{a/b+(a\%b!=0)}。
 
 \subsection{有符号整数向下和向上取整}
 
 如果题目涉及负坐标、负偏移、时间差、数学分段，建议使用下面的通用函数。它们要求 \Code{b != 0}，并且遵循数学意义上的 floor 和 ceil。
 
 \begin{lstlisting}
+// Require b != 0; exclude LLONG_MIN / -1.
 long long floor_div(long long a, long long b) {
     long long q = a / b;
     long long r = a % b;
@@ -310,6 +328,11 @@ long long ceil_div(long long a, long long b) {
 \toprule
 表达式 & \Code{floor\_div} & \Code{ceil\_div} \\
 \midrule
+\endfirsthead
+\toprule
+表达式 & \Code{floor\_div} & \Code{ceil\_div} \\
+\midrule
+\endhead
 $3 / 2$ & 1 & 2 \\
 $-3 / 2$ & -2 & -1 \\
 $3 / -2$ & -2 & -1 \\
@@ -333,7 +356,7 @@ long long norm_mod(long long x, long long m) {
 
 \subsection{运算优先级和括号}
 
-考场上不建议背复杂优先级。以下规则足够覆盖大多数题：
+常用的优先级关系如下。混合运算拿不准时，可以多加一层括号：
 
 \begin{itemize}
   \item 乘、除、取模优先于加减。
@@ -372,7 +395,22 @@ bool ok = true;
   \item \Code{const} 常量不能被修改，适合写数组上限、模数、无穷大。
 \end{itemize}
 
-\section{控制流}
+
+\subsection{四舍五入与银行家舍入不能混用}
+\Code{llround} 的半整数规则是远离 0；题面要求“恰好一半时取偶数”时应自行实现。若输入为非负数、恰有一位小数，且整数部分不超过 $10^5$，可以完全避免浮点：
+\begin{lstlisting}
+pair<long long,long long> roundOneDecimal(const string& s) {
+    size_t dot = s.find('.');
+    long long a = stoll(s.substr(0, dot));
+    int b = s[dot + 1] - '0';
+    long long halfUp = a + (b >= 5);
+    long long halfEven = a + (b > 5 || (b == 5 && a % 2 == 1));
+    return {halfUp, halfEven};
+}
+\end{lstlisting}
+例如 2.5 分别得到 3 与 2，3.5 两者均为 4。此代码仅针对上述输入格式；不能直接用于负数、多位小数或超大整数。\Code{setprecision} 负责显示格式，不替代题目定义的舍入算法。
+
+\section{控制流}\label{sec:04-7}
 
 \subsection{if}
 
@@ -432,7 +470,7 @@ for (int i = 0; i < n; i++) {
 }
 \end{lstlisting}
 
-\section{auto、引用和范围 for}
+\section{auto、引用和范围 for}\label{sec:04-8}
 
 \subsection{auto}
 
@@ -535,7 +573,7 @@ for (int i = (int)a.size() - 1; i >= 0; i--) {
 }
 \end{lstlisting}
 
-\section{函数}
+\section{函数}\label{sec:04-9}
 
 把重复逻辑写成函数，能减少大模拟和算法题的错误。
 
@@ -552,8 +590,8 @@ bool isEven(int x) {
 传 vector：
 
 \begin{lstlisting}
-int sumVector(const vector<int>& a) {
-    int sum = 0;
+long long sumVector(const vector<int>& a) {
+    long long sum = 0;
     for (int x : a) sum += x;
     return sum;
 }
@@ -572,7 +610,7 @@ void addOne(vector<int>& a) {
 }
 \end{lstlisting}
 
-\section{数组}
+\section{数组}\label{sec:04-10}
 
 \subsection{普通数组}
 
@@ -636,7 +674,7 @@ vector<long long> dist(n + 1, (long long)4e18);
 vector<vector<int>> grid(n, vector<int>(m, 0));
 \end{lstlisting}
 
-\section{vector}
+\section{vector}\label{sec:04-11}
 
 \subsection{创建}
 
@@ -744,7 +782,7 @@ for (int i = 0; i < m; i++) {
 }
 \end{lstlisting}
 
-\section{string}
+\section{string}\label{sec:04-12}
 
 \subsection{基本操作}
 
@@ -811,7 +849,7 @@ while (ss >> word) {
 }
 \end{lstlisting}
 
-\section{pair 和 tuple}
+\section{pair 和 tuple}\label{sec:04-13}
 
 \subsection{pair}
 
@@ -844,7 +882,7 @@ tuple<int, int, int> t = {1, 2, 3};
 auto [a, b, c] = t;
 \end{lstlisting}
 
-\section{结构体 struct}
+\section{结构体 struct}\label{sec:04-14}
 
 结构体适合表示学生、任务、边、事件、状态。
 
@@ -880,7 +918,7 @@ vector<vector<Edge>> g(n + 1);
 g[u].push_back({v, w});
 \end{lstlisting}
 
-\section{排序 sort}
+\section{排序 sort}\label{sec:04-15}
 
 \subsection{普通排序}
 
@@ -973,7 +1011,7 @@ sort(v.begin(), v.end(), [](const Student& a, const Student& b) {
 
 相等时返回 \Code{true} 可能导致排序行为错误。
 
-\section{二分相关函数}
+\section{二分相关函数}\label{sec:04-16}
 
 \subsection{binary\_search}
 
@@ -1006,7 +1044,7 @@ if (it != a.end()) {
 }
 \end{lstlisting}
 
-\section{map 和 unordered\_map}
+\section{map 和 unordered\_map}\label{sec:04-17}
 
 \subsection{map}
 
@@ -1060,7 +1098,7 @@ cnt["apple"]++;
   \item 自定义 key 时新手优先考虑转成字符串或 \Code{long long} 编码，不要现场写复杂 hash。
 \end{itemize}
 
-\section{unordered\_set}
+\section{unordered\_set}\label{sec:04-18}
 
 \Code{unordered\_set} 用来快速判断一个值是否出现过，不关心顺序。
 
@@ -1085,7 +1123,7 @@ if (words.count("abc")) {
 
 如果需要按升序遍历，用 \Code{set}，不要用 \Code{unordered\_set}。
 
-\section{set 和 multiset}
+\section{set 和 multiset}\label{sec:04-19}
 
 \subsection{set}
 
@@ -1135,7 +1173,7 @@ if (it != s.end()) s.erase(it);
 s.erase(5);
 \end{lstlisting}
 
-\section{queue、stack、deque}
+\section{queue、stack、deque}\label{sec:04-20}
 
 \subsection{queue}
 
@@ -1176,7 +1214,7 @@ dq.pop_front();
 
 单调队列会用到 \Code{deque}。
 
-\section{priority\_queue}
+\section{priority\_queue}\label{sec:04-21}
 
 \subsection{大根堆}
 
@@ -1211,7 +1249,7 @@ pq.push({0, 1});
 
 pair 的默认比较先看 \Code{first}，再看 \Code{second}。
 
-\section{常用算法函数}
+\section{常用算法函数}\label{sec:04-22}
 
 \subsection{min、max、swap}
 
@@ -1230,7 +1268,7 @@ reverse(s.begin(), s.end());
 
 \subsection{unique 去重}
 
-去重前必须排序：
+若要去掉所有重复值且允许改变原顺序，先排序。\Code{unique} 只消除相邻重复；要保留首次出现顺序，用集合配合一次扫描：
 
 \begin{lstlisting}
 sort(a.begin(), a.end());
@@ -1248,8 +1286,9 @@ long long sum = accumulate(a.begin(), a.end(), 0LL);
 \subsection{gcd}
 
 \begin{lstlisting}
+// Require a,b >= 0 and lcm(a,b) <= LLONG_MAX.
 long long g = gcd(a, b);
-long long l = a / g * b;
+long long l = (a == 0 || b == 0) ? 0 : a / g * b;
 \end{lstlisting}
 
 \Warn{最小公倍数先除后乘。}这样比 \Code{a * b / gcd(a,b)} 更不容易溢出。
@@ -1283,7 +1322,7 @@ bool isSquare(long long x) {
 }
 \end{lstlisting}
 
-\section{lambda 入门}
+\section{lambda 入门}\label{sec:04-23}
 
 lambda 是临时函数，排序时非常常用。
 
@@ -1330,12 +1369,17 @@ add(5);
   \item 复杂逻辑可以改成普通函数或先计算辅助字段。
 \end{itemize}
 
-\section{常见编译错误和原因}
+\section{常见编译错误和原因}\label{sec:04-24}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 报错或现象 & 常见原因 & 处理方法 \\
 \midrule
+\endfirsthead
+\toprule
+报错或现象 & 常见原因 & 处理方法 \\
+\midrule
+\endhead
 \Code{expected ';'} & 少分号 & 看上一行结构体、变量定义、语句末尾。 \\
 \Code{was not declared} & 变量未定义或作用域不对 & 检查拼写和定义位置。 \\
 \Code{no matching function} & 函数参数类型不匹配 & 检查传参类型、引用、const。 \\
@@ -1345,7 +1389,7 @@ add(5);
 \bottomrule
 \end{longtable}
 
-\section{C 和 C++ 混用提醒}
+\section{C 和 C++ 混用提醒}\label{sec:04-25}
 
 如果你使用 C++，建议全程使用 \Code{cin/cout} 或全程使用 \Code{scanf/printf}，不要混用。
 
@@ -1369,9 +1413,9 @@ char s[1005];
 scanf("%s", s);
 \end{lstlisting}
 
-但对新手来说，C++ 的 \Code{string}、\Code{vector}、\Code{map} 会明显减少代码量和错误率。
+初学时可以先熟悉 \Code{string}、\Code{vector} 和 \Code{map}，字符串和动态数组的存储会方便一些。
 
-\section{考场 C++ 快速检查}
+\section{考场 C++ 快速检查}\label{sec:04-26}
 
 提交前快速看一遍：
 

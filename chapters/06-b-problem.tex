@@ -1,19 +1,19 @@
-\chapter{B 题决策树与高频算法入口}
+\chapter{B 题决策树与高频算法入口}\label{ch:06}
 
-\section{B 题定位}
+\section{B 题定位}\label{sec:06-1}
 
-B 题通常是从“会写代码”进入“会选算法”的第一道题。它一般不会要求特别深的算法证明，但常常要求你识别出比暴力更快的做法。
+B 题常用到前缀和、差分、排序、查找或简单 DP。直接照题意模拟之前，先算一下操作次数：数据小时暴力就够，数据大时再找重复计算。
 
 \begin{itemize}
   \item 建议目标时间：40--70 分钟。
   \item 目标分数：尽量 100 分。
   \item 高频主题：排序、哈希统计、前缀和、差分、二分、简单 BFS、简单图、简单 DP。
-  \item 核心风险：样例能过的暴力在大数据超时。
+  \item 留意暴力的最坏复杂度，样例规模通常很小。
 \end{itemize}
 
-\Warn{B 题第一原则：}读完题后先看数据范围，再决定能不能暴力。不要因为 A 题刚做完很顺，就直接写双重循环。
+同样是双重循环，n=100 和 n=100000 差别很大。先代入最大范围估算，再决定是否需要优化。
 
-\section{B 题开题流程}
+\section{B 题开题流程}\label{sec:06-2}
 
 \begin{enumerate}
   \item 圈出数据范围：$n,m,q$ 分别多大。
@@ -24,13 +24,18 @@ B 题通常是从“会写代码”进入“会选算法”的第一道题。它
   \item 如果满分做法明确，直接写；如果不明确，先写可拿部分分的暴力。
 \end{enumerate}
 
-\section{B 题总决策树}
+\section{B 题总决策树}\label{sec:06-3}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 题面信号 & 优先怀疑 & 首选模板 \\
 \midrule
-多次询问区间和、区间最大统计 & 前缀和或预处理 & 一维/二维前缀和 \\
+\endfirsthead
+\toprule
+题面信号 & 优先怀疑 & 首选模板 \\
+\midrule
+\endhead
+多次静态区间和 / 区间最值 & 前缀和 / 最值数据结构 & 和用 \Tref{101}/\Tref{102}；最值需另建结构，不能相减 \\
 多次区间加，最后查询结果 & 差分 & 一维/二维差分 \\
 区间修改和区间查询交替出现 & 树状数组或线段树 & 数据结构章节，B 题先看是否可简化 \\
 统计出现次数、找重复、频率 & 哈希统计 & 数组计数、map、unordered\_map \\
@@ -42,17 +47,22 @@ B 题通常是从“会写代码”进入“会选算法”的第一道题。它
 合并集合、判断是否同组 & 并查集 & DSU \\
 依赖关系、先后顺序 & 拓扑排序 & 入度 + 队列 \\
 小规模任意两点距离 & Floyd & 三重循环 \\
-正权图最短路 & Dijkstra & 堆优化 Dijkstra \\
+非负权图最短路 & Dijkstra & 堆优化 Dijkstra \\
 选择若干、容量限制、最优值 & 简单 DP & 背包或线性 DP \\
 \bottomrule
 \end{longtable}
 
-\section{B 题数据范围判断}
+\section{B 题数据范围判断}\label{sec:06-4}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 数据范围 & 暴力是否可行 & 常见替代 \\
 \midrule
+\endfirsthead
+\toprule
+数据范围 & 暴力是否可行 & 常见替代 \\
+\midrule
+\endhead
 $n \le 1000$ & $O(n^2)$ 常常可行 & 双重循环、简单 DP \\
 $n \le 10^5$ & $O(n^2)$ 通常不可行 & 排序、哈希、前缀和、二分 \\
 $q \le 10^5$ 且每次查区间 & 每次扫描不可行 & 前缀和、树状数组、线段树 \\
@@ -64,12 +74,17 @@ $q \le 10^5$ 且每次查区间 & 每次扫描不可行 & 前缀和、树状数�
 \bottomrule
 \end{longtable}
 
-\section{B 题关键词到动作}
+\section{B 题关键词到动作}\label{sec:06-5}
 
 \begin{longtable}{p{3.8cm}p{4.8cm}p{5.4cm}}
 \toprule
 看到 & 立刻想 & 小心 \\
 \midrule
+\endfirsthead
+\toprule
+看到 & 立刻想 & 小心 \\
+\midrule
+\endhead
 “多次询问” & 预处理，不能每次从头算 & 查询次数 $q$ 是否很大。 \\
 “区间 [l,r] 的和” & 前缀和 & 下标和 \Code{pre[r]-pre[l-1]}。 \\
 “子矩阵和” & 二维前缀和 & 公式四项别写错。 \\
@@ -87,28 +102,33 @@ $q \le 10^5$ 且每次查区间 & 每次扫描不可行 & 前缀和、树状数�
 \bottomrule
 \end{longtable}
 
-\section{从暴力到优化的转换表}
+\section{从暴力到优化的转换表}\label{sec:06-6}
 
-B 题经常不是完全不会，而是暴力会写但会超时。下面这张表用于把暴力做法改成常见优化。
+已有暴力思路时，可以对照下表，看看重复扫描、求和或查找能否省掉。
 
 \begin{longtable}{p{4.2cm}p{4.8cm}p{5cm}}
 \toprule
 暴力想法 & 为什么危险 & 常见优化 \\
 \midrule
+\endfirsthead
+\toprule
+暴力想法 & 为什么危险 & 常见优化 \\
+\midrule
+\endhead
 每次查询都遍历 $[l,r]$ & $O(nq)$，$q$ 大时超时 & 前缀和、树状数组 \\
 每次区间加都逐个元素修改 & $O(nq)$ & 差分、线段树 \\
 双重循环找两数关系 & $O(n^2)$ & 排序、哈希、双指针 \\
 每次判断是否出现都扫描数组 & $O(nq)$ & set、unordered\_set、排序后二分 \\
 每次找最大值都扫描 & $O(nq)$ & priority\_queue、set、预处理 \\
-枚举所有子矩阵 & $O(n^2m^2)$ 或更高 & 二维前缀和 \\
+逐格计算每个子矩阵的和 & 枚举本身仍有 $O(n^2m^2)$ 个 & \Tref{102} 仅将每次求和降为 $O(1)$ \\
 图上每对点都 BFS & 点数大时超时 & 看是否只需单源；正权用 Dijkstra \\
 字符串反复拼接或插入 & 长字符串会很慢 & 线性扫描、vector 存片段 \\
 \bottomrule
 \end{longtable}
 
-\section{前缀和}
+\section{前缀和}\label{sec:06-7}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -194,9 +214,9 @@ while (q--) {
   \item 如果中途有修改，普通前缀和通常不适用。
 \end{itemize}
 
-\section{前后缀预处理}
+\section{前后缀预处理}\label{sec:06-8}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -214,8 +234,8 @@ cin >> n;
 vector<int> a(n + 1);
 for (int i = 1; i <= n; i++) cin >> a[i];
 
-vector<int> preMax(n + 2, -1000000000);
-vector<int> sufMax(n + 2, -1000000000);
+vector<int> preMax(n + 2, numeric_limits<int>::lowest());
+vector<int> sufMax(n + 2, numeric_limits<int>::lowest());
 
 for (int i = 1; i <= n; i++) {
     preMax[i] = max(preMax[i - 1], a[i]);
@@ -231,6 +251,8 @@ for (int i = 1; i <= n; i++) {
 }
 \end{lstlisting}
 
+\Warn{本例要求 $n\ge2$。}若 $n=1$，删除后为空，没有最大值，应按题意单独输出。
+
 \subsection{前后缀易错点}
 
 \begin{itemize}
@@ -240,9 +262,9 @@ for (int i = 1; i <= n; i++) {
   \item 删除第一个或最后一个元素时，一边为空，要提前定义空边的值。
 \end{itemize}
 
-\section{差分}
+\section{差分}\label{sec:06-9}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -327,9 +349,9 @@ for (int i = 1; i <= n; i++) {
 
 \Warn{二维差分只适合修改后统一求结果。}如果修改和查询交替出现，要考虑二维树状数组或其他方法，B 题中通常会有更简单性质。
 
-\section{哈希统计}
+\section{哈希统计}\label{sec:06-10}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -402,9 +424,9 @@ cout << best << ' ' << bestCnt << '\n';
 
 如果有并列规则，例如字典序最小，由 \Code{map} 遍历天然按字典序升序。
 
-\section{余数和同余统计}
+\section{余数和同余统计}\label{sec:06-11}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -472,9 +494,9 @@ cout << ans << '\n';
 
 \Warn{余数题注意：}如果 $k$ 很大，不能开 \Code{vector cnt(k)}，改用 \Code{map} 或 \Code{unordered\_map}。
 
-\section{排序加扫描}
+\section{排序加扫描}\label{sec:06-12}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -557,7 +579,7 @@ for (const Event& e : events) {
 
 当坐标很大，但只关心出现过的坐标，可以离散化。
 
-识别信号：
+什么题会用到：
 
 \begin{itemize}
   \item 坐标可达 $10^9$，不能直接开数组。
@@ -585,9 +607,9 @@ int id = getId(original[0]);
 
 \Warn{区间离散化要小心。}如果题目处理连续区间长度，不能只保存端点编号，还要考虑相邻坐标之间的真实长度。
 
-\section{堆和动态维护}
+\section{堆和动态维护}\label{sec:06-13}
 
-\subsection{priority\_queue 识别信号}
+\subsection{priority\_queue 什么题会用到}
 
 题面出现：
 
@@ -610,7 +632,7 @@ pq.pop();
 
 \subsection{保留最大的 k 个数}
 
-用小根堆保存当前最大的 $k$ 个数。
+用小根堆保存当前最大的 $k$ 个数。要求 $1\le k\le a.size()$。
 
 \begin{lstlisting}
 int k;
@@ -673,9 +695,9 @@ int mx = cnt.rbegin()->first;
 
 \Warn{取 \Code{begin/rbegin} 前确认 map 非空。}
 
-\section{基础贪心}
+\section{基础贪心}\label{sec:06-14}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 B 题中的贪心通常比较直接，常见信号：
 
@@ -698,9 +720,11 @@ sort(segs.begin(), segs.end(), [](auto a, auto b) {
 });
 
 int ans = 0;
-int lastEnd = -1000000000;
+int lastEnd = 0;
+bool hasChosen = false;
 for (auto [l, r] : segs) {
-    if (l > lastEnd) { // use l >= lastEnd if endpoints can touch
+    if (!hasChosen || l > lastEnd) { // >= if endpoints can touch
+        hasChosen = true;
         ans++;
         lastEnd = r;
     }
@@ -716,9 +740,9 @@ cout << ans << '\n';
   \item 贪心不是看起来合理就一定对。B 题若想不出证明，至少用小样例反驳自己。
 \end{itemize}
 
-\section{单调栈和单调队列入口}
+\section{单调栈和单调队列入口}\label{sec:06-15}
 
-\subsection{单调栈识别信号}
+\subsection{单调栈什么题会用到}
 
 题面出现：
 
@@ -748,7 +772,7 @@ for (int i = 0; i < n; i++) {
 }
 \end{lstlisting}
 
-\subsection{单调队列识别信号}
+\subsection{单调队列什么题会用到}
 
 题面出现固定长度滑动窗口最大值/最小值。
 
@@ -770,11 +794,11 @@ for (int i = 0; i < n; i++) {
 }
 \end{lstlisting}
 
-\Warn{单调结构新手建议：}如果没练过，不要在考场第一次使用。可以作为 B/C/D 题冲分模板，但必须提前练。
+练单调栈、单调队列时，最好手动跟一遍入栈和出栈过程，尤其试一下相等元素。
 
-\section{双指针入门}
+\section{双指针入门}\label{sec:06-16}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -808,7 +832,7 @@ cout << (ok ? "YES" : "NO") << '\n';
 
 \subsection{正数数组的连续区间}
 
-如果数组元素都是非负数，可以用滑动窗口。
+求和不超过 $limit\ge0$ 的最长连续子数组，且每项非负时，可以用下面的滑动窗口。
 
 \begin{lstlisting}
 int l = 0;
@@ -827,7 +851,7 @@ for (int r = 0; r < n; r++) {
 
 \Warn{滑动窗口前提：}通常要求元素非负或条件具有单调性。若有负数，窗口移动可能失效。
 
-\section{二分与二分答案}
+\section{二分与二分答案}\label{sec:06-17}
 
 \subsection{普通二分查找}
 
@@ -889,11 +913,11 @@ while (l < r) {
 cout << l << '\n';
 \end{lstlisting}
 
-\Warn{二分答案关键：}不是所有题都能二分。必须满足可行性具有单调性。
+\Warn{二分答案关键：}必须有单调性，并自行完成 \Code{check}，不能保留示例里的 \Code{return true;}。最小值搜索须保证初始右端可行，最大值搜索须保证初始左端可行；否则先判无解。按题意推导上下界。
 
-\section{BFS 入门}
+\section{BFS 入门}\label{sec:06-18}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -950,7 +974,7 @@ cout << dist[tx][ty] << '\n';
   \item 障碍字符是什么。
   \item 起点是否可能等于终点。
   \item 应在入队时标记访问，避免重复入队。
-  \item BFS 适合每步代价相同；边权不同要考虑 Dijkstra。
+  \item BFS 适合每步代价相同；边权不同且非负可考虑 Dijkstra；含负权不能直接套。
 \end{itemize}
 
 \subsection{多源 BFS}
@@ -973,6 +997,7 @@ while (!q.empty()) {
         int nx = x + dx[d];
         int ny = y + dy[d];
         if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+        if (g[nx][ny] == '#') continue;
         if (dist[nx][ny] != -1) continue;
         dist[nx][ny] = dist[x][y] + 1;
         q.push({nx, ny});
@@ -980,7 +1005,7 @@ while (!q.empty()) {
 }
 \end{lstlisting}
 
-识别信号：
+什么题会用到：
 
 \begin{itemize}
   \item 多个火源、多个出口、多个起点。
@@ -988,9 +1013,9 @@ while (!q.empty()) {
   \item 每一步代价相同。
 \end{itemize}
 
-\section{DFS 和连通块}
+\section{DFS 和连通块}\label{sec:06-19}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1028,6 +1053,8 @@ int dfs(int x, int y) {
 统计连通块：
 
 \begin{lstlisting}
+// Read n,m and g first.
+vis.assign(n, vector<int>(m, 0));
 int components = 0;
 for (int i = 0; i < n; i++) {
     for (int j = 0; j < m; j++) {
@@ -1041,9 +1068,9 @@ for (int i = 0; i < n; i++) {
 
 \Warn{递归深度风险：}如果网格很大，递归 DFS 可能爆栈。B 题中可改用 BFS 更稳。
 
-\section{Floyd 入门}
+\section{Floyd 入门}\label{sec:06-20}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 \begin{itemize}
   \item 问任意两点之间最短路。
@@ -1091,12 +1118,12 @@ for (int k = 1; k <= n; k++) {
   \item 点数大时不能用 Floyd。
 \end{itemize}
 
-\section{Dijkstra 入门}
+\section{Dijkstra 入门}\label{sec:06-21}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 \begin{itemize}
-  \item 正权图最短路。
+  \item 非负权图最短路。
   \item 边权不是全 1。
   \item 点和边较多，不能 Floyd。
   \item 单源最短路：从一个起点到其他点。
@@ -1138,6 +1165,7 @@ while (!pq.empty()) {
     if (d != dist[u]) continue;
 
     for (auto e : g[u]) {
+        if (e.w >= INF - dist[u]) continue;
         if (dist[e.to] > dist[u] + e.w) {
             dist[e.to] = dist[u] + e.w;
             pq.push({dist[e.to], e.to});
@@ -1156,9 +1184,9 @@ while (!pq.empty()) {
   \item 如果所有边权都是 1，用 BFS 更简单。
 \end{itemize}
 
-\section{并查集入门}
+\section{并查集入门}\label{sec:06-22}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1202,9 +1230,9 @@ struct DSU {
 };
 \end{lstlisting}
 
-\section{拓扑排序入口}
+\section{拓扑排序入口}\label{sec:06-23}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1263,9 +1291,9 @@ if ((int)order.size() == n) {
   \item 若排序结果少于 $n$ 个点，说明有环。
 \end{itemize}
 
-\section{简单 DP 入口}
+\section{简单 DP 入口}\label{sec:06-24}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1278,14 +1306,14 @@ if ((int)order.size() == n) {
 
 \subsection{线性 DP 示例}
 
-例如每一步只能从前一步或前两步转移：
+例如每次爬 1 或 2 级台阶。下例要求 $0\le n\le91$；更大时需按题意取模或使用高精度：
 
 \begin{lstlisting}
 int n;
 cin >> n;
 vector<long long> dp(n + 1, 0);
 dp[0] = 1;
-dp[1] = 1;
+if (n >= 1) dp[1] = 1;
 for (int i = 2; i <= n; i++) {
     dp[i] = dp[i - 1] + dp[i - 2];
 }
@@ -1294,17 +1322,18 @@ cout << dp[n] << '\n';
 
 \subsection{01 背包入口}
 
-每个物品只能选一次：
+每个物品只能选一次，求重量不超过 V 的最大价值；恰好装满见 \Tref{303}。
 
 \begin{lstlisting}
 int n, V;
 cin >> n >> V;
-vector<int> w(n + 1), val(n + 1);
+vector<int> w(n + 1);
+vector<long long> val(n + 1);
 for (int i = 1; i <= n; i++) {
     cin >> w[i] >> val[i];
 }
 
-vector<int> dp(V + 1, 0);
+vector<long long> dp(V + 1, 0);
 for (int i = 1; i <= n; i++) {
     for (int j = V; j >= w[i]; j--) {
         dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
@@ -1315,17 +1344,18 @@ cout << dp[V] << '\n';
 
 \subsection{完全背包入口}
 
-每个物品可以选无限次，容量正序。
+每个物品可以选无限次，容量正序；重量必须为正，模板求重量不超过 V 的最大价值。
 
 \begin{lstlisting}
 int n, V;
 cin >> n >> V;
-vector<int> w(n + 1), val(n + 1);
+vector<int> w(n + 1);
+vector<long long> val(n + 1);
 for (int i = 1; i <= n; i++) {
     cin >> w[i] >> val[i];
 }
 
-vector<int> dp(V + 1, 0);
+vector<long long> dp(V + 1, 0);
 for (int i = 1; i <= n; i++) {
     for (int j = w[i]; j <= V; j++) {
         dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
@@ -1344,13 +1374,14 @@ cout << dp[V] << '\n';
   \item 方案数可能很大，要看是否取模。
 \end{itemize}
 
-\section{基础数学入口}
+\section{基础数学入口}\label{sec:06-25}
 
 \subsection{gcd 和 lcm}
 
 \begin{lstlisting}
+// Require a,b >= 0 and lcm(a,b) <= LLONG_MAX.
 long long g = gcd(a, b);
-long long l = a / g * b;
+long long l = (a == 0 || b == 0) ? 0 : a / g * b;
 \end{lstlisting}
 
 \Warn{先除后乘，降低溢出风险。}
@@ -1360,9 +1391,11 @@ long long l = a / g * b;
 如果题目要求 $a^b \bmod mod$：
 
 \begin{lstlisting}
+// Require b >= 0 and 1 <= mod <= 3037000500LL.
 long long modPow(long long a, long long b, long long mod) {
     long long res = 1 % mod;
     a %= mod;
+    if (a < 0) a += mod;
     while (b > 0) {
         if (b & 1) res = res * a % mod;
         a = a * a % mod;
@@ -1379,7 +1412,7 @@ long long modPow(long long a, long long b, long long mod) {
 \begin{lstlisting}
 bool isPrime(long long x) {
     if (x < 2) return false;
-    for (long long d = 2; d * d <= x; d++) {
+    for (long long d = 2; d <= x / d; d++) {
         if (x % d == 0) return false;
     }
     return true;
@@ -1390,7 +1423,7 @@ bool isPrime(long long x) {
 
 \begin{lstlisting}
 vector<long long> divisors;
-for (long long d = 1; d * d <= x; d++) {
+for (long long d = 1; d <= x / d; d++) {
     if (x % d == 0) {
         divisors.push_back(d);
         if (d != x / d) divisors.push_back(x / d);
@@ -1401,7 +1434,9 @@ sort(divisors.begin(), divisors.end());
 
 \Warn{数学题先看范围。}如果要对很多个数判断素数，可能需要筛法；如果只是少量数，试除通常够用。
 
-使用：
+\section{并查集调用示例}\label{sec:06-26}
+
+先复制 \Tref{203} 的 DSU 定义，再在主函数中使用：
 
 \begin{lstlisting}
 int n, m;
@@ -1416,7 +1451,7 @@ while (m--) {
 }
 \end{lstlisting}
 
-\section{B 题提交前检查}
+\section{B 题提交前检查}\label{sec:06-27}
 
 \begin{itemize}
   \item 是否估算过复杂度。
@@ -1430,7 +1465,7 @@ while (m--) {
   \item 多组数据是否清空容器。
 \end{itemize}
 
-\section{B 题冲分判断表}
+\section{B 题优化速查}\label{sec:06-28}
 
 当你已经有一个暴力思路，但担心超时时，用这张表判断下一步。
 
@@ -1438,6 +1473,11 @@ while (m--) {
 \toprule
 当前情况 & 优先尝试 & 原因 \\
 \midrule
+\endfirsthead
+\toprule
+当前情况 & 优先尝试 & 原因 \\
+\midrule
+\endhead
 暴力是两层循环找一对数 & 排序、哈希、双指针 & 二元关系常能降到 $O(n\log n)$ 或 $O(n)$。 \\
 暴力是每次求区间和 & 前缀和 & 静态区间查询标准做法。 \\
 暴力是每次区间加 & 差分 & 最后统一查询时最简单。 \\
@@ -1452,19 +1492,24 @@ while (m--) {
 网格最短步数 & BFS & 每步代价相同。 \\
 网格连通区域 & DFS/BFS & 统计区域或连通块。 \\
 图边权为 1 & BFS & 比 Dijkstra 简单。 \\
-图边权为正 & Dijkstra & 单源正权最短路。 \\
+图边权为正 & Dijkstra & 单源非负权最短路。 \\
 点数小且任意两点 & Floyd & 写法短，适合小图。 \\
 合并和查询同组 & 并查集 & 连通性标准做法。 \\
 依赖顺序 & 拓扑排序 & 入度为 0 的点先处理。 \\
 \bottomrule
 \end{longtable}
 
-\section{B 题常见边界库}
+\section{B 题常见边界库}\label{sec:06-29}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 题型 & 边界样例 & 检查目标 \\
 \midrule
+\endfirsthead
+\toprule
+题型 & 边界样例 & 检查目标 \\
+\midrule
+\endhead
 前缀和 & $l=1$，$r=n$，$l=r$ & 端点公式。 \\
 二维前缀和 & 单行、单列、整个矩阵、单个格子 & 四项公式。 \\
 差分 & 修改到 $r=n$，只改一个点 & \Code{r+1} 和数组大小。 \\
@@ -1482,11 +1527,11 @@ Dijkstra & 不连通、多条边、起点到自己 & INF 和取最小边。 \\
 \bottomrule
 \end{longtable}
 
-\section{B 题本地调试流程}
+\section{B 题本地调试流程}\label{sec:06-30}
 
 \subsection{先用暴力对拍思路}
 
-如果你写了优化算法，但不确定是否正确，可以在本地用小数据和暴力对比。考场时间紧时不一定完整写对拍，但可以用这个思想手工造样例。
+优化后的程序可以用小数据和暴力结果对照。来不及写对拍程序时，也可以取 3 到 6 个元素，手算几组结果。
 
 \begin{itemize}
   \item $n$ 取 3 到 6。
@@ -1521,7 +1566,7 @@ while (!q.empty()) q.pop();
 
 \Warn{队列、优先队列没有 clear。}最简单的方法是在每组数据内部重新定义它。
 
-\section{B 题卡住时的部分分策略}
+\section{B 题卡住时的部分分策略}\label{sec:06-31}
 
 \begin{enumerate}
   \item 如果不会优化，先写 $O(n^2)$ 暴力，确认题意。
@@ -1531,7 +1576,7 @@ while (!q.empty()) q.pop();
   \item 如果是复杂排序规则，先保证主关键字正确，再处理并列规则。
 \end{enumerate}
 
-\section{B 题手写模板清单}
+\section{B 题模板练习清单}\label{sec:06-32}
 
 这些模板建议在考前单独练习到“看着能快速写对”。
 
@@ -1539,21 +1584,29 @@ while (!q.empty()) q.pop();
 \toprule
 模板 & 熟练要求 & 主要用途 \\
 \midrule
-一维前缀和 & 必须会默写 & 静态区间和。 \\
+\endfirsthead
+\toprule
+模板 & 熟练要求 & 主要用途 \\
+\midrule
+\endhead
+一维前缀和 & 建议熟练掌握 & 静态区间和。 \\
 二维前缀和 & 照着能写 & 子矩阵和。 \\
-一维差分 & 必须会默写 & 区间加，最后查询。 \\
+一维差分 & 建议熟练掌握 & 区间加，最后查询。 \\
 二维差分 & 照着能写 & 矩形加，最后输出。 \\
-map/unordered\_map 统计 & 必须会默写 & 频率统计。 \\
-排序加结构体比较器 & 必须会默写 & 排名、事件、贪心。 \\
+map/unordered\_map 统计 & 建议熟练掌握 & 频率统计。 \\
+排序加结构体比较器 & 建议熟练掌握 & 排名、事件、贪心。 \\
 双指针 & 照着能写 & 排序后找对、滑动窗口。 \\
 二分答案 & 照着能写 & 最大化最小值、最小化最大值。 \\
 前后缀预处理 & 照着能写 & 删除一个元素、左右信息。 \\
 余数统计 & 照着能写 & 整除、同余、区间和取模。 \\
 基础贪心 & 照着能写 & 区间选择、任务安排。 \\
 单调栈/队列 & 了解并练过再用 & 最近更大、滑动窗口极值。 \\
-网格 BFS & 必须照着能写 & 最短步数。 \\
+网格 BFS & 能对照写出 & 最短步数。 \\
 并查集 & 照着能写 & 连通性。 \\
 拓扑排序 & 照着能写 & 依赖顺序。 \\
-Dijkstra & 照着能写 & 正权最短路。 \\
+Dijkstra & 照着能写 & 非负权最短路。 \\
 \bottomrule
 \end{longtable}
+
+\section{矩阵与稀疏数据补充入口}\label{sec:06-33}
+矩阵重塑和乘法顺序见 \Tref{111}；有序稀疏向量点积见 \Tref{112}；质因数分解和批量素数查询见 \Tref{515}。购买总额至少达到门槛时，使用 \Tref{303} 的可达金额版，而不是直接复制 \Tref{301}。

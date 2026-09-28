@@ -1,23 +1,28 @@
-\chapter{易错点总表}
+\chapter{易错点总表}\label{ch:10}
 
-\section{本章使用方法}
+\section{本章使用方法}\label{sec:10-1}
 
-本章用于考前最后复习和提交前检查。很多失分不是因为算法不会，而是因为输入输出、下标、溢出、初始化、比较器等细节错误。
+样例对不上，或小数据正确、大数据出错时，可以按本章查输入、下标、数值范围和初始化。提交前也可以挑与这道题有关的几项再看一遍。
 
 建议使用方式：
 
 \begin{itemize}
-  \item 考前每天快速看一遍。
+  \item 练习中出过错的项目，考前再翻一遍。
   \item 每次模拟赛后，把自己犯过的错补进本章。
   \item 考场提交前，用最后的总检查表快速扫一遍。
 \end{itemize}
 
-\section{输入输出易错点}
+\section{输入输出易错点}\label{sec:10-2}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 问题 & 表现 & 检查方法 \\
 \midrule
+\endfirsthead
+\toprule
+问题 & 表现 & 检查方法 \\
+\midrule
+\endhead
 多输出提示语 & 答案格式错误 & 不要输出 \Code{answer=}、提示文字。 \\
 少换行或多内容 & 样例看似接近但不完全一致 & 严格对照题目输出格式。 \\
 大小写错误 & \Code{YES} 写成 \Code{Yes} & 看题目要求。 \\
@@ -27,12 +32,17 @@
 \bottomrule
 \end{longtable}
 
-\section{数据类型和溢出}
+\section{数据类型和溢出}\label{sec:10-3}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 场景 & 风险 & 正确做法 \\
 \midrule
+\endfirsthead
+\toprule
+场景 & 风险 & 正确做法 \\
+\midrule
+\endhead
 求和 & \Code{int} 溢出 & 答案用 \Code{long long}。 \\
 两个大整数相乘 & 先按 \Code{int} 溢出 & 写 \Code{1LL * a * b}。 \\
 最短路距离 & 路径和很大 & \Code{dist} 用 \Code{long long}。 \\
@@ -42,13 +52,18 @@ INF 太小 & 最短路被错误更新 & \Code{long long INF = 4e18}。 \\
 \bottomrule
 \end{longtable}
 
-\section{整除、取整和取模}
+\section{整除、取整和取模}\label{sec:10-4}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 场景 & 常见错误 & 正确处理 \\
 \midrule
-正整数分组数 & 少算最后不足一组 & $a \ge 0,b>0$ 时用 \Code{(a+b-1)/b}。 \\
+\endfirsthead
+\toprule
+场景 & 常见错误 & 正确处理 \\
+\midrule
+\endhead
+正整数分组数 & 少算最后不足一组 & $a \ge 0,b>0$ 时用 \Code{a/b+(a\%b!=0)}。 \\
 负数参与除法 & 误以为 \Code{/} 是向下取整 & C++ 整数除法向 0 截断，必要时用 \Code{floor\_div/ceil\_div}。 \\
 负数参与取模 & 余数下标为负导致越界 & 用 \Code{r=x\%m; if (r<0) r+=m;}。 \\
 大整数取整 & 用 \Code{double} 后丢精度 & 尽量用整数公式；接近 $10^{18}$ 时避免浮点取整。 \\
@@ -56,7 +71,7 @@ INF 太小 & 最短路被错误更新 & \Code{long long INF = 4e18}。 \\
 \bottomrule
 \end{longtable}
 
-\section{下标和边界}
+\section{下标和边界}\label{sec:10-5}
 
 \begin{itemize}
   \item 题目编号从 1 开始，代码数组是否开了 \Code{n+1}。
@@ -68,12 +83,17 @@ INF 太小 & 最短路被错误更新 & \Code{long long INF = 4e18}。 \\
   \item 循环是 \Code{i < n} 还是 \Code{i <= n}。
 \end{itemize}
 
-\section{初始化和清空}
+\section{初始化和清空}\label{sec:10-6}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 对象 & 常见错误 & 正确处理 \\
 \midrule
+\endfirsthead
+\toprule
+对象 & 常见错误 & 正确处理 \\
+\midrule
+\endhead
 全局数组 & 以为每组自动清空 & 多组数据手动清空。 \\
 局部数组 & 未初始化 & 定义时初始化或使用 \Code{vector}。 \\
 \Code{vector} & 上组残留 & \Code{assign} 或重新定义。 \\
@@ -84,7 +104,7 @@ INF 太小 & 最短路被错误更新 & \Code{long long INF = 4e18}。 \\
 \bottomrule
 \end{longtable}
 
-\section{排序和比较器}
+\section{排序和比较器}\label{sec:10-7}
 
 \begin{itemize}
   \item 比较器表示“谁排前面”。
@@ -108,12 +128,17 @@ if (a.score != b.score) return a.score > b.score;
 return a.id < b.id;
 \end{lstlisting}
 
-\section{STL 容器易错点}
+\section{STL 容器易错点}\label{sec:10-8}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 容器/函数 & 易错点 & 提醒 \\
 \midrule
+\endfirsthead
+\toprule
+容器/函数 & 易错点 & 提醒 \\
+\midrule
+\endhead
 \Code{vector} & 越界访问 & 确认大小和下标。 \\
 \Code{map[key]} & 不存在时会创建 key & 只判断存在用 \Code{count/find}。 \\
 \Code{unordered\_map} & 遍历无序 & 要有序输出用 \Code{map}。 \\
@@ -125,7 +150,7 @@ return a.id < b.id;
 \bottomrule
 \end{longtable}
 
-\section{字符串易错点}
+\section{字符串易错点}\label{sec:10-9}
 
 \begin{itemize}
   \item \Code{cin >> s} 不能读取空格。
@@ -137,7 +162,7 @@ return a.id < b.id;
   \item 连续分隔符、开头分隔符、结尾分隔符要测试。
 \end{itemize}
 
-\section{图论易错点}
+\section{图论易错点}\label{sec:10-10}
 
 \begin{itemize}
   \item 无向图要双向加边，有向图不要。
@@ -150,7 +175,7 @@ return a.id < b.id;
   \item 拓扑排序边方向不要反。
 \end{itemize}
 
-\section{动态规划易错点}
+\section{动态规划易错点}\label{sec:10-11}
 
 \begin{itemize}
   \item 先定义 \Code{dp[i]} 的含义，再写转移。
@@ -162,7 +187,7 @@ return a.id < b.id;
   \item 多组数据是否清空 DP 数组。
 \end{itemize}
 
-\section{数据结构易错点}
+\section{数据结构易错点}\label{sec:10-12}
 
 \begin{itemize}
   \item 树状数组通常用 1 下标。
@@ -174,7 +199,7 @@ return a.id < b.id;
   \item 递归 DFS 在大数据上可能爆栈。
 \end{itemize}
 
-\section{提交前总检查}
+\section{提交前总检查}\label{sec:10-13}
 
 \begin{enumerate}
   \item 删除所有调试输出。
@@ -189,7 +214,7 @@ return a.id < b.id;
   \item 确认提交的是当前最新代码。
 \end{enumerate}
 
-\section{最后十分钟清单}
+\section{最后十分钟清单}\label{sec:10-14}
 
 如果考试快结束：
 
@@ -199,5 +224,5 @@ return a.id < b.id;
   \item 删除调试输出。
   \item 提交当前最稳版本。
   \item 如果还有时间，再做小修小补。
-  \item 对没把握的题，至少提交能过样例或小数据的版本。
+  \item 对没把握的题，提交已经检查过的子任务版本；仅通过样例不能说明能得分。
 \end{itemize}

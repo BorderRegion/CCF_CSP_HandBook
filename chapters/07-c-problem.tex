@@ -1,19 +1,19 @@
-\chapter{C 题决策树与大模拟方法}
+\chapter{C 题决策树与大模拟方法}\label{ch:07}
 
-\section{C 题定位}
+\section{C 题定位}\label{sec:07-1}
 
-C 题通常是 CSP 的分水岭。它不一定算法很难，但题面往往更长、规则更多、状态更多，代码量明显增加。
+C 题的长题面常见多个对象、几种命令和一些特殊规则。读题和组织代码会占不少时间，先把这些内容分清楚，后面才容易查错。
 
 \begin{itemize}
   \item 建议目标时间：60--100 分钟。
-  \item 目标：能满分则满分；若细节太多，至少拿到主要规则分。
+  \item 目标：能满分则满分；若细节太多，先完成题目明确给出的子任务。
   \item 高频主题：大模拟、字符串解析、状态维护、网格搜索、图论基础、数据结构基础、简单 DP。
-  \item 最大风险：读题不完整、状态设计混乱、把所有逻辑堆进 \Code{main}。
+  \item 容易出错的地方：漏规则、状态没记全、不同命令混在同一段代码里。
 \end{itemize}
 
-\Warn{C 题第一原则：}先拆题，再写代码。题面越长，越不能急着敲。
+可以先列一张对象和命令表，确认每种操作会改哪些字段。
 
-\section{C 题开题流程}
+\section{C 题开题流程}\label{sec:07-2}
 
 \begin{enumerate}
   \item 快速浏览题面，判断是大模拟还是算法题。
@@ -26,9 +26,9 @@ C 题通常是 CSP 的分水岭。它不一定算法很难，但题面往往更�
   \item 再逐条补特殊规则。
 \end{enumerate}
 
-\section{C 题读题三遍法}
+\section{C 题读题三遍法}\label{sec:07-3}
 
-C 题不要试图一遍读懂所有细节。建议固定读三遍。
+题面较长时可以分几遍读：先看要模拟什么，再记状态和命令，最后核对特殊规则。
 
 \subsection{第一遍：只判断题型}
 
@@ -41,7 +41,7 @@ C 题不要试图一遍读懂所有细节。建议固定读三遍。
   \item 数据范围是否明显要求优化？
 \end{itemize}
 
-第一遍结束后，如果你还不知道题目在讲什么，先看样例解释。
+第一遍还没理清时，可以结合样例看看一次操作前后发生了什么。
 
 \subsection{第二遍：圈对象、状态、操作}
 
@@ -51,6 +51,11 @@ C 题不要试图一遍读懂所有细节。建议固定读三遍。
 \toprule
 类别 & 怎么找 & 例子 \\
 \midrule
+\endfirsthead
+\toprule
+类别 & 怎么找 & 例子 \\
+\midrule
+\endhead
 对象 & 被操作的名词 & 用户、文件、进程、任务、车辆、节点、格子。 \\
 属性 & 对象身上的数据 & 编号、名字、位置、时间、状态、得分。 \\
 操作 & 题目中的动词或命令 & 新增、删除、移动、查询、合并、修改。 \\
@@ -73,7 +78,7 @@ C 题不要试图一遍读懂所有细节。建议固定读三遍。
   \item 输出顺序按输入顺序、编号顺序、字典序还是时间顺序。
 \end{itemize}
 
-\section{从题面到代码的转换}
+\section{从题面到代码的转换}\label{sec:07-4}
 
 \subsection{对象变成 struct}
 
@@ -124,7 +129,7 @@ void queryTask(int id) {
 
 \subsection{规则变成 if}
 
-题目里的每条规则，都应该在代码中有对应的 \Code{if}。
+题目中的条件要落实到代码里。例如，查询前先判断对象是否存在，再判断它的状态：
 
 \begin{lstlisting}
 if (!tasks.count(id)) {
@@ -138,9 +143,9 @@ if (tasks[id].status == FINISHED) {
 }
 \end{lstlisting}
 
-\Warn{不要把多个规则揉成一行复杂表达式。}C 题的代码要好查错，宁可多写几行。
+把几条不同规则分开写，样例不对时比较容易找到是哪一步。
 
-\section{状态维护和容器选择}
+\section{状态维护和容器选择}\label{sec:07-5}
 
 \subsection{容器选择表}
 
@@ -148,6 +153,11 @@ if (tasks[id].status == FINISHED) {
 \toprule
 需求 & 推荐容器 & 原因 \\
 \midrule
+\endfirsthead
+\toprule
+需求 & 推荐容器 & 原因 \\
+\midrule
+\endhead
 编号是 $1$ 到 $n$ & \Code{vector<Obj>} & 直接下标访问，最快。 \\
 编号很大但唯一 & \Code{unordered\_map<int,Obj>} & 平均快速查找。 \\
 编号是字符串 & \Code{map<string,Obj>} 或 \Code{unordered\_map} & 字符串到对象映射。 \\
@@ -167,6 +177,11 @@ if (tasks[id].status == FINISHED) {
 \toprule
 容器 & 常见复杂度 & 注意 \\
 \midrule
+\endfirsthead
+\toprule
+容器 & 常见复杂度 & 注意 \\
+\midrule
+\endhead
 \Code{vector} 下标访问 & $O(1)$ & 中间插入删除慢。 \\
 \Code{map} 查找插入 & $O(\log n)$ & 有序但常数较大。 \\
 \Code{unordered\_map} 查找插入 & 平均 $O(1)$ & 无序，最坏情况不稳定。 \\
@@ -187,12 +202,17 @@ if (tasks[id].status == FINISHED) {
   \item priority\_queue 里元素更新了但旧值还在：需要懒删除。
 \end{itemize}
 
-\section{C 题总决策树}
+\section{C 题总决策树}\label{sec:07-6}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 题面信号 & 优先怀疑 & 首选方法 \\
 \midrule
+\endfirsthead
+\toprule
+题面信号 & 优先怀疑 & 首选方法 \\
+\midrule
+\endhead
 题面很长，规则很多 & 大模拟 & 结构体 + 函数拆解 \\
 输入是一串命令 & 命令解析模拟 & stringstream / split / 状态表 \\
 按时间发生事件 & 事件模拟 & 事件排序 / 优先队列 \\
@@ -205,7 +225,7 @@ if (tasks[id].status == FINISHED) {
 \bottomrule
 \end{longtable}
 
-\section{C 题考法地图}
+\section{C 题常见题型}\label{sec:07-7}
 
 这张表用于快速判断 C 题该从哪个方向切入。
 
@@ -213,6 +233,11 @@ if (tasks[id].status == FINISHED) {
 \toprule
 题目长相 & 本质 & 先翻哪里 \\
 \midrule
+\endfirsthead
+\toprule
+题目长相 & 本质 & 先翻哪里 \\
+\midrule
+\endhead
 很多命令，每条命令改变系统状态 & 命令模拟 & 命令解析、状态设计、函数化 \\
 按时间发生、开始结束、排队 & 事件模拟 & 事件排序、优先级、队列模拟 \\
 字符串里有路径、参数、配置 & 字符串解析 & split、key=value、路径规范化 \\
@@ -227,7 +252,7 @@ if (tasks[id].status == FINISHED) {
 \bottomrule
 \end{longtable}
 
-\section{C 题细分决策树}
+\section{C 题细分决策树}\label{sec:07-8}
 
 \subsection{第一问：这是大模拟还是算法题}
 
@@ -235,6 +260,11 @@ if (tasks[id].status == FINISHED) {
 \toprule
 题面特征 & 判断 & 下一步 \\
 \midrule
+\endfirsthead
+\toprule
+题面特征 & 判断 & 下一步 \\
+\midrule
+\endhead
 规则很多、命令很多、对象很多 & 大模拟 & 拆对象、状态、命令 \\
 题面不长但数据范围大 & 算法题 & 回到 B/D 算法决策树 \\
 有地图和最短步数 & 搜索题 & BFS / 状态 BFS \\
@@ -250,6 +280,11 @@ if (tasks[id].status == FINISHED) {
 \toprule
 题面信号 & 类型 & 首选结构 \\
 \midrule
+\endfirsthead
+\toprule
+题面信号 & 类型 & 首选结构 \\
+\midrule
+\endhead
 每行一个操作名 & 命令系统 & \Code{handleCommand} 分发 \\
 对象有生命周期 & 增删改查模拟 & \Code{map<int,Obj>} 或 \Code{vector<Obj>} \\
 对象有多个状态 & 状态机 & 状态常量 + 转移函数 \\
@@ -267,6 +302,11 @@ if (tasks[id].status == FINISHED) {
 \toprule
 字符串形态 & 优先方法 & 小心 \\
 \midrule
+\endfirsthead
+\toprule
+字符串形态 & 优先方法 & 小心 \\
+\midrule
+\endhead
 按空格分隔 & \Code{stringstream} & 前面是否要 \Code{ignore} \\
 按固定字符分隔 & \Code{split} & 连续分隔符 \\
 \Code{key=value} & \Code{find + substr} & 值是否含空格 \\
@@ -284,6 +324,11 @@ URL 参数 & 先按 \Code{?}，再按 \Code{\&} & 参数为空 \\
 \toprule
 题面信号 & 类型 & 首选模板 \\
 \midrule
+\endfirsthead
+\toprule
+题面信号 & 类型 & 首选模板 \\
+\midrule
+\endhead
 最少步数、每步代价相同 & 无权最短路 & BFS \\
 多个起点最近距离 & 多源 BFS & 所有起点入队 \\
 有钥匙、方向、模式等额外状态 & 状态 BFS & \Code{dist[x][y][state]} \\
@@ -294,9 +339,9 @@ URL 参数 & 先按 \Code{?}，再按 \Code{\&} & 参数为空 \\
 \bottomrule
 \end{longtable}
 
-\section{大模拟总方法}
+\section{大模拟总方法}\label{sec:07-9}
 
-\subsection{大模拟识别信号}
+\subsection{大模拟什么题会用到}
 
 \begin{itemize}
   \item 题面长度明显长。
@@ -368,7 +413,7 @@ int main() {
   \item 样例错时能定位是哪条规则错。
 \end{itemize}
 
-\section{长题面拆解表}
+\section{长题面拆解表}\label{sec:07-10}
 
 读 C 题时，在草稿纸上画这个表：
 
@@ -376,6 +421,11 @@ int main() {
 \toprule
 项目 & 要记录什么 & 示例 \\
 \midrule
+\endfirsthead
+\toprule
+项目 & 要记录什么 & 示例 \\
+\midrule
+\endhead
 对象 & 题目中被操作的东西 & 用户、文件、任务、格子、节点。 \\
 状态 & 对象身上的变量 & 位置、分数、权限、颜色、是否激活。 \\
 命令 & 输入中每种操作 & add、delete、query、move。 \\
@@ -386,7 +436,7 @@ int main() {
 \bottomrule
 \end{longtable}
 
-\section{命令解析}
+\section{命令解析}\label{sec:07-11}
 
 \subsection{固定格式命令}
 
@@ -411,7 +461,7 @@ if (op == "add") {
 \begin{lstlisting}
 int q;
 cin >> q;
-cin.ignore();
+cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 while (q--) {
     string line;
@@ -451,7 +501,7 @@ vector<string> split(const string& s, char sep) {
 
 \subsection{命令分发模板}
 
-命令很多时，不要把所有代码写在一个很长的 \Code{if} 里。可以先分发到函数。
+命令较多时，可以让每种命令对应一个函数，主循环只负责读入和调用。
 
 \begin{lstlisting}
 void handleAdd() {
@@ -492,7 +542,7 @@ void handleCommand() {
   \item 查询不存在对象时输出什么。
 \end{itemize}
 
-\section{状态设计}
+\section{状态设计}\label{sec:07-12}
 
 \subsection{用结构体保存对象}
 
@@ -537,15 +587,20 @@ enum Status {
 \toprule
 当前状态 & 操作 & 新状态 & 输出/副作用 \\
 \midrule
+\endfirsthead
+\toprule
+当前状态 & 操作 & 新状态 & 输出/副作用 \\
+\midrule
+\endhead
 WAITING & start & RUNNING & 记录开始时间 \\
 RUNNING & finish & FINISHED & 计算得分 \\
 RUNNING & fail & FAILED & 输出错误信息 \\
 \bottomrule
 \end{longtable}
 
-\section{状态机模拟}
+\section{状态机模拟}\label{sec:07-13}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -595,9 +650,9 @@ void finish(Job& job) {
   \item 状态改变时是否还要更新其他字段。
 \end{itemize}
 
-\section{事件模拟}
+\section{事件模拟}\label{sec:07-14}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -654,9 +709,9 @@ for (const Event& e : events) {
   \item 排序比较器中必须体现这个顺序。
 \end{itemize}
 
-\section{优先级模拟}
+\section{优先级模拟}\label{sec:07-15}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -697,9 +752,9 @@ priority_queue<Task, vector<Task>, Cmp> pq;
 
 \Warn{priority\_queue 的比较器和 sort 相反，容易写错。}不确定时，用几个任务手动推一下 \Code{top()} 是谁。
 
-\section{复杂排序和排名}
+\section{复杂排序和排名}\label{sec:07-16}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -750,9 +805,9 @@ for (int i = 0; i < (int)a.size(); i++) {
   \item 比较器相等时不能返回 \Code{true}。
 \end{itemize}
 
-\section{表格和矩阵模拟}
+\section{表格和矩阵模拟}\label{sec:07-17}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -801,6 +856,7 @@ for (int i = 0; i < n; i++) {
 \begin{lstlisting}
 vector<vector<int>> rotateClockwise(const vector<vector<int>>& a) {
     int n = (int)a.size();
+    if (n == 0) return {};
     int m = (int)a[0].size();
     vector<vector<int>> b(m, vector<int>(n));
     for (int i = 0; i < n; i++) {
@@ -821,9 +877,9 @@ vector<vector<int>> rotateClockwise(const vector<vector<int>>& a) {
   \item 输出每行空格格式。
 \end{itemize}
 
-\section{目录树和路径模拟}
+\section{目录树和路径模拟}\label{sec:07-18}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -836,7 +892,7 @@ vector<vector<int>> rotateClockwise(const vector<vector<int>>& a) {
 
 \subsection{路径规范化}
 
-处理 \Code{.} 和 \Code{..}：
+下面处理绝对路径的 \Code{.} 和 \Code{..}；相对路径需先拼接当前目录。依赖前文 split：
 
 \begin{lstlisting}
 vector<string> normalizePath(const string& path) {
@@ -903,9 +959,9 @@ int newNode(const string& name, bool isFile) {
   \item 文件和目录是否允许同名。
 \end{itemize}
 
-\section{URL 路由和参数解析}
+\section{URL 路由和参数解析}\label{sec:07-19}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -926,8 +982,8 @@ struct Url {
 
 Url parseUrl(const string& s) {
     Url res;
-    int qpos = (int)s.find('?');
-    if (qpos == (int)string::npos) {
+    size_t qpos = s.find('?');
+    if (qpos == string::npos) {
         res.path = s;
         return res;
     }
@@ -936,8 +992,9 @@ Url parseUrl(const string& s) {
     string qs = s.substr(qpos + 1);
     vector<string> pairs = split(qs, '&');
     for (string p : pairs) {
-        int eq = (int)p.find('=');
-        if (eq == (int)string::npos) {
+        if (p.empty()) continue;
+        size_t eq = p.find('=');
+        if (eq == string::npos) {
             res.query[p] = "";
         } else {
             string key = p.substr(0, eq);
@@ -951,11 +1008,13 @@ Url parseUrl(const string& s) {
 
 \subsection{简单路由匹配}
 
-模式 \Code{/user/<id>} 匹配 \Code{/user/123}：
+模式 \Code{/user/<id>} 匹配 \Code{/user/123}。先定义后文的 \Code{parsePath}，或在函数前声明它。此简化版忽略连续/末尾斜杠，仅支持整段参数，不支持 URL 映射真题的类型参数和剩余路径规则：
 
 \begin{lstlisting}
 bool matchRoute(const string& pattern, const string& path,
                 map<string, string>& params) {
+    params.clear();
+    map<string, string> candidate;
     vector<string> a = parsePath(pattern);
     vector<string> b = parsePath(path);
     if (a.size() != b.size()) return false;
@@ -963,11 +1022,12 @@ bool matchRoute(const string& pattern, const string& path,
     for (int i = 0; i < (int)a.size(); i++) {
         if (!a[i].empty() && a[i][0] == '<' && a[i].back() == '>') {
             string name = a[i].substr(1, (int)a[i].size() - 2);
-            params[name] = b[i];
+            candidate[name] = b[i];
         } else if (a[i] != b[i]) {
             return false;
         }
     }
+    params = move(candidate);
     return true;
 }
 \end{lstlisting}
@@ -982,9 +1042,9 @@ bool matchRoute(const string& pattern, const string& path,
   \item URL 是否需要解码，题目不要求就不要自己加。
 \end{itemize}
 
-\section{配置和 JSON 类解析入口}
+\section{配置和 JSON 类解析入口}\label{sec:07-20}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1025,7 +1085,7 @@ string value = line.substr(pos + 1);
 
 \subsection{嵌套结构处理思路}
 
-新手处理 JSON 类题时，不要一开始写完整通用解析器。先看题目限制：
+JSON 类题先看题目允许哪些数据类型和格式，只实现题目实际需要的部分：
 
 \begin{itemize}
   \item 是否只有字符串和对象，没有数组。
@@ -1045,11 +1105,11 @@ map<string, string> value;
 
 \Warn{配置/JSON 题先利用限制。}CSP 题通常不会要求你写工业级 JSON 解析器，重点是按题目给定范围实现。
 
-\section{字符串解析}
+\section{字符串解析}\label{sec:07-21}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
-C 题中的字符串通常比 A/B 题更复杂。题面出现下面内容时，要进入字符串解析思路：
+遇到下面这些格式时，需要先想清楚字符串怎样拆开：
 
 \begin{itemize}
   \item 路径，例如 \Code{/a/b/c}。
@@ -1068,14 +1128,14 @@ cin >> s;
 
 for (int i = 0; i < (int)s.size(); i++) {
     char c = s[i];
-    if (isdigit(c)) {
+    if (isdigit((unsigned char)c)) {
         int j = i;
-        while (j < (int)s.size() && isdigit(s[j])) j++;
+        while (j < (int)s.size() && isdigit((unsigned char)s[j])) j++;
         string number = s.substr(i, j - i);
         i = j - 1;
-    } else if (isalpha(c)) {
+    } else if (isalpha((unsigned char)c)) {
         int j = i;
-        while (j < (int)s.size() && isalpha(s[j])) j++;
+        while (j < (int)s.size() && isalpha((unsigned char)s[j])) j++;
         string word = s.substr(i, j - i);
         i = j - 1;
     } else {
@@ -1147,9 +1207,9 @@ bool checkBrackets(const string& s) {
   \item 字符串数字可能超过 \Code{long long}。
 \end{itemize}
 
-\section{表达式解析入口}
+\section{表达式解析入口}\label{sec:07-22}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1169,7 +1229,8 @@ long long evalPlusMinus(const string& s) {
     int sign = 1;
 
     for (int i = 0; i <= (int)s.size(); i++) {
-        if (i < (int)s.size() && isdigit(s[i])) {
+        if (i < (int)s.size() && isspace((unsigned char)s[i])) continue;
+        if (i < (int)s.size() && isdigit((unsigned char)s[i])) {
             num = num * 10 + (s[i] - '0');
         } else {
             ans += sign * num;
@@ -1184,6 +1245,8 @@ long long evalPlusMinus(const string& s) {
 }
 \end{lstlisting}
 
+完整整数四则运算见 \Tref{610}；下面仅展示读取一个数字的基础片段。
+
 \subsection{递归解析思想}
 
 复杂表达式通常需要递归下降。新手先掌握思想：
@@ -1194,7 +1257,7 @@ int pos = 0;
 
 long long parseNumber() {
     long long x = 0;
-    while (pos < (int)s.size() && isdigit(s[pos])) {
+    while (pos < (int)s.size() && isdigit((unsigned char)s[pos])) {
         x = x * 10 + (s[pos] - '0');
         pos++;
     }
@@ -1204,9 +1267,9 @@ long long parseNumber() {
 
 \Warn{表达式题如果没练过，不要强行写复杂递归下降。}先拿没有括号、没有优先级的部分分。
 
-\section{缓存和队列模拟}
+\section{缓存和队列模拟}\label{sec:07-23}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1226,6 +1289,7 @@ queue<int> q;
 set<int> inCache;
 
 for (int x : requests) {
+    if (cap <= 0) continue;
     if (inCache.count(x)) {
         continue;
     }
@@ -1241,7 +1305,7 @@ for (int x : requests) {
 
 \subsection{LRU 缓存入口}
 
-最近最少使用可以用 \Code{list + unordered\_map}，但新手要谨慎。
+LRU 可用 \Code{list + unordered\_map}：链表记访问顺序，映射保存每个对象的位置。
 
 \begin{lstlisting}
 int cap;
@@ -1249,6 +1313,7 @@ list<int> order; // front is most recent
 unordered_map<int, list<int>::iterator> pos;
 
 void access(int x) {
+    if (cap <= 0) return;
     if (pos.count(x)) {
         order.erase(pos[x]);
     } else if ((int)order.size() == cap) {
@@ -1270,9 +1335,9 @@ void access(int x) {
   \item 删除元素时，辅助集合或 map 也要同步删除。
 \end{itemize}
 
-\section{懒删除优先队列}
+\section{懒删除优先队列}\label{sec:07-24}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1326,9 +1391,9 @@ Task getTop() {
 
 \Warn{懒删除会让堆里有废数据。}每次取 \Code{top} 前必须清理过期元素。
 
-\section{时间和日程模拟}
+\section{时间和日程模拟}\label{sec:07-25}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1366,6 +1431,7 @@ bool overlap(int l1, int r1, int l2, int r2) {
 \begin{lstlisting}
 vector<pair<int, int>> events;
 for (auto [l, r] : intervals) {
+    if (l >= r) continue; // empty half-open interval
     events.push_back({l, 1});
     events.push_back({r, -1});
 }
@@ -1391,9 +1457,9 @@ for (auto [time, delta] : events) {
   \item 同一时间开始和结束谁先处理。
 \end{itemize}
 
-\section{树形结构模拟}
+\section{树形结构模拟}\label{sec:07-26}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1456,9 +1522,9 @@ void calcSubtree(int u) {
   \item 如果需要频繁祖先查询，简单爬父亲可能超时。
 \end{itemize}
 
-\section{权限和规则匹配}
+\section{权限和规则匹配}\label{sec:07-27}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1520,9 +1586,9 @@ bool checkPermission(const string& user,
   \item 资源路径是否需要前缀匹配。
 \end{itemize}
 
-\section{网格和图混合题}
+\section{网格和图混合题}\label{sec:07-28}
 
-\subsection{识别信号}
+\subsection{什么题会用到}
 
 题面出现：
 
@@ -1563,15 +1629,18 @@ while (!q.empty()) {
         int nx = cur.x + dx[d];
         int ny = cur.y + dy[d];
         int ns = cur.state;
-        // update ns according to grid[nx][ny]
-
         if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+        if (g[nx][ny] == '#') continue;
+        // Check door permission, then update ns from g[nx][ny].
+        // Do not index the grid before the bounds check.
         if (dist[nx][ny][ns] != -1) continue;
         dist[nx][ny][ns] = dist[cur.x][cur.y][cur.state] + 1;
         q.push({nx, ny, ns});
     }
 }
 \end{lstlisting}
+
+本段仅是状态扩展框架，必须按题意补全门禁检查、状态转移和起点状态。空间约为 $4nmS$ 字节，先算总量。
 
 \Warn{状态数不能太大。}如果状态有 $2^k$，先看 $k$ 是否很小。$k \le 10$ 常见可做，$k=30$ 通常不行。
 
@@ -1587,7 +1656,7 @@ while (!q.empty()) {
   \item 如果只是连通关系，用并查集或 DFS。
 \end{itemize}
 
-\section{大模拟易错点}
+\section{大模拟易错点}\label{sec:07-29}
 
 \begin{itemize}
   \item 同一时间多个事件的顺序。
@@ -1601,11 +1670,11 @@ while (!q.empty()) {
   \item 输出顺序是否要求按编号、时间或字典序。
 \end{itemize}
 
-\section{C 题分阶段实现}
+\section{C 题分阶段实现}\label{sec:07-30}
 
 \subsection{不要一次写完}
 
-C 题最怕写 150 行后才第一次运行。建议按阶段实现：
+每写完一种命令就运行一次，检查前后状态。可以按下面的顺序逐步完成：
 
 \begin{enumerate}
   \item 只写读入，打印读到的数据检查。
@@ -1622,6 +1691,11 @@ C 题最怕写 150 行后才第一次运行。建议按阶段实现：
 \toprule
 阶段 & 做什么 & 目标 \\
 \midrule
+\endfirsthead
+\toprule
+阶段 & 做什么 & 目标 \\
+\midrule
+\endhead
 1 & 读入所有命令，只识别命令名 & 确认输入没错。 \\
 2 & 实现新增/初始化类命令 & 建立基本状态。 \\
 3 & 实现查询类命令 & 能输出最简单答案。 \\
@@ -1639,9 +1713,9 @@ C 题最怕写 150 行后才第一次运行。建议按阶段实现：
   \item 最后实现异常输入或题目特别说明的细节。
 \end{enumerate}
 
-\section{函数化检查清单}
+\section{拆分函数时的检查}\label{sec:07-31}
 
-C 题代码一长，就必须主动控制结构。
+代码较长时，把解析、查询和修改拆开，定位问题会方便一些。
 
 \subsection{建议函数类型}
 
@@ -1649,6 +1723,11 @@ C 题代码一长，就必须主动控制结构。
 \toprule
 函数类型 & 示例 & 作用 \\
 \midrule
+\endfirsthead
+\toprule
+函数类型 & 示例 & 作用 \\
+\midrule
+\endhead
 读入函数 & \Code{readInput()} & 避免读入和处理混在一起。 \\
 解析函数 & \Code{parsePath(s)} & 字符串处理单独测试。 \\
 查询函数 & \Code{query(id)} & 查询逻辑独立。 \\
@@ -1663,7 +1742,7 @@ C 题代码一长，就必须主动控制结构。
 \begin{itemize}
   \item 一个函数只做一类事情。
   \item 函数名直接反映题目操作。
-  \item 不要让一个函数超过 50 行，除非只是模板。
+  \item 一个函数尽量只处理一类操作；几种互不相关的规则可以拆开。
   \item 修改状态的函数要特别小心副作用。
   \item 查询函数尽量不要修改状态，除非题目要求。
 \end{itemize}
@@ -1690,7 +1769,7 @@ void handleQuery(...);
 void solve() { ... }
 \end{lstlisting}
 
-\section{分层测试方法}
+\section{分层测试方法}\label{sec:07-32}
 
 \subsection{第一层：解析测试}
 
@@ -1737,12 +1816,17 @@ void solve() { ... }
   \item 最后一条命令。
 \end{itemize}
 
-\section{C 题常见失分原因}
+\section{C 题常见失分原因}\label{sec:07-33}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 失分原因 & 表现 & 预防 \\
 \midrule
+\endfirsthead
+\toprule
+失分原因 & 表现 & 预防 \\
+\midrule
+\endhead
 读题漏规则 & 样例某一步对不上 & 三遍读题，列规则表。 \\
 状态没初始化 & 第一次查询就错 & 结构体构造或统一 init。 \\
 命令读错 & 后续全错 & 先调试输出 op 和参数。 \\
@@ -1754,7 +1838,7 @@ void solve() { ... }
 \bottomrule
 \end{longtable}
 
-\section{C 题本地调试}
+\section{C 题本地调试}\label{sec:07-34}
 
 \subsection{调试输出建议}
 
@@ -1798,12 +1882,17 @@ cerr << "op=" << op << '\n';
   \item 最后确认输出格式。
 \end{enumerate}
 
-\section{C 题常见边界库}
+\section{C 题常见边界库}\label{sec:07-35}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 题型 & 边界 & 检查目标 \\
 \midrule
+\endfirsthead
+\toprule
+题型 & 边界 & 检查目标 \\
+\midrule
+\endhead
 命令模拟 & 只有 1 条命令、没有查询、连续查询 & 初始化和输出。 \\
 新增删除 & 重复新增、删除不存在、删除后查询 & 对象生命周期。 \\
 状态机 & 非法状态转换、终止状态继续操作 & 状态规则。 \\
@@ -1816,79 +1905,45 @@ cerr << "op=" << op << '\n';
 \bottomrule
 \end{longtable}
 
-\section{C 题部分分策略}
+\section{C 题部分分策略}\label{sec:07-36}
+先看子任务限制。比如“没有删除命令”“没有嵌套结构”或“对象数量很少”，都可能允许更短的实现。选定一档后，把这一档会出现的规则写完整；只实现几条命令，却忽略它们会遇到的并列和边界规则，未必能得分。
 
-\begin{enumerate}
-  \item 先实现最基础命令。
-  \item 暂时忽略最复杂的特殊规则，先让程序能跑。
-  \item 如果有查询，先保证简单查询正确。
-  \item 如果有多种对象，先支持一种对象。
-  \item 如果有多档数据，先满足小数据。
-  \item 留出最后 10 分钟清理输出和调试信息。
-\end{enumerate}
+\section{按子任务逐步完成}\label{sec:07-37}
+可以按下面的顺序写，每完成一步就用小样例检查一次。
 
-\section{C 题分层拿分路线}
+\subsection{读入与基本操作}
+确认所有输入都能读完，每种命令的参数个数正确。实现初始状态和最简单的操作，检查一次新增或修改之后，查询能否得到预期结果。
 
-\subsection{30 分路线}
+\subsection{完成选定子任务}
+补齐这个子任务会用到的所有命令、并列规则和异常处理。再试重复添加、删除不存在对象、空集合查询等边界。测试点有多次输出时，所有输出都要符合题意。
 
-目标是程序能跑，能处理最简单情况。
+\subsection{扩大适用范围}
+时间允许时，再加入嵌套、更复杂的规则或更快的数据结构。修改前保留已经检查过的版本，新版本通过对照后再替换。若题目采用捆绑测试，还要满足该子任务的全部要求。
 
-\begin{itemize}
-  \item 正确读入。
-  \item 正确识别命令。
-  \item 实现最基本的新增、查询或主流程。
-  \item 不处理复杂并列规则。
-  \item 不处理极端异常情况。
-\end{itemize}
-
-\subsection{60 分路线}
-
-目标是覆盖大部分普通规则。
-
-\begin{itemize}
-  \item 所有命令都有实现。
-  \item 常见异常处理正确，例如不存在、重复、越界。
-  \item 基本排序或优先级正确。
-  \item 简单边界样例正确。
-  \item 复杂度对中等数据可接受。
-\end{itemize}
-
-\subsection{80 到 100 分路线}
-
-目标是处理所有细节。
-
-\begin{itemize}
-  \item 所有并列规则正确。
-  \item 同一时间事件顺序正确。
-  \item 所有边界和异常符合题意。
-  \item 大数据复杂度可过。
-  \item 输出顺序和格式完全正确。
-\end{itemize}
-
-\section{失败降级策略}
+\section{来不及写完时}\label{sec:07-38}
 
 \subsection{写不完大模拟}
 
 \begin{itemize}
   \item 保留已完成命令，不要为了补复杂规则改崩基础逻辑。
-  \item 查询类命令优先，因为它们直接产生输出。
+  \item 先完成子任务所需的状态修改，再检查相应查询输出。
   \item 特殊规则用清晰的 \Code{if} 补，不要重构大段代码。
 \end{itemize}
 
 \subsection{字符串解析写不出来}
 
 \begin{itemize}
-  \item 先处理不含空格、不含嵌套的情况。
+  \item 若有不含空格、不含嵌套的子任务，可以先处理这一档。
   \item 先用 \Code{split} 处理简单分隔符。
-  \item 括号和嵌套拿不到满分时，至少保证普通 token 正确。
+  \item 没有嵌套的子任务仍要正确处理其中所有 token 和输出。
 \end{itemize}
 
 \subsection{状态 BFS 写不出来}
 
 \begin{itemize}
-  \item 先写普通 BFS。
+  \item 若子任务不含特殊状态，可以先写普通 BFS。
   \item 如果状态只有 2 种，尝试 \Code{dist[x][y][2]}。
-  \item 如果状态很多，先拿没有特殊状态的数据。
+  \item 如果有不含特殊状态的子任务，可以先完成这一档。
 \end{itemize}
 
 \subsection{复杂度可能超时}
@@ -1900,7 +1955,7 @@ cerr << "op=" << op << '\n';
   \item 时间不够时，保留暴力拿小数据分。
 \end{itemize}
 
-\section{C 题临场拿分路线}
+\section{不同题型的实现顺序}\label{sec:07-39}
 
 \subsection{如果是大模拟}
 
@@ -1930,7 +1985,7 @@ cerr << "op=" << op << '\n';
   \item 判断是最短路、连通块还是模拟移动。
   \item 无权最短路用 BFS。
   \item 带状态时先估算状态数量。
-  \item 不会状态优化时，先写普通 BFS 拿部分分。
+  \item 只有子任务确实不含特殊状态时，才能用普通 BFS 简化。
 \end{enumerate}
 
 \subsection{如果是规则匹配}
@@ -1943,12 +1998,17 @@ cerr << "op=" << op << '\n';
   \item 用 2 到 3 条规则手测。
 \end{enumerate}
 
-\section{C 题模板索引}
+\section{C 题模板索引}\label{sec:07-40}
 
 \begin{longtable}{p{4cm}p{5cm}p{5cm}}
 \toprule
 题面关键词 & 使用模板 & 本章位置 \\
 \midrule
+\endfirsthead
+\toprule
+题面关键词 & 使用模板 & 本章位置 \\
+\midrule
+\endhead
 多命令 & 命令分发 & 命令解析 \\
 对象状态 & struct + 状态机 & 状态设计、状态机模拟 \\
 按时间发生 & Event + sort & 事件模拟 \\
@@ -1967,7 +2027,7 @@ URL、参数 & parseUrl & URL 路由和参数解析 \\
 \bottomrule
 \end{longtable}
 
-\section{C 题考场速查页}
+\section{C 题考场速查页}\label{sec:07-41}
 
 \subsection{读题 5 分钟内要确定}
 
@@ -1980,7 +2040,7 @@ URL、参数 & parseUrl & URL 路由和参数解析 \\
   \item 数据范围是否允许全表扫描。
 \end{itemize}
 
-\subsection{写代码前必须设计}
+\subsection{写代码前先想清楚}
 
 \begin{itemize}
   \item \Code{struct} 里有哪些字段。
@@ -2029,7 +2089,7 @@ void solve() {
   \item 提交一个当前最稳版本。
 \end{itemize}
 
-\section{C 题提交前检查}
+\section{C 题提交前检查}\label{sec:07-42}
 
 \begin{itemize}
   \item 是否删除所有调试输出。
@@ -2044,15 +2104,20 @@ void solve() {
   \item 输出顺序是否符合题目。
 \end{itemize}
 
-\section{C 题手写模板清单}
+\section{C 题模板练习清单}\label{sec:07-43}
 
 \begin{longtable}{p{4cm}p{4cm}p{6cm}}
 \toprule
 模板 & 熟练要求 & 用途 \\
 \midrule
-结构体 + map 保存对象 & 必须会写 & 对象状态模拟。 \\
-命令分发 & 必须会写 & 多命令题。 \\
-getline + stringstream & 必须会写 & 整行命令。 \\
+\endfirsthead
+\toprule
+模板 & 熟练要求 & 用途 \\
+\midrule
+\endhead
+结构体 + map 保存对象 & 建议掌握 & 对象状态模拟。 \\
+命令分发 & 建议掌握 & 多命令题。 \\
+getline + stringstream & 建议掌握 & 整行命令。 \\
 split & 照着能写 & 路径、配置解析。 \\
 状态机 & 照着能写 & 多状态对象。 \\
 事件排序 & 照着能写 & 时间顺序模拟。 \\

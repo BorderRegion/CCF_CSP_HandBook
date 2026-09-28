@@ -1,69 +1,85 @@
-\chapter{高频算法模板库}
+\chapter{高频算法模板库}\label{ch:09}
 
-\section{模板库使用方法}
+\section{模板库使用方法}\label{sec:09-1}
 
-本章把前面章节中反复出现的算法模板统一编号。考场上建议先通过决策树确定题型，再来本章找对应模板。
+下面按编号收录常用模板，编号右上角是正文页码。复制前先看下标、初始值和适用条件，再按题目的输入输出修改。有些写法在前面的题型章也出现过，这里放在一起方便查找。
+
+所有求和、乘法和距离仍须验证中间值能放进 \Code{long long}。例如快速幂的普通乘法版要求模数不超过 3037000500；更大的模数需另用宽整数或安全模乘。
 
 \begin{itemize}
-  \item \Code{T001--T099}：基础实现和 STL。
+  \item 基础实现和 STL 见\Chref{04}，不另编 T001 类编号。
   \item \Code{T100--T199}：前缀和、差分、排序、哈希、二分。
   \item \Code{T200--T299}：搜索和图论。
   \item \Code{T300--T399}：动态规划。
   \item \Code{T400--T499}：数据结构。
   \item \Code{T500--T599}：字符串、数学、日期。
+  \item \Code{T600--T699}：大模拟与解析。
 \end{itemize}
 
-\section{模板速查表}
+\section{模板速查表}\label{sec:09-2}\label{sec:template-map}
 
 \begin{longtable}{p{2cm}p{4cm}p{5cm}p{3cm}}
 \toprule
-编号 & 名称 & 识别信号 & 复杂度 \\
+编号 & 名称 & 什么题会用到 & 复杂度 \\
 \midrule
-T101 & 一维前缀和 & 多次静态区间和查询 & 预处理 $O(n)$，查询 $O(1)$ \\
-T102 & 二维前缀和 & 多次子矩阵和查询 & 预处理 $O(nm)$，查询 $O(1)$ \\
-T103 & 一维差分 & 多次区间加，最后查询 & $O(n+q)$ \\
-T104 & 二维差分 & 多次矩形加，最后输出 & $O(nm+q)$ \\
-T105 & 排序自定义比较器 & 多关键字排序、排名 & $O(n\log n)$ \\
-T106 & 哈希统计 & 出现次数、查重、频率 & 平均 $O(n)$ \\
-T107 & 二分答案 & 最大化最小值、最小化最大值 & $O(\log V \cdot check)$ \\
-T108 & 双指针 & 排序后找对、滑动窗口 & $O(n)$ 或 $O(n\log n)$ \\
-T109 & 坐标离散化 & 坐标大但点数少 & $O(n\log n)$ \\
-T110 & 事件排序 & 按时间发生、扫描线 & $O(n\log n)$ \\
-T201 & 网格 BFS & 最短步数、迷宫 & $O(nm)$ \\
-T202 & DFS 连通块 & 区域大小、连通块数量 & $O(n+m)$ 或 $O(nm)$ \\
-T203 & 并查集 & 合并集合、判断同组 & 近似 $O(1)$ \\
-T204 & Dijkstra & 正权最短路 & $O((n+m)\log n)$ \\
-T205 & 拓扑排序 & 依赖关系、先后顺序 & $O(n+m)$ \\
-T206 & Floyd & 小图任意两点最短路 & $O(n^3)$ \\
-T207 & Kruskal & 最小生成树 & $O(m\log m)$ \\
-T208 & LCA 倍增 & 树上最近公共祖先 & $O(n\log n)$ 预处理，$O(\log n)$ 查询 \\
-T301 & 01 背包 & 每个物品选或不选 & $O(nV)$ \\
-T302 & 完全背包 & 每个物品可选多次 & $O(nV)$ \\
-T401 & 树状数组 & 单点修改、区间和 & $O(\log n)$ \\
-T402 & 线段树 & 区间修改、区间查询 & $O(\log n)$ \\
-T403 & 单调栈 & 最近更大/更小元素 & $O(n)$ \\
-T404 & 单调队列 & 滑动窗口最大/最小 & $O(n)$ \\
-T501 & split 字符串分割 & 路径、配置、命令解析 & $O(|s|)$ \\
-T502 & KMP & 长文本匹配模式串 & $O(n+m)$ \\
-T503 & Trie & 字符串集合、前缀查询 & $O(\sum |s|)$ \\
-T510 & 整除取整和标准取模 & 分组数、负数取模、数学 floor/ceil & $O(1)$ \\
-T511 & 快速幂 & $a^b \bmod m$ & $O(\log b)$ \\
-T512 & 素数和约数 & 判断素数、枚举约数 & $O(\sqrt n)$ \\
-T513 & 进制转换 & 任意进制与十进制 & $O(\text{位数})$ \\
-T514 & 日期处理 & 闰年、每月天数、日期推进 & 按实现而定 \\
-T601 & 大模拟骨架 & 多对象、多命令、长题面 & 按题目而定 \\
-T602 & 命令分发 & 每行一个操作名 & 按命令复杂度 \\
-T603 & 状态机 & 对象多状态切换 & 按操作复杂度 \\
-T604 & 懒删除优先队列 & 动态删除/更新后仍取最优 & $O(\log n)$ 均摊 \\
-T605 & LRU 缓存 & 最近最少使用淘汰 & $O(1)$ 均摊 \\
-T606 & 路径规范化 & \Code{/a/../b}、目录路径 & $O(|s|)$ \\
-T607 & URL 参数解析 & \Code{path?a=1\&b=2} & $O(|s|)$ \\
-T608 & 括号匹配 & 括号合法性、嵌套结构 & $O(n)$ \\
-T609 & 简单表达式求值 & 只含加减的表达式 & $O(n)$ \\
+\endfirsthead
+\toprule
+编号 & 名称 & 什么题会用到 & 复杂度 \\
+\midrule
+\endhead
+\Tref{101} & 一维前缀和 & 多次静态区间和查询 & 预处理 $O(n)$，查询 $O(1)$ \\
+\Tref{102} & 二维前缀和 & 多次子矩阵和查询 & 预处理 $O(nm)$，查询 $O(1)$ \\
+\Tref{103} & 一维差分 & 多次区间加，最后查询 & $O(n+q)$ \\
+\Tref{104} & 二维差分 & 多次矩形加，最后输出 & $O(nm+q)$ \\
+\Tref{105} & 排序自定义比较器 & 多关键字排序、排名 & $O(n\log n)$ \\
+\Tref{106} & 哈希统计 & 出现次数、查重、频率 & 平均 $O(n)$ \\
+\Tref{107} & 二分答案 & 最大化最小值、最小化最大值 & $O(\log V \cdot check)$ \\
+\Tref{108} & 双指针 & 排序后找对、滑动窗口 & $O(n)$ 或 $O(n\log n)$ \\
+\Tref{109} & 坐标离散化 & 坐标大但点数少 & $O(n\log n)$ \\
+\Tref{110} & 事件排序 & 按时间发生、扫描线 & $O(n\log n)$ \\
+\Tref{111} & 矩阵重塑/乘法 & 下标映射、矩阵乘法换序 & $O(nm)$ / 按维度 \\
+\Tref{112} & 稀疏向量点积 & 有序非零项匹配 & $O(a+b)$ \\
+\Tref{113} & 有限状态倍增 & 多次重复映射 & 查询 $O(\log K)$ \\
+\Tref{201} & 网格 BFS & 最短步数、迷宫 & $O(nm)$ \\
+\Tref{202} & DFS 连通块 & 区域大小、连通块数量 & $O(n+m)$ 或 $O(nm)$ \\
+\Tref{203} & 并查集 & 合并集合、判断同组 & 均摊 $O(\alpha(n))$ \\
+\Tref{204} & Dijkstra & 非负权最短路 & $O((n+m)\log n)$ \\
+\Tref{205} & 拓扑排序 & 依赖关系、先后顺序 & $O(n+m)$ \\
+\Tref{206} & Floyd & 小图任意两点最短路 & $O(n^3)$ \\
+\Tref{207} & Kruskal & 最小生成树 & $O(m\log m)$ \\
+\Tref{208} & LCA 倍增 & 树上最近公共祖先 & $O(n\log n)$ 预处理，$O(\log n)$ 查询 \\
+\Tref{209} & 无递归 DFS 序 & 深树、子树变区间 & $O(n)$ \\
+\Tref{301} & 01 背包 & 每个物品选或不选 & $O(nV)$ \\
+\Tref{302} & 完全背包 & 每个物品可选多次 & $O(nV)$ \\
+\Tref{303} & 恰好/至少背包 & 恰好装满、金额门槛 & $O(nV)$ / $O(nS)$ \\
+\Tref{401} & 树状数组 & 单点修改、区间和 & $O(\log n)$ \\
+\Tref{402} & 线段树 & 区间修改、区间查询 & $O(\log n)$ \\
+\Tref{403} & 单调栈 & 最近更大/更小元素 & $O(n)$ \\
+\Tref{404} & 单调队列 & 滑动窗口最大/最小 & $O(n)$ \\
+\Tref{405} & 静态区间最大值 & 任意区间极值 & 查询 $O(\log n)$ \\
+\Tref{501} & split 字符串分割 & 路径、配置、命令解析 & $O(|s|)$ \\
+\Tref{502} & KMP & 长文本匹配模式串 & $O(n+m)$ \\
+\Tref{503} & Trie & 字符串集合、前缀查询 & $O(\sum |s|)$ \\
+\Tref{510} & 整除取整和标准取模 & 分组数、负数取模、数学 floor/ceil & $O(1)$ \\
+\Tref{511} & 快速幂 & $a^b \bmod m$ & $O(\log b)$ \\
+\Tref{512} & 素数和约数 & 判断素数、枚举约数 & $O(\sqrt n)$ \\
+\Tref{513} & 进制转换 & 任意进制与十进制 & $O(\text{位数})$ \\
+\Tref{514} & 日期处理 & 闰年、每月天数、日期推进 & 按实现而定 \\
+\Tref{515} & 质因数与素数筛 & 指数分解、批量素数 & 见模板说明 \\
+\Tref{601} & 大模拟骨架 & 多对象、多命令、长题面 & 按题目而定 \\
+\Tref{602} & 命令分发 & 每行一个操作名 & 按命令复杂度 \\
+\Tref{603} & 状态机 & 对象多状态切换 & 按操作复杂度 \\
+\Tref{604} & 懒删除优先队列 & 动态删除/更新后仍取最优 & $O(\log n)$ 均摊 \\
+\Tref{605} & LRU 缓存 & 最近最少使用淘汰 & $O(1)$ 均摊 \\
+\Tref{606} & 路径规范化 & \Code{/a/../b}、目录路径 & $O(|s|)$ \\
+\Tref{607} & URL 参数解析 & \Code{path?a=1\&b=2} & $O(|s|)$ \\
+\Tref{608} & 括号匹配 & 括号合法性、嵌套结构 & $O(n)$ \\
+\Tref{609} & 简单表达式求值 & 只含加减的表达式 & $O(n)$ \\
+\Tref{610} & 四则表达式 & 优先级、括号、一元符号 & $O(|s|)$ \\
 \bottomrule
 \end{longtable}
 
-\section{T101 一维前缀和}
+\section{T101 一维前缀和}\label{sec:09-3}\label{tpl:101}
 
 \subsection{适用场景}
 
@@ -102,7 +118,7 @@ while (q--) {
   \item 如果有修改，普通前缀和不适用。
 \end{itemize}
 
-\section{T102 二维前缀和}
+\section{T102 二维前缀和}\label{sec:09-4}\label{tpl:102}
 
 \subsection{适用场景}
 
@@ -139,7 +155,9 @@ while (q--) {
   \item 子矩阵端点是否保证 $x1 \le x2, y1 \le y2$。
 \end{itemize}
 
-\section{T103 一维差分}
+\section{T103 一维差分}\label{sec:09-5}\label{tpl:103}
+
+本例初始数组全为 0。若有初值 a[1..n]，先令 diff[i]=a[i]-a[i-1]（a[0]=0），再处理修改。
 
 \subsection{适用场景}
 
@@ -173,7 +191,9 @@ for (int i = 1; i <= n; i++) {
   \item 修改值用 \Code{long long}。
 \end{itemize}
 
-\section{T104 二维差分}
+\section{T104 二维差分}\label{sec:09-6}\label{tpl:104}
+
+本例初始矩阵全为 0。若有初值，重建后的增量应加回原矩阵；最终输出 diff[i][j] 或原值加增量。
 
 \subsection{适用场景}
 
@@ -202,7 +222,7 @@ for (int i = 1; i <= n; i++) {
 }
 \end{lstlisting}
 
-\section{T105 排序自定义比较器}
+\section{T105 排序自定义比较器}\label{sec:09-7}\label{tpl:105}
 
 \subsection{适用场景}
 
@@ -230,7 +250,9 @@ sort(a.begin(), a.end(), [](const Node& x, const Node& y) {
   \item 需要保持原顺序时用 \Code{stable\_sort}。
 \end{itemize}
 
-\section{T106 哈希统计}
+\section{T106 哈希统计}\label{sec:09-8}\label{tpl:106}
+
+计数数组版要求每个值在 0 到 100000；负数须偏移或改用 map。字符串哈希还要计入总字符长度。
 
 \subsection{值域小}
 
@@ -258,7 +280,7 @@ for (string s : words) {
   \item \Code{cnt[x]} 会自动创建 key。
 \end{itemize}
 
-\section{T107 二分答案}
+\section{T107 二分答案}\label{sec:09-9}\label{tpl:107}
 
 \subsection{适用场景}
 
@@ -297,9 +319,11 @@ while (l < r) {
 cout << l << '\n';
 \end{lstlisting}
 
-\Warn{二分答案必须有单调性。}
+\Warn{二分答案必须有单调性。}最小可行值模板要求初始右端点可行，最大可行值模板要求初始左端点可行；若不能保证，应先判无解。范围按题目推导，不能把 $10^{18}$ 当成通用答案上界。\Code{check} 必须自行实现；上下界差和中点运算也不能溢出。
 
-\section{T108 双指针}
+\section{T108 双指针}\label{sec:09-10}\label{tpl:108}
+
+窗口版求非负数组中“和不超过 limit”的最长连续段，要求 limit 不小于 0；两数和排序后原下标会丢失。
 
 \subsection{排序后找两数和}
 
@@ -340,7 +364,7 @@ for (int r = 0; r < n; r++) {
 
 \Warn{滑动窗口通常要求元素非负或条件具有单调性。}
 
-\section{T109 坐标离散化}
+\section{T109 坐标离散化}\label{sec:09-11}\label{tpl:109}
 
 \subsection{适用场景}
 
@@ -362,7 +386,7 @@ auto getId = [&](int x) {
 
 \Warn{如果题目涉及区间长度，不能只看离散编号，还要保留真实坐标差。}
 
-\section{T110 事件排序}
+\section{T110 事件排序}\label{sec:09-12}\label{tpl:110}
 
 \subsection{适用场景}
 
@@ -394,6 +418,7 @@ for (const Event& e : events) {
 \begin{lstlisting}
 vector<pair<int, int>> events;
 for (auto [l, r] : intervals) {
+    if (l >= r) continue; // empty half-open interval
     events.push_back({l, 1});
     events.push_back({r, -1});
 }
@@ -412,7 +437,73 @@ for (auto [t, delta] : events) {
 
 \Warn{同一时间开始和结束谁先处理，要按题意决定。}
 
-\section{T201 网格 BFS}
+\section{T111 矩阵重塑与乘法顺序}\label{sec:09-13}\label{tpl:111}
+\textbf{重塑：}按行展开，旧位置 $(i,j)$ 的线性编号 $k=i\cdot m+j$，重塑为 $r\times c$ 后位于 $(k/c,k\bmod c)$。要求 $nm=rc$，下标从 0 开始。
+\begin{lstlisting}
+vector<vector<long long>> b(r, vector<long long>(c));
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < m; j++) {
+        long long k = 1LL * i * m + j;
+        b[k / c][k % c] = a[i][j];
+    }
+\end{lstlisting}
+\textbf{乘法：}$A$ 为 $n\times d$，$B$ 为 $d\times m$，$C_{ij}=\sum_k A_{ik}B_{kj}$，复杂度 $O(ndm)$。
+\begin{lstlisting}
+vector<vector<long long>> C(n, vector<long long>(m, 0));
+for (int i = 0; i < n; i++)
+    for (int k = 0; k < d; k++)
+        for (int j = 0; j < m; j++)
+            C[i][j] += A[i][k] * B[k][j];
+\end{lstlisting}
+若 $Q,K,V$ 都是 $n\times d$ 且 $d\ll n$，计算 $(QK^T)V$ 可改成 $Q(K^TV)$，由 $O(n^2d)$ 降至 $O(nd^2)$，避免构造 $n\times n$ 中间矩阵。只能在数学运算允许结合时换序；非线性函数、截断取整不能任意移走。浮点换序可能改变舍入误差。逐行权重乘法必须按原公式位置处理。
+
+\section{T112 稀疏向量点积}\label{sec:09-14}\label{tpl:112}
+两个向量仅存非零项，按下标严格升序且各自下标不重复。相同下标的值相乘后相加，复杂度 $O(a+b)$。
+\begin{lstlisting}
+long long sparseDot(const vector<pair<int,long long>>& a,
+                    const vector<pair<int,long long>>& b) {
+    size_t i = 0, j = 0;
+    long long ans = 0;
+    while (i < a.size() && j < b.size()) {
+        if (a[i].first < b[j].first) i++;
+        else if (a[i].first > b[j].first) j++;
+        else {
+            ans += a[i].second * b[j].second;
+            i++; j++;
+        }
+    }
+    return ans;
+}
+\end{lstlisting}
+若输入无序先排序；若同一下标可重复先合并。乘积与总和均须在 long long 范围内。
+
+
+\section{T113 有限状态映射与倍增}\label{tpl:113}
+若每个状态有唯一后继 next[v]，重复 k 次不必逐步模拟。令 up[b][v] 表示执行 $2^b$ 次后的状态，由两个 $2^{b-1}$ 次复合得到。适合字符替换、指针跳转；要求所有后继在 0 到 V-1，未指定的映射按题意初始化。
+\begin{lstlisting}
+struct JumpTable {
+    vector<vector<int>> up;
+    explicit JumpTable(const vector<int>& next) {
+        int V = (int)next.size();
+        up.assign(64, vector<int>(V));
+        up[0] = next;
+        for (int b = 1; b < 64; b++)
+            for (int v = 0; v < V; v++)
+                up[b][v] = up[b-1][up[b-1][v]];
+    }
+    int jump(int v, unsigned long long k) const {
+        for (int b = 0; b < 64; b++)
+            if ((k >> b) & 1ULL) v = up[b][v];
+        return v;
+    }
+};
+\end{lstlisting}
+预处理时间、空间 $O(V\log K)$，单次跳转 $O(\log K)$，此处为无符号 64 位 k 留足 64 层。若映射在有限集合上是单射，则每个连通分量是环，也可按各自环长取模；不能随意用固定数 26 或 63 代替环长。每个查询应从题目指定的初态出发。
+
+值域很小且求逆映射时，还可枚举全部输入 x，算出 y=F(x)，记录 inverse[y]=x；仅在 F 确实单射时才有唯一逆。
+\section{T201 网格 BFS}\label{sec:09-15}\label{tpl:201}
+
+默认输入合法的 0 下标坐标，起点终点均可通行，井号为障碍；不可达输出 -1。若题目允许阻塞起点，应先判定。
 
 \subsection{适用场景}
 
@@ -462,7 +553,9 @@ cout << dist[tx][ty] << '\n';
   \item 边权不全相等时不要用普通 BFS。
 \end{itemize}
 
-\section{T202 DFS 连通块}
+\section{T202 DFS 连通块}\label{sec:09-16}\label{tpl:202}
+
+先读入 n、m、g，并执行 \Code{vis.assign(n, vector<int>(m,0));}；只从未访问且可通行的格子调用。
 
 \subsection{网格 DFS}
 
@@ -495,7 +588,7 @@ int dfs(int x, int y) {
   \item 障碍字符要按题目改。
 \end{itemize}
 
-\section{T203 并查集}
+\section{T203 并查集}\label{sec:09-17}\label{tpl:203}
 
 \begin{lstlisting}
 struct DSU {
@@ -532,7 +625,9 @@ struct DSU {
 
 合并集合、判断是否同组、连通块。
 
-\section{T204 Dijkstra}
+\section{T204 Dijkstra}\label{sec:09-18}\label{tpl:204}
+
+INF 必须大于所有有效最短路；本例仅处理非负权，无法到达的点 dist 仍为 INF，输出时按题意转换。
 
 \begin{lstlisting}
 struct Edge {
@@ -568,6 +663,7 @@ while (!pq.empty()) {
     if (d != dist[u]) continue;
 
     for (auto e : g[u]) {
+        if (e.w >= INF - dist[u]) continue;
         if (dist[e.to] > dist[u] + e.w) {
             dist[e.to] = dist[u] + e.w;
             pq.push({dist[e.to], e.to});
@@ -584,7 +680,7 @@ while (!pq.empty()) {
   \item 距离用 \Code{long long}。
 \end{itemize}
 
-\section{T205 拓扑排序}
+\section{T205 拓扑排序}\label{sec:09-19}\label{tpl:205}
 
 \subsection{适用场景}
 
@@ -626,7 +722,9 @@ if ((int)order.size() == n) {
 }
 \end{lstlisting}
 
-\section{T206 Floyd}
+\section{T206 Floyd}\label{sec:09-20}\label{tpl:206}
+
+要求不存在负环，且所有有限距离及相加的中间值都在 long long 范围内。INF 必须大于有效距离。无向负权边会形成负环。
 
 \subsection{适用场景}
 
@@ -661,7 +759,9 @@ for (int k = 1; k <= n; k++) {
 
 \Warn{三层循环顺序必须是 \Code{k,i,j}。}
 
-\section{T207 Kruskal}
+\section{T207 Kruskal}\label{sec:09-21}\label{tpl:207}
+
+先复制 \Tref{203} 的 DSU 定义，并读入 n、m。断开时的 Impossible 仅为示例输出，需按题目替换。
 
 \subsection{适用场景}
 
@@ -674,6 +774,12 @@ struct Edge {
 };
 
 vector<Edge> edges;
+for (int i = 0; i < m; i++) {
+    int u, v;
+    long long w;
+    cin >> u >> v >> w;
+    edges.push_back({u, v, w});
+}
 sort(edges.begin(), edges.end(), [](const Edge& a, const Edge& b) {
     return a.w < b.w;
 });
@@ -693,14 +799,16 @@ if (cnt == n - 1) cout << ans << '\n';
 else cout << "Impossible\n";
 \end{lstlisting}
 
-\section{T208 LCA 倍增}
+\section{T208 LCA 倍增}\label{sec:09-22}\label{tpl:208}
+
+先建好 n 个点的无向树，根为 1，根的父亲为自身。深链可能导致递归爆栈；需要无递归遍历时见 \Tref{209}。
 
 \subsection{适用场景}
 
 树上最近公共祖先、树上路径查询。
 
 \begin{lstlisting}
-const int LOG = 20;
+int LOG; // compute from n before allocating up
 vector<vector<int>> up;
 vector<int> depth;
 vector<vector<int>> g;
@@ -737,22 +845,54 @@ int lca(int a, int b) {
 初始化：
 
 \begin{lstlisting}
+LOG = 1;
+while ((1LL << LOG) <= n) LOG++;
 up.assign(LOG, vector<int>(n + 1));
 depth.assign(n + 1, 0);
 dfsLca(1, 1);
 \end{lstlisting}
 
-\section{T301 01 背包}
+\section{T209 无递归树遍历与子树区间}\label{sec:09-23}\label{tpl:209}
+对无向树生成 DFS 先序、父亲、深度和子树大小，时间与空间 $O(n)$。根的父亲为自身，可避开深链递归爆栈。要求 $n\ge1$、输入连通且无环。
+\begin{lstlisting}
+vector<int> parent(n + 1, 0), depth(n + 1, 0);
+vector<int> order, tin(n + 1), subtree(n + 1, 1);
+stack<int> st;
+parent[1] = 1;
+st.push(1);
+while (!st.empty()) {
+    int u = st.top(); st.pop();
+    tin[u] = (int)order.size() + 1;
+    order.push_back(u);
+    for (int v : g[u]) {
+        if (v == parent[u]) continue;
+        parent[v] = u;
+        depth[v] = depth[u] + 1;
+        st.push(v);
+    }
+}
+for (int i = n - 1; i > 0; i--) {
+    int u = order[i];
+    subtree[parent[u]] += subtree[u];
+}
+// subtree(u) is [tin[u], tin[u] + subtree[u] - 1].
+\end{lstlisting}
+用此先序填 \Tref{208} 的倍增表即可替代 dfsLca；父亲总是先于孩子。子树求和可按 tin 重排权值后接 \Tref{101} 或 \Tref{401}。树上点差分也可按 order 的逆序向父亲累加。
+
+\section{T301 01 背包}\label{sec:09-24}\label{tpl:301}
+
+此版求总重量不超过 V 的最大价值，可一件不选。要求重量非负；价值和能放入 long long。恰好装满或达到金额门槛请看 \Tref{303}。
 
 \begin{lstlisting}
 int n, V;
 cin >> n >> V;
-vector<int> w(n + 1), val(n + 1);
+vector<int> w(n + 1);
+vector<long long> val(n + 1);
 for (int i = 1; i <= n; i++) {
     cin >> w[i] >> val[i];
 }
 
-vector<int> dp(V + 1, 0);
+vector<long long> dp(V + 1, 0);
 for (int i = 1; i <= n; i++) {
     for (int j = V; j >= w[i]; j--) {
         dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
@@ -763,17 +903,20 @@ cout << dp[V] << '\n';
 
 \Warn{01 背包容量倒序。}
 
-\section{T302 完全背包}
+\section{T302 完全背包}\label{sec:09-25}\label{tpl:302}
+
+此版求不超过 V 的最大价值，要求每件重量严格大于 0。零重量正价值可无限选时没有有限最优值。
 
 \begin{lstlisting}
 int n, V;
 cin >> n >> V;
-vector<int> w(n + 1), val(n + 1);
+vector<int> w(n + 1);
+vector<long long> val(n + 1);
 for (int i = 1; i <= n; i++) {
     cin >> w[i] >> val[i];
 }
 
-vector<int> dp(V + 1, 0);
+vector<long long> dp(V + 1, 0);
 for (int i = 1; i <= n; i++) {
     for (int j = w[i]; j <= V; j++) {
         dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
@@ -784,7 +927,43 @@ cout << dp[V] << '\n';
 
 \Warn{完全背包容量正序。}
 
-\section{T401 树状数组}
+\section{T303 恰好装满与至少达到}\label{sec:09-26}\label{tpl:303}
+\textbf{恰好装满求最大价值：}除 dp[0]=0 外，其余状态必须设为不可达。直接使用全 0 的 \Tref{301} 会把未装满状态混入答案。
+\begin{lstlisting}
+const long long NEG = LLONG_MIN;
+vector<long long> dp(V + 1, NEG);
+dp[0] = 0;
+for (int i = 0; i < n; i++) {
+    for (int j = V; j >= w[i]; j--) {
+        if (dp[j - w[i]] != NEG)
+            dp[j] = max(dp[j], dp[j - w[i]] + val[i]);
+    }
+}
+if (dp[V] == NEG) { /* no solution: output as required */ }
+else cout << dp[V] << '\n';
+\end{lstlisting}
+要求重量非负，价值和不溢出且不等于哨兵。完全背包且重量正数时改为容量正序。
+
+\textbf{至少达到金额 x，求最小花费（何以包邮型）：}价格为非负整数，每件至多一次，价格总和 S 可开数组。用可达性 DP 枚举金额，从 x 往上找第一个可达值，复杂度 $O(nS)$，空间 $O(S)$。
+\begin{lstlisting}
+int minAtLeast(const vector<int>& price, int x) {
+    int S = accumulate(price.begin(), price.end(), 0);
+    if (x > S) return -1;
+    vector<char> can(S + 1, false);
+    can[0] = true;
+    for (int v : price)
+        for (int j = S; j >= v; j--)
+            if (can[j - v]) can[j] = true;
+    for (int j = x; j <= S; j++)
+        if (can[j]) return j;
+    return -1;
+}
+\end{lstlisting}
+要求 x 非负、总和可放 int 且内存时间允许；若总和很大而 n 很小，改枚举子集或折半搜索。只把 \Tref{301} 的容量设成 x，求出的是不超过门槛的最大值，方向相反。
+
+\section{T401 树状数组}\label{sec:09-27}\label{tpl:401}
+
+初始全 0，下标从 1 开始。先对每个初值调用 add(i,a[i])；赋值 a[i]=v 要加 v-a[i] 并更新 a[i]，不是直接 add(i,v)。
 
 \begin{lstlisting}
 struct BIT {
@@ -794,12 +973,14 @@ struct BIT {
     BIT(int n) : n(n), tree(n + 1, 0) {}
 
     void add(int idx, long long val) {
+        assert(1 <= idx && idx <= n); // idx=0 would never advance
         for (; idx <= n; idx += idx & -idx) {
             tree[idx] += val;
         }
     }
 
     long long sumPrefix(int idx) {
+        assert(0 <= idx && idx <= n);
         long long res = 0;
         for (; idx > 0; idx -= idx & -idx) {
             res += tree[idx];
@@ -817,11 +998,11 @@ struct BIT {
 
 单点修改、区间和查询。
 
-\section{T402 线段树}
+\section{T402 线段树}\label{sec:09-28}\label{tpl:402}
 
 \subsection{适用场景}
 
-区间加、区间和查询。模板较长，只有练过才建议考场使用。
+用于区间加和区间和查询。代码较长，练习时先跟一遍标记下传和合并过程。
 
 \begin{lstlisting}
 struct SegTree {
@@ -870,7 +1051,9 @@ struct SegTree {
 调用：
 
 \begin{lstlisting}
+// Require n >= 1; initial array is all zero.
 SegTree seg(n);
+// Nonzero a[1..n]: call rangeAdd(1,1,n,i,i,a[i]) for each i.
 seg.rangeAdd(1, 1, n, l, r, v);
 long long ans = seg.query(1, 1, n, l, r);
 \end{lstlisting}
@@ -883,7 +1066,7 @@ long long ans = seg.query(1, 1, n, l, r);
   \item 求和用 \Code{long long}。
 \end{itemize}
 
-\section{T403 单调栈}
+\section{T403 单调栈}\label{sec:09-29}\label{tpl:403}
 
 \subsection{适用场景}
 
@@ -910,7 +1093,9 @@ for (int i = 0; i < n; i++) {
   \item 全相等数据要测试。
 \end{itemize}
 
-\section{T404 单调队列}
+\section{T404 单调队列}\label{sec:09-30}\label{tpl:404}
+
+要求 1 <= k <= n；窗口为空或超过数组长度时，输出规则由题意决定。
 
 \subsection{适用场景}
 
@@ -937,7 +1122,32 @@ for (int i = 0; i < n; i++) {
   \item 输出窗口从 \Code{i >= k - 1} 开始。
 \end{itemize}
 
-\section{T501 split 字符串分割}
+\section{T405 静态区间最大值}\label{sec:09-31}\label{tpl:405}
+任意区间最大值不能由两个前缀最大值相减。此处用迭代线段树，构建 $O(n)$，查询 $O(\log n)$，空间 $O(n)$；下标从 0 开始，查询为闭区间，要求数组非空。
+\begin{lstlisting}
+struct RangeMax {
+    int n;
+    vector<long long> t;
+    RangeMax(const vector<long long>& a) : n((int)a.size()), t(2*n) {
+        assert(n > 0);
+        copy(a.begin(), a.end(), t.begin() + n);
+        for (int i = n - 1; i > 0; i--)
+            t[i] = max(t[i*2], t[i*2+1]);
+    }
+    long long query(int l, int r) const {
+        assert(0 <= l && l <= r && r < n);
+        long long ans = LLONG_MIN;
+        for (l += n, r += n + 1; l < r; l /= 2, r /= 2) {
+            if (l & 1) ans = max(ans, t[l++]);
+            if (r & 1) ans = max(ans, t[--r]);
+        }
+        return ans;
+    }
+};
+\end{lstlisting}
+\Code{RangeMax rm(a); rm.query(l,r);}。固定长度窗口用 \Tref{404} 更简单；最近更大元素用 \Tref{403}，与区间最值是不同问题。
+
+\section{T501 split 字符串分割}\label{sec:09-32}\label{tpl:501}
 
 \subsection{按指定字符分割}
 
@@ -968,7 +1178,9 @@ while (ss >> word) {
 }
 \end{lstlisting}
 
-\section{T502 KMP}
+\section{T502 KMP}\label{sec:09-33}\label{tpl:502}
+
+统计允许重叠的匹配；空模式串在此约定匹配 text.size()+1 个间隙。题目只允许非空模式时不影响正常结果。
 
 \begin{lstlisting}
 vector<int> prefixFunction(const string& p) {
@@ -984,6 +1196,7 @@ vector<int> prefixFunction(const string& p) {
 }
 
 int countMatch(const string& text, const string& p) {
+    if (p.empty()) return (int)text.size() + 1; // empty pattern: all gaps
     vector<int> pi = prefixFunction(p);
     int j = 0, cnt = 0;
     for (char c : text) {
@@ -998,7 +1211,9 @@ int countMatch(const string& text, const string& p) {
 }
 \end{lstlisting}
 
-\section{T503 Trie}
+\section{T503 Trie}\label{sec:09-34}\label{tpl:503}
+
+find 查询完整单词。前缀查询需沿 child 走完后返回 true，不能要求末节点 end=true；本版不支持重复次数统计。
 
 \begin{lstlisting}
 struct Trie {
@@ -1043,7 +1258,7 @@ struct Trie {
 
 \Warn{这个 Trie 模板只适合小写英文字母。}
 
-\section{T510 整除取整和标准取模}
+\section{T510 整除取整和标准取模}\label{sec:09-35}\label{tpl:510}
 
 \subsection{适用场景}
 
@@ -1059,7 +1274,7 @@ struct Trie {
 
 \begin{lstlisting}
 long long ceil_div_positive(long long a, long long b) {
-    return (a + b - 1) / b;
+    return a / b + (a % b != 0);
 }
 \end{lstlisting}
 
@@ -1073,6 +1288,7 @@ long long blocks = ceil_div_positive(n, blockSize);
 \subsection{有符号通用版本}
 
 \begin{lstlisting}
+// Require b != 0; exclude LLONG_MIN / -1.
 long long floor_div(long long a, long long b) {
     long long q = a / b;
     long long r = a % b;
@@ -1101,23 +1317,25 @@ long long norm_mod(long long x, long long m) {
 \subsection{易错点}
 
 \begin{itemize}
-  \item \Code{(a+b-1)/b} 只适合 $a \ge 0, b > 0$，不是通用向上取整。
+  \item \Code{a/b+(a\%b!=0)} 在此只用于 $a \ge 0, b > 0$，不是通用向上取整。
   \item C++ 整数除法向 0 截断，\Code{-3 / 2} 是 \Code{-1}。
   \item C++ 负数取模可能得到负数，\Code{-1 \% 5} 是 \Code{-1}。
   \item 除数 \Code{b} 或模数 \Code{m} 不能为 0。
   \item 若 \Code{a + b - 1} 可能溢出，需要改写或先确认范围。
 \end{itemize}
 
-\section{T511 快速幂}
+\section{T511 快速幂}\label{sec:09-36}\label{tpl:511}
 
 \subsection{适用场景}
 
 计算 $a^b \bmod mod$。
 
 \begin{lstlisting}
+// Require b >= 0 and 1 <= mod <= 3037000500LL.
 long long modPow(long long a, long long b, long long mod) {
     long long res = 1 % mod;
     a %= mod;
+    if (a < 0) a += mod;
     while (b > 0) {
         if (b & 1) res = res * a % mod;
         a = a * a % mod;
@@ -1127,13 +1345,14 @@ long long modPow(long long a, long long b, long long mod) {
 }
 \end{lstlisting}
 
-\section{T512 素数和约数}
+\section{T512 素数和约数}\label{sec:09-37}\label{tpl:512}
 
 \subsection{gcd 和 lcm}
 
 \begin{lstlisting}
+// Require a,b >= 0 and lcm(a,b) <= LLONG_MAX.
 long long g = gcd(a, b);
-long long l = a / g * b;
+long long l = (a == 0 || b == 0) ? 0 : a / g * b;
 \end{lstlisting}
 
 \subsection{判断素数}
@@ -1141,7 +1360,7 @@ long long l = a / g * b;
 \begin{lstlisting}
 bool isPrime(long long x) {
     if (x < 2) return false;
-    for (long long d = 2; d * d <= x; d++) {
+    for (long long d = 2; d <= x / d; d++) {
         if (x % d == 0) return false;
     }
     return true;
@@ -1152,7 +1371,7 @@ bool isPrime(long long x) {
 
 \begin{lstlisting}
 vector<long long> divisors;
-for (long long d = 1; d * d <= x; d++) {
+for (long long d = 1; d <= x / d; d++) {
     if (x % d == 0) {
         divisors.push_back(d);
         if (d != x / d) divisors.push_back(x / d);
@@ -1161,11 +1380,12 @@ for (long long d = 1; d * d <= x; d++) {
 sort(divisors.begin(), divisors.end());
 \end{lstlisting}
 
-\section{T513 进制转换}
+\section{T513 进制转换}\label{sec:09-38}\label{tpl:513}
 
 \subsection{任意进制转十进制}
 
 \begin{lstlisting}
+// Valid nonempty digits; 2 <= base <= 16; result <= LLONG_MAX.
 long long toDecimal(const string& s, int base) {
     long long ans = 0;
     for (char c : s) {
@@ -1182,6 +1402,7 @@ long long toDecimal(const string& s, int base) {
 \subsection{十进制转任意进制}
 
 \begin{lstlisting}
+// Require x >= 0 and 2 <= base <= 16.
 string fromDecimal(long long x, int base) {
     if (x == 0) return "0";
     string digits = "0123456789ABCDEF";
@@ -1197,7 +1418,7 @@ string fromDecimal(long long x, int base) {
 
 \Warn{数字很长时不能转成 \Code{long long}，要用字符串模拟。}
 
-\section{T514 日期处理}
+\section{T514 日期处理}\label{sec:09-39}\label{tpl:514}
 
 \subsection{闰年}
 
@@ -1241,7 +1462,40 @@ int toSeconds(int h, int m, int s) {
 }
 \end{lstlisting}
 
-\section{T601 大模拟骨架}
+\section{T515 质因数分解与筛素数}\label{sec:09-40}\label{tpl:515}
+\textbf{质因数分解：}要求 $x\ge1$；记录每个素因子的指数，复杂度最坏 $O(\sqrt{x})$。
+\begin{lstlisting}
+vector<pair<long long,int>> factorize(long long x) {
+    vector<pair<long long,int>> f;
+    for (long long p = 2; p <= x / p; p++) {
+        if (x % p != 0) continue;
+        int cnt = 0;
+        do { x /= p; cnt++; } while (x % p == 0);
+        f.push_back({p, cnt});
+    }
+    if (x > 1) f.push_back({x, 1});
+    return f;
+}
+\end{lstlisting}
+例如 $72=2^3\cdot3^2$。因子化简类题应按题意决定保留整个 $p^e$，还是只保留指数中的某部分，不能仅保留素因子 p。x=1 时列表为空。
+
+\textbf{筛出 0 到 N 的素数：}适合大量小值域查询。时间 $O(N\log\log N)$，空间 $O(N)$。
+\begin{lstlisting}
+vector<char> sieve(int N) {
+    vector<char> prime(N + 1, true);
+    prime[0] = false;
+    if (N >= 1) prime[1] = false;
+    for (int p = 2; p <= N / p; p++) {
+        if (!prime[p]) continue;
+        for (long long j = 1LL*p*p; j <= N; j += p)
+            prime[j] = false;
+    }
+    return prime;
+}
+\end{lstlisting}
+要求 N 非负且数组可开；大素数接近 $10^{18}$ 时试除会极慢，整数类型能存下这个数，也不代表试除次数能在时限内跑完。
+
+\section{T601 大模拟骨架}\label{sec:09-41}\label{tpl:601}
 
 \subsection{适用场景}
 
@@ -1284,7 +1538,7 @@ int main() {
 }
 \end{lstlisting}
 
-\section{T602 命令分发}
+\section{T602 命令分发}\label{sec:09-42}\label{tpl:602}
 
 \begin{lstlisting}
 void handleAdd() {
@@ -1322,7 +1576,7 @@ void handleCommand() {
   \item 查询命令通常直接输出，修改命令通常不输出。
 \end{itemize}
 
-\section{T603 状态机}
+\section{T603 状态机}\label{sec:09-43}\label{tpl:603}
 
 \begin{lstlisting}
 const int WAITING = 0;
@@ -1356,7 +1610,7 @@ void finish(Job& job) {
   \item 状态变化时是否要同步修改其他字段。
 \end{itemize}
 
-\section{T604 懒删除优先队列}
+\section{T604 懒删除优先队列}\label{sec:09-44}\label{tpl:604}
 
 \subsection{适用场景}
 
@@ -1408,7 +1662,9 @@ Task getTop() {
   \item 判断有效性必须和当前状态表一致。
 \end{itemize}
 
-\section{T605 LRU 缓存}
+\Code{getTop} 只查看，不消费任务。执行后应调用 \Code{removeTask(t.id)}，下次查询才会清理已执行的堆项；不能只 \Code{pq.pop()} 却保留当前状态表。示例空结果为 id=-1，要求有效编号非负。堆按累计更新数 Q 增长，空间可达 $O(Q)$；仅优先级和编号参与状态校验，若还要区分生命周期须加版本号。
+
+\section{T605 LRU 缓存}\label{sec:09-45}\label{tpl:605}
 
 \subsection{适用场景}
 
@@ -1443,7 +1699,9 @@ void access(int x) {
   \item \Code{front} 是最新还是最旧要统一。
 \end{itemize}
 
-\section{T606 路径规范化}
+\section{T606 路径规范化}\label{sec:09-46}\label{tpl:606}
+
+依赖 \Tref{501} 的 split。本例处理绝对路径、根以上的 .. 被忽略。相对路径须先与当前目录拼接再规范化。
 
 \subsection{适用场景}
 
@@ -1478,7 +1736,9 @@ string joinPath(const vector<string>& parts) {
 
 \Warn{如果题目允许相对路径，是否能越过根目录要按题意处理。}
 
-\section{T607 URL 参数解析}
+\section{T607 URL 参数解析}\label{sec:09-47}\label{tpl:607}
+
+依赖 \Tref{501}。仅拆查询参数，重复键保留最后一个；不处理片段标识、百分号解码或路由类型匹配。不能直接用于 URL 映射真题。
 
 \subsection{适用场景}
 
@@ -1492,8 +1752,8 @@ struct Url {
 
 Url parseUrl(const string& s) {
     Url res;
-    int qpos = (int)s.find('?');
-    if (qpos == (int)string::npos) {
+    size_t qpos = s.find('?');
+    if (qpos == string::npos) {
         res.path = s;
         return res;
     }
@@ -1502,8 +1762,9 @@ Url parseUrl(const string& s) {
     string qs = s.substr(qpos + 1);
     vector<string> pairs = split(qs, '&');
     for (string p : pairs) {
-        int eq = (int)p.find('=');
-        if (eq == (int)string::npos) {
+        if (p.empty()) continue;
+        size_t eq = p.find('=');
+        if (eq == string::npos) {
             res.query[p] = "";
         } else {
             string key = p.substr(0, eq);
@@ -1523,7 +1784,7 @@ Url parseUrl(const string& s) {
   \item 重复参数时保留第一个还是最后一个要看题目。
 \end{itemize}
 
-\section{T608 括号匹配}
+\section{T608 括号匹配}\label{sec:09-48}\label{tpl:608}
 
 \subsection{适用场景}
 
@@ -1548,7 +1809,9 @@ bool checkBrackets(const string& s) {
 }
 \end{lstlisting}
 
-\section{T609 简单表达式求值}
+\section{T609 简单表达式求值}\label{sec:09-49}\label{tpl:609}
+
+仅接受合法的整数加减表达式，可有空白与开头的单个正负号；不支持 1--2、乘除或括号。完整整数四则运算见 \Tref{610}。
 
 \subsection{只含加减和非负整数}
 
@@ -1559,7 +1822,8 @@ long long evalPlusMinus(const string& s) {
     int sign = 1;
 
     for (int i = 0; i <= (int)s.size(); i++) {
-        if (i < (int)s.size() && isdigit(s[i])) {
+        if (i < (int)s.size() && isspace((unsigned char)s[i])) continue;
+        if (i < (int)s.size() && isdigit((unsigned char)s[i])) {
             num = num * 10 + (s[i] - '0');
         } else {
             ans += sign * num;
@@ -1581,3 +1845,57 @@ long long evalPlusMinus(const string& s) {
   \item 如果有空格，先跳过空格。
   \item 如果有负数开头，检查是否符合模板逻辑。
 \end{itemize}
+
+\section{T610 整数四则表达式解析}\label{sec:09-50}\label{tpl:610}
+递归下降：expression 处理加减，term 处理乘除，factor 处理整数、括号和一元正负号。要求输入语法合法、整数字面量与全部中间结果可放 long long、除数非零，除法按 C++ 向零截断；不是浮点、幂运算、逻辑式或化学式解析器。深层括号仍有递归栈风险。
+\begin{lstlisting}
+struct Parser {
+    string s;
+    size_t p = 0;
+    explicit Parser(string text) : s(move(text)) {}
+    void skip() {
+        while (p < s.size() && isspace((unsigned char)s[p])) p++;
+    }
+    long long factor() {
+        skip();
+        if (s[p] == '+' || s[p] == '-') {
+            char op = s[p++];
+            long long x = factor();
+            return op == '-' ? -x : x;
+        }
+        if (s[p] == '(') {
+            p++;
+            long long x = expression();
+            skip();
+            p++; // consume ')' in valid input
+            return x;
+        }
+        long long x = 0;
+        while (p < s.size() && isdigit((unsigned char)s[p]))
+            x = x * 10 + (s[p++] - '0');
+        return x;
+    }
+    long long term() {
+        long long x = factor();
+        while (true) {
+            skip();
+            if (p == s.size() || (s[p] != '*' && s[p] != '/')) return x;
+            char op = s[p++];
+            long long y = factor();
+            x = (op == '*') ? x * y : x / y;
+        }
+    }
+    long long expression() {
+        long long x = term();
+        while (true) {
+            skip();
+            if (p == s.size() || (s[p] != '+' && s[p] != '-')) return x;
+            char op = s[p++];
+            long long y = term();
+            x = (op == '+') ? x + y : x - y;
+        }
+    }
+};
+// Parser parser(line); cout << parser.expression() << '\n';
+\end{lstlisting}
+二十四点等题若用 x 表示乘号，读入后先替换为 *。模意义下除法不能直接用本模板。梯度求解需传播函数值和导数；化学方程式配平还需要建立方程并求解，本模板仅提供算术解析基础。

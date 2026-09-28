@@ -11,10 +11,18 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{fancyhdr}
-\usepackage{titlesec}
+\usepackage{needspace}
 \usepackage{tikz}
+\usepackage{graphicx}
 
-\setlength{\headheight}{14pt}
+\setlength{\headheight}{16pt}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{2}
+\hypersetup{bookmarksdepth=2,pdftitle={CCF CSP 考场手册},pdfauthor={朝汐}}
+\setlength{\emergencystretch}{2em}
+\newcommand{\Tref}[1]{\hyperref[tpl:#1]{\texttt{T#1}\textsuperscript{\pageref*{tpl:#1}}}}
+\newcommand{\Chref}[1]{第\ref{ch:#1}章（第\pageref{ch:#1}页）}
+
 
 \hypersetup{
   colorlinks=true,
@@ -68,81 +76,73 @@
 \begin{document}
 
 \frontmatter
+\hypersetup{pageanchor=false}
 \begin{titlepage}
-  \thispagestyle{empty}
-  \newgeometry{left=2.2cm,right=2.2cm,top=2.0cm,bottom=2.0cm}
-
-  \begin{tikzpicture}[remember picture,overlay]
-    \fill[CoverSoft] (current page.south west) rectangle (current page.north east);
-    \fill[CoverNavy] (current page.north west) rectangle ([yshift=-8.15cm]current page.north east);
-    \fill[CoverBlue] ([yshift=-8.15cm]current page.north west) rectangle ([yshift=-8.33cm]current page.north east);
-    \draw[CoverLine,line width=0.9pt]
-      ([xshift=1.45cm,yshift=-1.45cm]current page.north west)
-      rectangle
-      ([xshift=-1.45cm,yshift=1.45cm]current page.south east);
-    \draw[CoverBlue!55,line width=1.2pt]
-      ([xshift=2.0cm,yshift=-9.7cm]current page.north west) --
-      ([xshift=-2.0cm,yshift=-9.7cm]current page.north east);
-    \fill[white,opacity=0.12]
-      ([xshift=-5.8cm,yshift=-1.45cm]current page.north east) --
-      ([xshift=-1.45cm,yshift=-1.45cm]current page.north east) --
-      ([xshift=-1.45cm,yshift=-5.8cm]current page.north east) -- cycle;
-    \draw[CoverBlue!45,line width=0.8pt]
-      ([xshift=2.0cm,yshift=-10.45cm]current page.north west) --
-      ([xshift=8.1cm,yshift=-10.45cm]current page.north west);
-  \end{tikzpicture}
-
-  \begin{center}
-    \vspace*{0.45cm}
-    {\Large\color{CoverLine}\bfseries CCF CSP Handbook}\\[1.05cm]
-    {\fontsize{36}{44}\selectfont\bfseries\color{white} CCF CSP 考场手册}\\[0.55cm]
-    {\Large\color{CoverLine} 题型决策树、C++ 模板与真题索引体系}
-  \end{center}
-
-  \vspace{3.15cm}
-
-  {\Large\bfseries\color{CoverNavy} 面向考场检索的开源备考资料}\\[0.65cm]
-  {\color{CoverText}
-  本手册围绕“题目识别、数据范围判断、算法模板选择、易错点检查、真题反查”组织内容，
-  目标是在复习和临场翻阅时都能快速定位可执行方案。
-  }
-
-  \vspace{1.05cm}
-
-  \begin{center}
-    \setlength{\tabcolsep}{8pt}
-    \renewcommand{\arraystretch}{1.35}
-    \begin{tabular}{>{\bfseries\color{CoverBlue}}r p{9.3cm}}
-      判断 & 从题面信号和数据范围定位题型。\\
-      模板 & 汇总 C++、STL、算法和大模拟骨架。\\
-      检查 & 覆盖下标、溢出、取整、格式和部分分策略。\\
-      校准 & 用历年真题反查判断树和模板入口。\\
-    \end{tabular}
-  \end{center}
-
-  \vfill
-
-  \begin{center}
-    {\color{CoverLine}\rule{0.72\textwidth}{0.9pt}}\\[0.55cm]
-    {\large\color{CoverNavy} 开源备考资料 \quad · \quad 可打印 \quad · \quad 可持续修订}\\[0.35cm]
-    {\color{CoverBlue} GitHub 发布版}
-  \end{center}
-  \restoregeometry
+\thispagestyle{empty}
+\thispdfpagelabel{Cover}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[white] (current page.south west) rectangle (current page.north east);
+  \node[anchor=south,inner sep=0pt] at (current page.south)
+    {\includegraphics[width=\paperwidth]{assets/cover.png}};
+  \fill[white,opacity=0.94]
+    ([xshift=1.3cm,yshift=-1.2cm]current page.north west) rectangle
+    ([xshift=11.2cm,yshift=-7.6cm]current page.north west);
+  \node[anchor=north west,align=left,text=CoverNavy]
+    at ([xshift=1.8cm,yshift=-1.8cm]current page.north west)
+    {{\fontsize{16}{20}\selectfont\sffamily CCF CSP HANDBOOK}\\[0.45cm]
+     {\fontsize{34}{42}\selectfont\bfseries CCF CSP}\\[0.16cm]
+     {\fontsize{34}{42}\selectfont\bfseries 考场手册}\\[0.5cm]
+     {\large 题型检索\quad C++ 模板\quad 易错检查}\\[0.48cm]
+     {\Large 朝汐\quad 著}};
+  \draw[CoverNavy,line width=1pt]
+    ([xshift=1.8cm,yshift=-1.45cm]current page.north west) --
+    ([xshift=5.5cm,yshift=-1.45cm]current page.north west);
+\end{tikzpicture}
+\null
 \end{titlepage}
+\cleardoublepage
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+
 
 \chapter*{使用前说明}
 \addcontentsline{toc}{chapter}{使用前说明}
 
-这本手册的目标不是覆盖所有算法竞赛知识，而是在 CCF CSP 考场中帮助你快速完成四件事：
+这本手册从自用资料整理而来，比较适合 C++ 基础薄弱、算法水平一般，想在 CCF CSP 中争取 300 分左右的同学。内容主要围绕前三题的常见做法，以及后面题目里可以尝试的部分分。
 
-\begin{enumerate}
-  \item 根据题面关键词和数据范围判断题型。
-  \item 找到可用算法、C++ 语法、STL 容器和代码模板。
-  \item 避免输出格式、下标、溢出、初始化等低级错误。
-  \item 遇到难题时先写暴力或特殊情况，尽量拿部分分。
-\end{enumerate}
+章节主要是为了方便查找。忘了语法，可以翻第四章；拿不准做法，可以看前面的题型索引；已经有思路，就直接找模板和易错点。同一段代码有时会在题型章和模板库各出现一次，是为了查阅时少翻几页。
 
-\Warn{重要提醒：}正式打印和考试前，必须重新核对 CCF CSP 官网的最新规则、语言标准、考场环境和允许携带材料说明。
+常用模板最好先亲手写过几遍，弄清变量的含义和使用条件。上场后翻书，更多是提醒某个下标、初始化方式，或者一条容易漏掉的判断。题目换了条件，代码也要跟着改。
+
+打印时可以给第二章、第九章和第十章贴上便签。模板编号右上角是正文页码，按页脚的数字翻即可。
+
+\begin{flushright}
+朝汐
+\end{flushright}
+
+\chapter*{翻阅起点}
+\addcontentsline{toc}{chapter}{翻阅起点}
+按\textbf{页脚印刷页码}翻阅。封面无印刷页码，前置说明和目录使用罗马数字，正文从 1 开始；PDF 阅读器的物理页序号可能不同。
+
+\begin{longtable}{p{8.5cm}r}
+\toprule
+现在要找什么 & 正文页码\\
+\midrule
+1 分钟定位题型 & \pageref{ch:02}\\
+详细判断树与容易误判的分支 & \pageref{ch:03}\\
+C++ 语法、输入输出、STL & \pageref{ch:04}\\
+第 1 题：扫描、公式、排序与边界 & \pageref{ch:05}\\
+第 2 题：前缀、差分、二分与基础算法 & \pageref{ch:06}\\
+第 3 题：对象、命令、解析与模拟 & \pageref{ch:07}\\
+第 4/5 题：小数据与特殊性质 & \pageref{ch:08}\\
+模板编号与完整模板 & \pageref{sec:template-map}\\
+提交前易错检查 & \pageref{ch:10}\\
+历年真题与模板映射 & \pageref{ch:11}\\
+\bottomrule
+\end{longtable}
+\textbf{编号读法：}\Tref{101} 表示 T101 模板，右上角数字为该模板的正文起始页。电子版可直接点击。模板代码以 GNU C++17 为基线，使用前先看适用条件。
+
+本书用 A/B/C/D/E 简称第 1/2/3/4/5 题；题号只用于安排时间，算法始终由题意、范围和操作决定。遇到熟悉的题型可以先做，不必被题号限制。
 
 \tableofcontents
 
@@ -164,21 +164,7 @@
 \input{chapters/09-template-library}
 \input{chapters/10-mistakes-checklist}
 
-\part{真题校准}
+\part{真题练习}
 \input{chapters/11-problem-index}
-
-\backmatter
-
-\chapter*{版本记录}
-\addcontentsline{toc}{chapter}{版本记录}
-
-\begin{longtable}{p{2.5cm}p{3cm}p{8cm}}
-\toprule
-版本 & 日期 & 内容 \\
-\midrule
-v0.1 & 2026-05-27 & 建立 LaTeX 项目骨架，完成手册入口、C++ 语法、A/B/C/D/E 策略、真题索引、模板库、易错点、详细判断树和考场极速索引初版。 \\
-v0.2 & 2026-06-04 & 重排全书结构为“导航与判断、基础与题型、模板与检查、真题校准”，统一章节文件编号；补强 C++ 基础、整数取整和标准取模。 \\
-\bottomrule
-\end{longtable}
 
 \end{document}
